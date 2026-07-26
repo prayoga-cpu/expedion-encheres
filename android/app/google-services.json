@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "563376260248",
+    "project_id": "espaceperso-483p30",
+    "storage_bucket": "espaceperso-483p30.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:563376260248:android:6f193f993a5220f0fd7ced",
+        "android_client_info": {
+          "package_name": "com.mycompany.espaceperso"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "563376260248-cvlhjik716pla7jemn19v4evsqi3vfmg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mycompany.espaceperso",
+            "certificate_hash": "9bbb3186b2189ef16d8f272bdab59362c395cbb4"
+          }
+        },
+        {
+          "client_id": "563376260248-glji5g26dr3os58dil8n6uu4ghlit70c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYd3d4vrRmILGBGcH94iml98QgboFdSOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "563376260248-2n03l2li5ohaisgdf5d93bn6snh8gf8b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "563376260248-a6ra6d1i6b6stiku3df94e3n3r8thpk3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.espaceperso"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
