@@ -14,7 +14,7 @@ import '../cloud_functions/cloud_functions.dart';
 final _isProd = false;
 
 const _kProdStripePublishableKey =
-    'pk_live_51QHVOyGKVENO9sgjSaTm6dS9r6yxTdnrQTRbCGy3p6QWoxIR0LFXje6dmCPluZTxBfKsIX225R45zSt74xQCidL1006QcIFf37';
+    'pk_live_51R10Z6JRpszqU813NJDV0r51Z49y3SWhPQ94p4VEU771G9Ez0QHxw1vmHUgoamZZhm96k1rhrxoaCWzcaczKgLYk00kgydkWF1';
 const _kTestStripePublishableKey =
     'pk_test_51PdbkNHWaeSwlTim7SYOHoCjtaFBnqgZlNEhzYByTINhh3uPPf8KaQnjExDMIPKQDHhxygAocbfu347X1vZoTnTJ00QxVERSFu';
 const _kAppleMerchantId = '';
