@@ -35,6 +35,11 @@ void main() async {
 
   await FlutterFlowTheme.initialize();
 
+  // `FFLocalizations._prefs` is `late`, so `getStoredLocale` and `storeLocale`
+  // throw until this runs. Nothing called them before, which is why the FR/EN
+  // switch was forgotten on every restart.
+  await FFLocalizations.initialize();
+
   final appState = FFAppState(); // Initialize FFAppState
   await appState.initializePersistedState();
 
@@ -65,8 +70,20 @@ class MyAppScrollBehavior extends MaterialScrollBehavior {
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale? _locale;
+  /// French is the product's language and the default, regardless of what the
+  /// device is set to: the clients are French, the auction houses are French,
+  /// and the untranslated copy in the app is French. A visitor who switches to
+  /// English gets that choice remembered, but nobody is switched automatically
+  /// by their phone's locale.
+  ///
+  /// This is deliberately not `null`. A null `locale` hands resolution to
+  /// `MaterialApp`, which matches the device against `supportedLocales` — so an
+  /// English phone would open the app in English.
+  Locale _locale = FFLocalizations.getStoredLocale() ?? kDefaultLocale;
 
+  /// The theme, unlike the language, does follow the device until told
+  /// otherwise: `FlutterFlowTheme.themeMode` reads `ThemeMode.system` when no
+  /// preference has been stored.
   ThemeMode _themeMode = FlutterFlowTheme.themeMode;
 
   late AppStateNotifier _appStateNotifier;
@@ -116,8 +133,12 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
+  /// Switches language and remembers it. Persisting matters because the theme
+  /// toggle beside it already does — a pair of controls where one choice sticks
+  /// and the other silently reverts reads as a bug.
   void setLocale(String language) {
     safeSetState(() => _locale = createLocale(language));
+    FFLocalizations.storeLocale(language);
   }
 
   /// The stored choice, which is what the theme menu ticks. Distinct from
@@ -145,7 +166,9 @@ class _MyAppState extends State<MyApp> {
       ],
       locale: _locale,
       supportedLocales: const [
-        Locale('fr'),
+        // French first: it is both the default and the fallback `MaterialApp`
+        // resolves to for any device locale not listed here.
+        kDefaultLocale,
         Locale('en'),
         Locale('es'),
         Locale('it'),

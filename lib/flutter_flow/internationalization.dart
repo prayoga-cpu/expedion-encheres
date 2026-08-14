@@ -5,6 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _kLocaleStorageKey = '__locale_key__';
 
+/// The app's language unless the visitor picks another one.
+///
+/// Fixed to French rather than resolved from the device: this is a French
+/// product for French auction houses, and much of the copy that is not routed
+/// through [kTranslationsMap] is French either way. It is also
+/// `supportedLocales.first`, so it stays the fallback for any device locale the
+/// app does not translate.
+const Locale kDefaultLocale = Locale('fr');
+
 class FFLocalizations {
   FFLocalizations(this.locale);
 
