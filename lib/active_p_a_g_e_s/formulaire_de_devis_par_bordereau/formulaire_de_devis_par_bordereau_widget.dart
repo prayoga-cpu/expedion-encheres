@@ -1,6 +1,7 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/firebase_storage/storage.dart';
+import '/backend/quote_draft.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -43,8 +44,64 @@ class _FormulaireDeDevisParBordereauWidgetState
     super.initState();
     _model = createModel(context, () => FormulaireDeDevisParBordereauModel());
 
-    _model.commentaireTextController ??= TextEditingController();
+    // Whatever the landing page's express/quote card collected. This form has
+    // no address/lot fields of its own, so everything the card knew is parked
+    // in the comment — the one free-text field this quote submits — instead of
+    // being silently dropped ([QuoteDraft.consume] clears as it reads).
+    final draft = QuoteDraft.consume();
+    final draftSummary = [
+      if ((draft?.pickup ?? '').isNotEmpty) 'Retrait : ${draft!.pickup}',
+      if ((draft?.delivery ?? '').isNotEmpty) 'Livraison : ${draft!.delivery}',
+      if ((draft?.lotCount ?? '').isNotEmpty)
+        'Nombre de lots : ${draft!.lotCount}',
+      if ((draft?.lotType ?? '').isNotEmpty) 'Type de lots : ${draft!.lotType}',
+      if ((draft?.hammerPrice ?? '').isNotEmpty)
+        'Montant adjugé : ${draft!.hammerPrice}',
+      if ((draft?.deadline ?? '').isNotEmpty)
+        'Deadline de retrait : ${draft!.deadline}',
+      if ((draft?.email ?? '').isNotEmpty) 'E-mail : ${draft!.email}',
+      if ((draft?.phone ?? '').isNotEmpty) 'Téléphone : ${draft!.phone}',
+    ].join('\n');
+
+    _model.commentaireTextController ??=
+        TextEditingController(text: draftSummary);
     _model.commentaireFocusNode ??= FocusNode();
+
+    // If the landing page's express card attached a bordereau, carry it in as
+    // though the visitor had picked it here: show it locally right away and
+    // upload it post-frame so the submit's uploadedFileUrl is populated.
+    final draftBordereau = draft?.bordereau;
+    if (draftBordereau != null && draftBordereau.bytes.isNotEmpty) {
+      _model.uploadedLocalFile_uploadDataBordereau = FFUploadedFile(
+        name: draftBordereau.storagePath.split('/').last,
+        bytes: draftBordereau.bytes,
+        originalFilename: draftBordereau.originalFilename,
+      );
+      // TODO(EXPEDITOO-TESTING): best-effort upload of the express-card
+      // bordereau. If Firebase Storage rejects the stored path (e.g. the file
+      // was picked while signed out), uploadedFileUrl stays empty and the
+      // attachment is still dropped from the Airtable quote unless the
+      // visitor re-picks it. Owner: recompute the storage path under the
+      // signed-in user's prefix before uploading (expose a public path helper
+      // in lib/flutter_flow/upload_data.dart) so this upload can't be
+      // rejected by storage rules.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        safeSetState(() => _model.isDataUploading_uploadDataBordereau = true);
+        String? url;
+        try {
+          url =
+              await uploadData(draftBordereau.storagePath, draftBordereau.bytes);
+        } catch (_) {
+          url = null; // Best effort — the visitor can re-pick the file.
+        } finally {
+          _model.isDataUploading_uploadDataBordereau = false;
+        }
+        if (url != null) {
+          _model.uploadedFileUrl_uploadDataBordereau = url;
+        }
+        safeSetState(() {});
+      });
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -95,7 +152,7 @@ class _FormulaireDeDevisParBordereauWidgetState
             key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
             appBar: AppBar(
-              backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+              backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
               iconTheme: IconThemeData(
                   color: FlutterFlowTheme.of(context).primaryText),
               automaticallyImplyLeading: false,
@@ -121,7 +178,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                       'heledi1c' /* Formulaire devis */,
                     ),
                     style: FlutterFlowTheme.of(context).headlineLarge.override(
-                          font: GoogleFonts.interTight(
+                          font: GoogleFonts.plusJakartaSans(
                             fontWeight: FlutterFlowTheme.of(context)
                                 .headlineLarge
                                 .fontWeight,
@@ -186,7 +243,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                         style: FlutterFlowTheme.of(context)
                                             .bodyLarge
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
@@ -262,7 +319,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                         .headlineSmall
                                                         .override(
                                                           font: GoogleFonts
-                                                              .interTight(
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FontWeight.w600,
                                                             fontStyle:
@@ -318,7 +375,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -377,7 +434,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -473,7 +530,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -535,7 +592,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -631,7 +688,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -756,7 +813,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -845,7 +902,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FontWeight.w500,
                                                             fontStyle:
@@ -886,7 +943,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -975,7 +1032,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1149,7 +1206,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight: FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMedium
@@ -1211,7 +1268,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -1299,7 +1356,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1501,7 +1558,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight: FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMedium
@@ -1563,7 +1620,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -1651,7 +1708,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1751,7 +1808,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                   .bodySmall
                                                                   .override(
                                                                     font: GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .w600,
@@ -1796,7 +1853,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                     .bodySmall
                                                                     .override(
                                                                       font: GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                         fontWeight: FlutterFlowTheme.of(context)
                                                                             .bodySmall
                                                                             .fontWeight,
@@ -1894,7 +1951,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                       .titleMedium
                                                       .override(
                                                         font: GoogleFonts
-                                                            .interTight(
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           fontStyle:

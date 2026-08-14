@@ -33,7 +33,7 @@ class PaiementCancelWidget extends StatelessWidget {
                     'Paiement annulé',
                     textAlign: TextAlign.center,
                     style: theme.headlineSmall.override(
-                      font: GoogleFonts.interTight(),
+                      font: GoogleFonts.plusJakartaSans(),
                       color: theme.primaryText,
                       letterSpacing: 0.0,
                     ),
@@ -44,7 +44,7 @@ class PaiementCancelWidget extends StatelessWidget {
                     'Aucun montant n\'a été débité. Vous pouvez réessayer à tout moment.',
                     textAlign: TextAlign.center,
                     style: theme.bodyMedium.override(
-                      font: GoogleFonts.inter(),
+                      font: GoogleFonts.plusJakartaSans(),
                       color: theme.secondaryText,
                       letterSpacing: 0.0,
                     ),
@@ -59,7 +59,7 @@ class PaiementCancelWidget extends StatelessWidget {
                       height: 48.0,
                       color: theme.primary,
                       textStyle: theme.titleSmall.override(
-                        font: GoogleFonts.interTight(),
+                        font: GoogleFonts.plusJakartaSans(),
                         color: theme.info,
                         letterSpacing: 0.0,
                       ),

@@ -1,3 +1,4 @@
+import '/design_system/ds_logo.dart';
 import '/active_p_a_g_e_s/liste_a_p_p_b_a_r/liste_a_p_p_b_a_r_widget.dart';
 import '/auth/base_auth_user_provider.dart';
 import '/auth/firebase_auth/auth_util.dart';
@@ -60,7 +61,7 @@ class _FaqWidgetState extends State<FaqWidget> {
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(70.0),
           child: AppBar(
-            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
             automaticallyImplyLeading: false,
             title: Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
@@ -93,7 +94,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .titleLarge
                                   .override(
-                                    font: GoogleFonts.interTight(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w600,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .titleLarge
@@ -108,24 +109,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         .fontStyle,
                                   ),
                             ),
-                          Container(
-                            width: 30.0,
-                            height: 30.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.asset(
-                                'assets/images/1cbd084bc5eb4fddba058d26b8cab44f.png',
-                                width: 200.0,
-                                height: 200.0,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
+                          const XpdLogoMark(size: 30.0),
                         ].divide(SizedBox(width: 10.0)),
                       ),
                     ),
@@ -154,7 +138,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -190,7 +174,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyLarge
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyLarge
@@ -222,7 +206,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
@@ -252,7 +236,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyLarge
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyLarge
@@ -284,7 +268,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -316,7 +300,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -347,7 +331,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyLarge
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyLarge
@@ -380,7 +364,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -431,7 +415,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w500,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -477,7 +461,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w500,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -627,7 +611,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .titleMedium
                                           .override(
-                                            font: GoogleFonts.interTight(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w600,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -657,7 +641,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
@@ -703,7 +687,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .titleLarge
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.bold,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleLarge
@@ -744,7 +728,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -770,7 +754,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -826,7 +810,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -852,7 +836,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -908,7 +892,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -934,7 +918,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -986,7 +970,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .titleLarge
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.bold,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleLarge
@@ -1027,7 +1011,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1053,7 +1037,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1109,7 +1093,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1135,7 +1119,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1191,7 +1175,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1217,7 +1201,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1283,7 +1267,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1309,7 +1293,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1361,7 +1345,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .titleLarge
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.bold,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleLarge
@@ -1402,7 +1386,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1428,7 +1412,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1484,7 +1468,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1510,7 +1494,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodySmall
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1576,7 +1560,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .titleMedium
                                         .override(
-                                          font: GoogleFonts.interTight(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight: FontWeight.w600,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
@@ -1610,7 +1594,7 @@ class _FaqWidgetState extends State<FaqWidget> {
                                     textStyle: FlutterFlowTheme.of(context)
                                         .titleSmall
                                         .override(
-                                          font: GoogleFonts.interTight(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .titleSmall

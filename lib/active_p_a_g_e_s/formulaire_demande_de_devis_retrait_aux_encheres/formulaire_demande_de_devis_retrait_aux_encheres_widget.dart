@@ -1,6 +1,7 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/firebase_storage/storage.dart';
+import '/backend/quote_draft.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -51,6 +52,12 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     _model = createModel(
         context, () => FormulaireDemandeDeDevisRetraitAuxEncheresModel());
 
+    // Whatever the landing page's express/quote card collected, so the visitor
+    // does not retype what they already told us. Null unless they arrived from
+    // one of those forms ([QuoteDraft.consume] clears as it reads).
+    final draft = QuoteDraft.consume();
+    final delivery = draft?.deliveryParts;
+
     _model.prnomTextController ??= TextEditingController(
         text: valueOrDefault(currentUserDocument?.prenom, ''));
     _model.prnomFocusNode ??= FocusNode();
@@ -59,12 +66,16 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
         text: valueOrDefault(currentUserDocument?.prenom, ''));
     _model.nomFocusNode ??= FocusNode();
 
-    _model.eMailTextController ??=
-        TextEditingController(text: currentUserEmail);
+    _model.eMailTextController ??= TextEditingController(
+        text: currentUserEmail.isNotEmpty
+            ? currentUserEmail
+            : (draft?.email ?? ''));
     _model.eMailFocusNode ??= FocusNode();
 
-    _model.tlphoneTextController ??=
-        TextEditingController(text: currentPhoneNumber);
+    _model.tlphoneTextController ??= TextEditingController(
+        text: currentPhoneNumber.isNotEmpty
+            ? currentPhoneNumber
+            : (draft?.phone ?? ''));
     _model.tlphoneFocusNode ??= FocusNode();
 
     _model.adressederetraitTextController ??= TextEditingController();
@@ -76,22 +87,36 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     _model.lieuderetraitTextController ??= TextEditingController();
     _model.lieuderetraitFocusNode ??= FocusNode();
 
-    _model.nomdelamaisondeventesTextController ??= TextEditingController();
+    // The landing page asks for the auction house as one free-text line
+    // ("Drouot, Paris 9e"), which is exactly this field.
+    _model.nomdelamaisondeventesTextController ??=
+        TextEditingController(text: draft?.pickup ?? '');
     _model.nomdelamaisondeventesFocusNode ??= FocusNode();
 
     _model.tlphonederetraitTextController ??= TextEditingController();
     _model.tlphonederetraitFocusNode ??= FocusNode();
 
-    _model.montantTextController ??= TextEditingController();
+    _model.montantTextController ??=
+        TextEditingController(text: draft?.hammerPrice ?? '');
     _model.montantFocusNode ??= FocusNode();
 
-    _model.datedeventeTextController ??= TextEditingController();
+    // Closest field to the landing page's "deadline de retrait" — the visitor
+    // reviews and can correct it before submitting.
+    _model.datedeventeTextController ??=
+        TextEditingController(text: draft?.deadline ?? '');
     _model.datedeventeFocusNode ??= FocusNode();
 
     _model.nBordereauTextController ??= TextEditingController();
     _model.nBordereauFocusNode ??= FocusNode();
 
-    _model.descriptionobjetTextController ??= TextEditingController();
+    // The express card only knows a lot count and type — park that here as a
+    // starting description the visitor completes.
+    final draftLots = [
+      if ((draft?.lotCount ?? '').isNotEmpty) '${draft!.lotCount} lot(s)',
+      if ((draft?.lotType ?? '').isNotEmpty) draft!.lotType,
+    ].join(' — ');
+    _model.descriptionobjetTextController ??=
+        TextEditingController(text: draftLots);
     _model.descriptionobjetFocusNode ??= FocusNode();
 
     _model.longueurTextController ??= TextEditingController();
@@ -112,10 +137,14 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     _model.adresselivraisonL2TextController ??= TextEditingController();
     _model.adresselivraisonL2FocusNode ??= FocusNode();
 
-    _model.codepostallivraisonTextController ??= TextEditingController();
+    // The landing page collects delivery as one "33000 Bordeaux" line;
+    // [QuoteDraft.deliveryParts] splits it for these two fields.
+    _model.codepostallivraisonTextController ??=
+        TextEditingController(text: delivery?.postcode ?? '');
     _model.codepostallivraisonFocusNode ??= FocusNode();
 
-    _model.villelivraisonTextController ??= TextEditingController();
+    _model.villelivraisonTextController ??=
+        TextEditingController(text: delivery?.city ?? '');
     _model.villelivraisonFocusNode ??= FocusNode();
 
     _model.telephonelivasonTextController ??= TextEditingController();
@@ -126,6 +155,43 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
 
     _model.textController24 ??= TextEditingController();
     _model.textFieldFocusNode ??= FocusNode();
+
+    // If the landing page's express card attached a bordereau, carry it in as
+    // though the visitor had picked it here: show it locally right away and
+    // upload it post-frame so the submit's uploadedFileUrl is populated.
+    final draftBordereau = draft?.bordereau;
+    if (draftBordereau != null && draftBordereau.bytes.isNotEmpty) {
+      _model.uploadedLocalFile_uploadDataBordereauFDDencheres = FFUploadedFile(
+        name: draftBordereau.storagePath.split('/').last,
+        bytes: draftBordereau.bytes,
+        originalFilename: draftBordereau.originalFilename,
+      );
+      // TODO(EXPEDITOO-TESTING): best-effort upload of the express-card
+      // bordereau. If Firebase Storage rejects the stored path (e.g. the file
+      // was picked while signed out), uploadedFileUrl stays empty and the
+      // attachment is still dropped from the Airtable quote unless the
+      // visitor re-picks it. Owner: recompute the storage path under the
+      // signed-in user's prefix before uploading (expose a public path helper
+      // in lib/flutter_flow/upload_data.dart) so this upload can't be
+      // rejected by storage rules.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        safeSetState(() =>
+            _model.isDataUploading_uploadDataBordereauFDDencheres = true);
+        String? url;
+        try {
+          url =
+              await uploadData(draftBordereau.storagePath, draftBordereau.bytes);
+        } catch (_) {
+          url = null; // Best effort — the visitor can re-pick the file.
+        } finally {
+          _model.isDataUploading_uploadDataBordereauFDDencheres = false;
+        }
+        if (url != null) {
+          _model.uploadedFileUrl_uploadDataBordereauFDDencheres = url;
+        }
+        safeSetState(() {});
+      });
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -148,7 +214,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
           iconTheme:
               IconThemeData(color: FlutterFlowTheme.of(context).primaryText),
           automaticallyImplyLeading: false,
@@ -174,7 +240,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                   'w50q3e36' /* Formulaire devis */,
                 ),
                 style: FlutterFlowTheme.of(context).headlineLarge.override(
-                      font: GoogleFonts.interTight(
+                      font: GoogleFonts.plusJakartaSans(
                         fontWeight: FlutterFlowTheme.of(context)
                             .headlineLarge
                             .fontWeight,
@@ -210,7 +276,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                     ),
                     textAlign: TextAlign.center,
                     style: FlutterFlowTheme.of(context).headlineMedium.override(
-                          font: GoogleFonts.interTight(
+                          font: GoogleFonts.plusJakartaSans(
                             fontWeight: FontWeight.bold,
                             fontStyle: FlutterFlowTheme.of(context)
                                 .headlineMedium
@@ -232,7 +298,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                     ),
                     textAlign: TextAlign.center,
                     style: FlutterFlowTheme.of(context).bodyMedium.override(
-                          font: GoogleFonts.inter(
+                          font: GoogleFonts.plusJakartaSans(
                             fontWeight: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .fontWeight,
@@ -274,7 +340,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .titleMedium
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w600,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleMedium
@@ -351,7 +417,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -450,7 +516,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -538,7 +604,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -610,7 +676,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight:
                                               FlutterFlowTheme.of(context)
                                                   .bodyMedium
@@ -653,7 +719,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -697,7 +763,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 textStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -755,7 +821,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .titleMedium
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w600,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleMedium
@@ -817,7 +883,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -895,7 +961,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -974,7 +1040,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1049,7 +1115,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1116,7 +1182,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1156,7 +1222,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .titleMedium
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w600,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleMedium
@@ -1226,7 +1292,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1261,7 +1327,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1340,7 +1406,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 textStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1425,7 +1491,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1531,7 +1597,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -1613,7 +1679,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1647,7 +1713,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1684,7 +1750,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 textStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1770,7 +1836,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1799,7 +1865,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w500,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
@@ -1869,7 +1935,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1947,7 +2013,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -2025,7 +2091,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -2100,7 +2166,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -2148,7 +2214,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 textStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -2281,7 +2347,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -2326,7 +2392,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .titleMedium
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w600,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleMedium
@@ -2388,7 +2454,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -2457,7 +2523,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -2535,7 +2601,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -2614,7 +2680,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -2688,7 +2754,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -2756,7 +2822,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                 style: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -2822,7 +2888,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -2928,7 +2994,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                             textStyle: FlutterFlowTheme.of(context)
                                 .titleSmall
                                 .override(
-                                  font: GoogleFonts.interTight(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FlutterFlowTheme.of(context)
                                         .titleSmall
                                         .fontWeight,

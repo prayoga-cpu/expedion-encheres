@@ -54,12 +54,22 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
   int? imageQuality,
   required bool allowPhoto,
   bool allowVideo = false,
-  String pickerFontFamily = 'Roboto',
-  Color textColor = const Color(0xFF111417),
-  Color backgroundColor = const Color(0xFFF5F5F5),
+  String pickerFontFamily = 'Plus Jakarta Sans',
+  // Defaults must be `const`, so these resolve from the theme below rather
+  // than pinning the old palette into the signature. A near-black default
+  // rendered invisible once the sheet was shown in dark mode.
+  Color? textColor,
+  Color? backgroundColor,
   bool includeDimensions = false,
   bool includeBlurHash = false,
 }) async {
+  final theme = FlutterFlowTheme.of(context);
+  // Bound to non-nullable locals: promotion of the parameters would not carry
+  // into the closures below.
+  final Color resolvedTextColor = textColor ?? theme.primaryText;
+  final Color resolvedBackgroundColor =
+      backgroundColor ?? theme.secondaryBackground;
+
   final createUploadMediaListTile =
       (String label, MediaSource mediaSource) => ListTile(
             title: Text(
@@ -67,12 +77,12 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
               textAlign: TextAlign.center,
               style: GoogleFonts.getFont(
                 pickerFontFamily,
-                color: textColor,
+                color: resolvedTextColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
-            tileColor: backgroundColor,
+            tileColor: resolvedBackgroundColor,
             dense: false,
             onTap: () => Navigator.pop(
               context,
@@ -81,7 +91,7 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
           );
   final mediaSource = await showModalBottomSheet<MediaSource>(
       context: context,
-      backgroundColor: backgroundColor,
+      backgroundColor: resolvedBackgroundColor,
       builder: (context) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -95,12 +105,12 @@ Future<List<SelectedFile>?> selectMediaWithSourceBottomSheet({
                     textAlign: TextAlign.center,
                     style: GoogleFonts.getFont(
                       pickerFontFamily,
-                      color: textColor.applyAlpha(0.65),
+                      color: resolvedTextColor.applyAlpha(0.65),
                       fontWeight: FontWeight.w500,
                       fontSize: 20,
                     ),
                   ),
-                  tileColor: backgroundColor,
+                  tileColor: resolvedBackgroundColor,
                   dense: false,
                 ),
               ),

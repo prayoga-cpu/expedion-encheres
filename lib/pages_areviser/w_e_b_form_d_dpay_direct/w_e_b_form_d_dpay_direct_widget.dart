@@ -1,4 +1,7 @@
+import '/design_system/ds_logo.dart';
 import '/active_p_a_g_e_s/liste_a_p_p_b_a_r/liste_a_p_p_b_a_r_widget.dart';
+import '/active_p_a_g_e_s/paiement/paiement_model.dart'
+    show paiementRedirectBaseUrl;
 import '/auth/base_auth_user_provider.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
@@ -113,7 +116,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(70.0),
               child: AppBar(
-                backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+                backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
                 automaticallyImplyLeading: false,
                 title: Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
@@ -146,7 +149,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .titleLarge
                                       .override(
-                                        font: GoogleFonts.interTight(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w600,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -162,24 +165,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                             .fontStyle,
                                       ),
                                 ),
-                              Container(
-                                width: 30.0,
-                                height: 30.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.asset(
-                                    'assets/images/1cbd084bc5eb4fddba058d26b8cab44f.png',
-                                    width: 200.0,
-                                    height: 200.0,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
+                              const XpdLogoMark(size: 30.0),
                             ].divide(SizedBox(width: 10.0)),
                           ),
                         ),
@@ -208,7 +194,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -233,7 +219,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -263,7 +249,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .bodyLarge
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w500,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
@@ -295,7 +281,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -329,7 +315,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -362,7 +348,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -395,7 +381,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -428,7 +414,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -484,7 +470,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                     context)
                                                 .bodyLarge
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -535,7 +521,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                     context)
                                                 .bodyLarge
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -666,7 +652,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .displayMedium
                                       .override(
-                                        font: GoogleFonts.interTight(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.bold,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -692,7 +678,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyLarge
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyLarge
@@ -786,7 +772,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                           .bodyMedium
                                                           .override(
                                                             font: GoogleFonts
-                                                                .inter(
+                                                                .plusJakartaSans(
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w500,
@@ -853,7 +839,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -943,7 +929,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FontWeight.w500,
                                                             fontStyle:
@@ -1006,7 +992,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                           .of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1092,7 +1078,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FontWeight.w500,
                                                             fontStyle:
@@ -1161,7 +1147,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                           .of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1246,7 +1232,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
@@ -1278,7 +1264,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w600,
@@ -1338,7 +1324,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FontWeight.w500,
                                                             fontStyle:
@@ -1382,7 +1368,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1471,7 +1457,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1529,7 +1515,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FontWeight.w500,
                                                             fontStyle:
@@ -1573,7 +1559,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1662,7 +1648,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1738,7 +1724,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w500,
@@ -1786,7 +1772,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -1881,7 +1867,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight: FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMedium
@@ -1952,7 +1938,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w500,
@@ -2001,7 +1987,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyMedium
@@ -2096,7 +2082,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight: FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodyMedium
@@ -2153,7 +2139,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontStyle:
@@ -2192,7 +2178,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -2265,7 +2251,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
                                                                 context)
@@ -2418,7 +2404,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -2473,7 +2459,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -2658,7 +2644,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -2711,7 +2697,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -2815,7 +2801,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w600,
@@ -2858,7 +2844,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                               .override(
                                                                 font:
                                                                     GoogleFonts
-                                                                        .inter(
+                                                                        .plusJakartaSans(
                                                                   fontWeight: FlutterFlowTheme.of(
                                                                           context)
                                                                       .bodySmall
@@ -2946,10 +2932,19 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                   100,
                                               currency: 'eur',
                                               userID: currentUserUid,
+                                              // TODO(EXPEDITOO-TESTING):
+                                              // redirect URLs now derive from
+                                              // the app origin/APP_PUBLIC_URL
+                                              // define (was placeholder
+                                              // testurl.net.fr). No recordId
+                                              // here: this flow has no quote
+                                              // record at session time, so
+                                              // /success shows a plain
+                                              // confirmation.
                                               cancelUrl:
-                                                  'https://www.testurl.net.fr/cancel',
+                                                  '${paiementRedirectBaseUrl()}/cancel',
                                               successUrl:
-                                                  'https://www.testurl.net.fr/success',
+                                                  '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}',
                                               productName: 'Expédition',
                                               quantity: 1,
                                               orderID:
@@ -3067,7 +3062,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                                                     context)
                                                 .titleMedium
                                                 .override(
-                                                  font: GoogleFonts.interTight(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w600,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -3113,7 +3108,7 @@ class _WEBFormDDpayDirectWidgetState extends State<WEBFormDDpayDirectWidget> {
                             textAlign: TextAlign.center,
                             style:
                                 FlutterFlowTheme.of(context).bodySmall.override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodySmall
                                             .fontWeight,

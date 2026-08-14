@@ -70,7 +70,7 @@ class _ContactWidgetState extends State<ContactWidget> {
       child: Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
           iconTheme:
               IconThemeData(color: FlutterFlowTheme.of(context).primaryText),
           automaticallyImplyLeading: false,
@@ -96,7 +96,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                   '7m2t8ufz' /* Contact */,
                 ),
                 style: FlutterFlowTheme.of(context).headlineLarge.override(
-                      font: GoogleFonts.interTight(
+                      font: GoogleFonts.plusJakartaSans(
                         fontWeight: FlutterFlowTheme.of(context)
                             .headlineLarge
                             .fontWeight,
@@ -146,7 +146,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .displaySmall
                                   .override(
-                                    font: GoogleFonts.interTight(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.bold,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .displaySmall
@@ -169,7 +169,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .fontWeight,
@@ -232,7 +232,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .titleMedium
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -254,7 +254,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -318,7 +318,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleMedium
                                               .override(
-                                                font: GoogleFonts.interTight(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -374,7 +374,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .headlineSmall
                                               .override(
-                                                font: GoogleFonts.interTight(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -419,7 +419,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                           .of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -507,7 +507,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                         context)
                                                     .bodyMedium
                                                     .override(
-                                                      font: GoogleFonts.inter(
+                                                      font: GoogleFonts.plusJakartaSans(
                                                         fontWeight:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -587,7 +587,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                           .of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -675,7 +675,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                         context)
                                                     .bodyMedium
                                                     .override(
-                                                      font: GoogleFonts.inter(
+                                                      font: GoogleFonts.plusJakartaSans(
                                                         fontWeight:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -752,7 +752,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
                                                     .override(
-                                                      font: GoogleFonts.inter(
+                                                      font: GoogleFonts.plusJakartaSans(
                                                         fontWeight:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -828,7 +828,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -886,7 +886,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
                                                     .override(
-                                                      font: GoogleFonts.inter(
+                                                      font: GoogleFonts.plusJakartaSans(
                                                         fontWeight:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -962,7 +962,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1031,7 +1031,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
                                                     .override(
-                                                      font: GoogleFonts.inter(
+                                                      font: GoogleFonts.plusJakartaSans(
                                                         fontWeight:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -1107,7 +1107,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1191,7 +1191,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                                     context)
                                                 .titleSmall
                                                 .override(
-                                                  font: GoogleFonts.interTight(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w600,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -1260,7 +1260,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .titleMedium
                                         .override(
-                                          font: GoogleFonts.interTight(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight: FontWeight.w600,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
@@ -1282,7 +1282,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium

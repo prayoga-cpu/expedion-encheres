@@ -1,17 +1,25 @@
-import '/auth/firebase_auth/auth_util.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
-import '/index.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
+import '/auth/firebase_auth/auth_util.dart';
+import '/design_system/ds_logo.dart';
+import '/design_system/ds_palette.dart';
+import '/design_system/ds_site.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
+import '/main.dart';
 import 'mot_de_passe_oublie_model.dart';
 export 'mot_de_passe_oublie_model.dart';
 
-/// Create a sign up page for an app
+/// Password reset.
+///
+/// The same card as the login page, one field wide. The mail is sent by
+/// Expeditoo's Better Auth (`/forget-password`), falling back to Firebase for
+/// accounts that predate the migration.
+///
+/// The confirmation is deliberately the same whether or not the address is
+/// known: telling a stranger "no such account" turns this form into a way to
+/// enumerate who has one.
 class MotDePasseOublieWidget extends StatefulWidget {
   const MotDePasseOublieWidget({super.key});
 
@@ -27,408 +35,271 @@ class _MotDePasseOublieWidgetState extends State<MotDePasseOublieWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _busy = false;
+  String? _sentTo;
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => MotDePasseOublieModel());
-
     _model.emailRecuperationTextController ??= TextEditingController();
     _model.emailRecuperationFocusNode ??= FocusNode();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
+  }
+
+  bool get _isEnglish =>
+      FFLocalizations.of(context).languageCode.startsWith('en');
+
+  String _t(String fr, String en) => _isEnglish ? en : fr;
+
+  Future<void> _send() async {
+    if (_busy) return;
+    if (!(_model.formKey.currentState?.validate() ?? false)) return;
+
+    final email = _model.emailRecuperationTextController.text.trim();
+    setState(() => _busy = true);
+
+    await authManager.resetPassword(email: email, context: context);
+
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _sentTo = email;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-          iconTheme:
-              IconThemeData(color: FlutterFlowTheme.of(context).primaryText),
-          automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              FlutterFlowIconButton(
-                borderColor: Colors.transparent,
-                borderRadius: 20.0,
-                borderWidth: 1.0,
-                buttonSize: 40.0,
-                icon: Icon(
-                  Icons.keyboard_backspace,
-                  color: FlutterFlowTheme.of(context).primaryText,
-                  size: 24.0,
-                ),
-                onPressed: () async {
-                  context.safePop();
-                },
-              ),
-              Text(
-                FFLocalizations.of(context).getText(
-                  '9v2az1dv' /* Mot de passe oublié */,
-                ),
-                style: FlutterFlowTheme.of(context).headlineLarge.override(
-                      font: GoogleFonts.interTight(
-                        fontWeight: FlutterFlowTheme.of(context)
-                            .headlineLarge
-                            .fontWeight,
-                        fontStyle: FlutterFlowTheme.of(context)
-                            .headlineLarge
-                            .fontStyle,
-                      ),
-                      fontSize: 20.0,
-                      letterSpacing: 0.0,
-                      fontWeight:
-                          FlutterFlowTheme.of(context).headlineLarge.fontWeight,
-                      fontStyle:
-                          FlutterFlowTheme.of(context).headlineLarge.fontStyle,
-                    ),
-              ),
-            ].divide(SizedBox(width: 20.0)),
-          ),
-          actions: [],
-          centerTitle: false,
-          elevation: 5.0,
-        ),
-        body: SafeArea(
-          top: true,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding:
-                      EdgeInsetsDirectional.fromSTEB(20.0, 50.0, 20.0, 0.0),
+    context.watch<FFAppState>();
+
+    final palette = XpdPalette.of(context);
+    final themeMode = MyApp.of(context).themeMode;
+
+    return Scaffold(
+      key: scaffoldKey,
+      backgroundColor: palette.bg,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned(
+              top: -200.0,
+              left: 0.0,
+              right: 0.0,
+              child: IgnorePointer(
+                child: Center(
                   child: Container(
-                    width: 550.0,
+                    width: 900.0,
+                    height: 620.0,
                     decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).secondaryBackground,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
-                      child: SingleChildScrollView(
-                        primary: false,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 40.0, 0.0, 8.0),
-                              child: Text(
-                                FFLocalizations.of(context).getText(
-                                  'q09zvo77' /* Récuperation du mot de passe */,
-                                ),
-                                textAlign: TextAlign.center,
-                                style: FlutterFlowTheme.of(context)
-                                    .displaySmall
-                                    .override(
-                                      font: GoogleFonts.interTight(
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .displaySmall
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
-                                      fontSize: 28.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .displaySmall
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 0.0, 20.0),
-                              child: Text(
-                                FFLocalizations.of(context).getText(
-                                  '0tp7ipb0' /* Saisissez votre adresse e-mail... */,
-                                ),
-                                textAlign: TextAlign.center,
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      font: GoogleFonts.inter(
-                                        fontWeight: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontWeight,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryText,
-                                      fontSize: 20.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontWeight,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ),
-                            Form(
-                              key: _model.formKey,
-                              autovalidateMode: AutovalidateMode.disabled,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 0.0, 0.0, 8.0),
-                                        child: Text(
-                                          FFLocalizations.of(context).getText(
-                                            'sdu4u5nj' /* Email */,
-                                          ),
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                        ),
-                                      ),
-                                      Container(
-                                        width: 500.0,
-                                        child: TextFormField(
-                                          controller: _model
-                                              .emailRecuperationTextController,
-                                          focusNode:
-                                              _model.emailRecuperationFocusNode,
-                                          autofocus: false,
-                                          autofillHints: [AutofillHints.email],
-                                          textInputAction: TextInputAction.next,
-                                          obscureText: false,
-                                          decoration: InputDecoration(
-                                            hintText:
-                                                FFLocalizations.of(context)
-                                                    .getText(
-                                              '1nh1gbv5' /* Entrez votre  email */,
-                                            ),
-                                            hintStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .override(
-                                                      font: GoogleFonts.inter(
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .secondaryText,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontWeight,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyMedium
-                                                              .fontStyle,
-                                                    ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .alternate,
-                                                width: 1.0,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primary,
-                                                width: 1.0,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: Color(0x00000000),
-                                                width: 1.0,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                            ),
-                                            focusedErrorBorder:
-                                                OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: Color(0x00000000),
-                                                width: 1.0,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                            ),
-                                            filled: true,
-                                            fillColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .secondaryBackground,
-                                            contentPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    16.0, 16.0, 16.0, 16.0),
-                                          ),
-                                          style: FlutterFlowTheme.of(context)
-                                              .bodyMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                                fontSize: 16.0,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .fontStyle,
-                                              ),
-                                          keyboardType:
-                                              TextInputType.emailAddress,
-                                          cursorColor:
-                                              FlutterFlowTheme.of(context)
-                                                  .primary,
-                                          validator: _model
-                                              .emailRecuperationTextControllerValidator
-                                              .asValidator(context),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ].divide(SizedBox(height: 24.0)),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 32.0, 0.0, 32.0),
-                              child: FFButtonWidget(
-                                onPressed: () async {
-                                  if (_model.emailRecuperationTextController
-                                      .text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Email required!',
-                                        ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  await authManager.resetPassword(
-                                    email: _model
-                                        .emailRecuperationTextController.text,
-                                    context: context,
-                                  );
-                                },
-                                text: FFLocalizations.of(context).getText(
-                                  'jg09rvz8' /* Envoyer le lien */,
-                                ),
-                                options: FFButtonOptions(
-                                  height: 52.0,
-                                  padding: EdgeInsets.all(8.0),
-                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 0.0, 0.0),
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  textStyle: FlutterFlowTheme.of(context)
-                                      .titleMedium
-                                      .override(
-                                        font: GoogleFonts.interTight(
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleMedium
-                                                  .fontStyle,
-                                        ),
-                                        color: Colors.white,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleMedium
-                                            .fontStyle,
-                                      ),
-                                  elevation: 0.0,
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      gradient: RadialGradient(
+                        colors: [
+                          palette.glowColor,
+                          palette.glowColor.withValues(alpha: 0.0),
+                        ],
+                        stops: const [0.0, 0.72],
                       ),
                     ),
                   ),
                 ),
-              ].divide(SizedBox(height: 20.0)),
+              ),
             ),
-          ),
+            Positioned(
+              top: 12.0,
+              right: 16.0,
+              child: Row(
+                children: [
+                  XpdLanguageToggle(
+                    languageCode: _isEnglish ? 'en' : 'fr',
+                    onChanged: (code) => MyApp.of(context).setLocale(code),
+                  ),
+                  const SizedBox(width: 12.0),
+                  XpdThemeToggle(
+                    mode: themeMode,
+                    languageCode: _isEnglish ? 'en' : 'fr',
+                    onChanged: (mode) {
+                      MyApp.of(context).setThemeMode(mode);
+                      // Light → system on a light platform changes no
+                      // brightness, so nothing above would rebuild the tick.
+                      safeSetState(() {});
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 48.0,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () =>
+                              context.pushNamed(AccueilWidget.routeName),
+                          child: const XpdLogo(
+                            markSize: 38.0,
+                            wordmarkSize: 22.0,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32.0),
+                      XpdPanel(
+                        radius: 22.0,
+                        padding: const EdgeInsets.all(34.0),
+                        elevated: true,
+                        child: _sentTo == null
+                            ? _form(palette)
+                            : _confirmation(palette),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Widget _form(XpdPalette palette) => Form(
+        key: _model.formKey,
+        autovalidateMode: AutovalidateMode.disabled,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _t('Mot de passe oublié', 'Forgot password'),
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 30.0,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 30.0 * -0.03,
+                color: palette.text,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Text(
+              _t(
+                'Entrez votre adresse email et nous vous enverrons un lien de réinitialisation.',
+                'Enter your email address and we will send you a reset link.',
+              ),
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 16.0,
+                height: 1.55,
+                color: palette.muted,
+              ),
+            ),
+            const SizedBox(height: 28.0),
+            XpdField(
+              label: _t('Adresse email', 'Email address'),
+              hint: 'vous@exemple.fr',
+              controller: _model.emailRecuperationTextController!,
+              keyboardType: TextInputType.emailAddress,
+              onSubmitted: (_) => _send(),
+              validator: (value) {
+                final text = (value ?? '').trim();
+                if (text.isEmpty) {
+                  return _t('Entrez votre email.', 'Enter your email.');
+                }
+                if (!RegExp(r'^[^@\s]+@[^@\s.]+\.[^@\s]+$').hasMatch(text)) {
+                  return _t(
+                    'Cette adresse email est invalide.',
+                    'That email address is not valid.',
+                  );
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24.0),
+            XpdButton(
+              label: _t('Envoyer le lien', 'Send reset link'),
+              expand: true,
+              busy: _busy,
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              onPressed: _send,
+            ),
+            const SizedBox(height: 24.0),
+            Center(
+              child: XpdLink(
+                label: _t('Retour à la connexion', 'Back to sign in'),
+                fontSize: 14.5,
+                onTap: () => context.pushNamed(SeConnecterWidget.routeName),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _confirmation(XpdPalette palette) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 48.0,
+            height: 48.0,
+            decoration: BoxDecoration(
+              color: palette.greenBg,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.mark_email_read_outlined,
+              color: palette.green,
+              size: 24.0,
+            ),
+          ),
+          const SizedBox(height: 22.0),
+          Text(
+            _t('Vérifiez votre boîte mail', 'Check your inbox'),
+            style: TextStyle(
+              fontFamily: 'Geist',
+              fontSize: 26.0,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 26.0 * -0.03,
+              color: palette.text,
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          Text(
+            _t(
+              "Si un compte existe pour $_sentTo, un lien de réinitialisation vient d'être envoyé. Pensez à regarder vos spams.",
+              'If an account exists for $_sentTo, a reset link is on its way. Check your spam folder too.',
+            ),
+            style: TextStyle(
+              fontFamily: 'Geist',
+              fontSize: 15.5,
+              height: 1.6,
+              color: palette.muted,
+            ),
+          ),
+          const SizedBox(height: 26.0),
+          XpdButton(
+            label: _t('Retour à la connexion', 'Back to sign in'),
+            expand: true,
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            onPressed: () => context.pushNamed(SeConnecterWidget.routeName),
+          ),
+          const SizedBox(height: 16.0),
+          Center(
+            child: XpdLink(
+              label: _t('Renvoyer le lien', 'Send it again'),
+              fontSize: 14.0,
+              onTap: () => setState(() => _sentTo = null),
+            ),
+          ),
+        ],
+      );
 }

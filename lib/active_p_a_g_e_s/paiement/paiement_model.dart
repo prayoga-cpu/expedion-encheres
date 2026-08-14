@@ -35,8 +35,15 @@ int computePaiementAmountCents({
 /// use the app's own origin (e.g. `http://localhost:60816`) so the user lands
 /// back inside the running app; on mobile we fall back to the public site,
 /// which is opened in the system browser.
-String paiementRedirectBaseUrl() =>
-    kIsWeb ? Uri.base.origin : 'https://expedionencheres.com';
+// TODO(EXPEDITOO-TESTING): the non-web fallback comes from the APP_PUBLIC_URL
+// dart-define (wired through vercel-build.sh). Owner: set APP_PUBLIC_URL to the
+// real deployed origin so mobile builds redirect back to the right site.
+String paiementRedirectBaseUrl() => kIsWeb
+    ? Uri.base.origin
+    : const String.fromEnvironment(
+        'APP_PUBLIC_URL',
+        defaultValue: 'https://expedionencheres.com',
+      );
 
 class PaiementModel extends FlutterFlowModel<PaiementWidget> {
   ///  State fields for stateful widgets in this component.

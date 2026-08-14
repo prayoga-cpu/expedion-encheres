@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'auth/firebase_auth/firebase_user_provider.dart';
+import 'auth/expeditoo/expedion_auth.dart';
+import 'auth/expeditoo/expeditoo_auth_client.dart';
 import 'auth/firebase_auth/auth_util.dart';
 
 import 'backend/firebase/firebase_config.dart';
@@ -26,6 +27,11 @@ void main() async {
   await environmentValues.initialize();
 
   await initFirebase();
+
+  // Restores the Expeditoo (Better Auth) session token before the first frame,
+  // so a returning visitor comes up signed in rather than flashing the landing
+  // page while `/get-session` is in flight.
+  await ExpeditooAuthClient.initialize();
 
   await FlutterFlowTheme.initialize();
 
@@ -88,10 +94,14 @@ class _MyAppState extends State<MyApp> {
 
     _appStateNotifier = AppStateNotifier.instance;
     _router = createRouter(_appStateNotifier);
-    userStream = expedionEncheresFirebaseUserStream()
+    userStream = expedionAuthUserStream()
       ..listen((user) {
         _appStateNotifier.update(user);
       });
+    // Confirm the restored Expeditoo token with the server. If it was revoked
+    // or has expired, this signs the session out; a network failure leaves the
+    // cached session in place rather than logging the visitor out offline.
+    refreshExpeditooSession();
     jwtTokenStream.listen((_) {});
     Future.delayed(
       Duration(milliseconds: 1000),
@@ -109,6 +119,10 @@ class _MyAppState extends State<MyApp> {
   void setLocale(String language) {
     safeSetState(() => _locale = createLocale(language));
   }
+
+  /// The stored choice, which is what the theme menu ticks. Distinct from
+  /// `Theme.of(context).brightness`, since `system` resolves to either one.
+  ThemeMode get themeMode => _themeMode;
 
   void setThemeMode(ThemeMode mode) => safeSetState(() {
         _themeMode = mode;
@@ -136,14 +150,8 @@ class _MyAppState extends State<MyApp> {
         Locale('es'),
         Locale('it'),
       ],
-      theme: ThemeData(
-        brightness: Brightness.light,
-        useMaterial3: false,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: false,
-      ),
+      theme: LightModeTheme().toThemeData(Brightness.light),
+      darkTheme: DarkModeTheme().toThemeData(Brightness.dark),
       themeMode: _themeMode,
       routerConfig: _router,
     );

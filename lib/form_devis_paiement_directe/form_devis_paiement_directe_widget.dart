@@ -174,14 +174,14 @@ class _FormDevisPaiementDirecteWidgetState
                                     style: FlutterFlowTheme.of(context)
                                         .displayMedium
                                         .override(
-                                          font: GoogleFonts.outfit(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight: FontWeight.bold,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
                                                     .displayMedium
                                                     .fontStyle,
                                           ),
-                                          color: Color(0xFF15161E),
+                                          color: FlutterFlowTheme.of(context).primaryText,
                                           fontSize: 35.0,
                                           letterSpacing: 0.0,
                                           fontWeight: FontWeight.bold,
@@ -255,7 +255,7 @@ class _FormDevisPaiementDirecteWidgetState
                                       textStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -335,7 +335,7 @@ class _FormDevisPaiementDirecteWidgetState
                                       textStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -415,7 +415,7 @@ class _FormDevisPaiementDirecteWidgetState
                                       textStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -473,7 +473,7 @@ class _FormDevisPaiementDirecteWidgetState
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w600,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -501,7 +501,7 @@ class _FormDevisPaiementDirecteWidgetState
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w600,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -528,7 +528,7 @@ class _FormDevisPaiementDirecteWidgetState
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w600,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -582,7 +582,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -654,7 +654,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -712,7 +712,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -784,7 +784,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -844,7 +844,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -916,7 +916,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -971,7 +971,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -1043,7 +1043,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -1080,7 +1080,7 @@ class _FormDevisPaiementDirecteWidgetState
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1125,7 +1125,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFF15161E),
+                                                color: FlutterFlowTheme.of(context).primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -1183,7 +1183,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: Color(0xFF15161E),
+                                              color: FlutterFlowTheme.of(context).primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -1234,7 +1234,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1292,7 +1292,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFF15161E),
+                                                color: FlutterFlowTheme.of(context).primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -1350,7 +1350,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: Color(0xFF15161E),
+                                              color: FlutterFlowTheme.of(context).primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -1380,7 +1380,7 @@ class _FormDevisPaiementDirecteWidgetState
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.bold,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1423,7 +1423,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFF15161E),
+                                                color: FlutterFlowTheme.of(context).primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -1481,7 +1481,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: Color(0xFF15161E),
+                                              color: FlutterFlowTheme.of(context).primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -1524,7 +1524,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFF15161E),
+                                                color: FlutterFlowTheme.of(context).primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -1582,7 +1582,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: Color(0xFF15161E),
+                                              color: FlutterFlowTheme.of(context).primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -1635,7 +1635,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -1707,7 +1707,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -1762,7 +1762,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -1834,7 +1834,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -1871,7 +1871,7 @@ class _FormDevisPaiementDirecteWidgetState
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.bold,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -1916,7 +1916,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFF15161E),
+                                                color: FlutterFlowTheme.of(context).primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -1974,7 +1974,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: Color(0xFF15161E),
+                                              color: FlutterFlowTheme.of(context).primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -2017,7 +2017,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFF15161E),
+                                                color: FlutterFlowTheme.of(context).primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -2075,7 +2075,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: Color(0xFF15161E),
+                                              color: FlutterFlowTheme.of(context).primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -2125,7 +2125,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -2197,7 +2197,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -2247,7 +2247,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -2319,7 +2319,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -2374,7 +2374,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -2446,7 +2446,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -2496,7 +2496,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                 .bodyMedium
                                                                 .fontStyle,
                                                       ),
-                                                      color: Color(0xFF15161E),
+                                                      color: FlutterFlowTheme.of(context).primaryText,
                                                       fontSize: 14.0,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
@@ -2568,7 +2568,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                                   .fontStyle,
                                                         ),
                                                         color:
-                                                            Color(0xFF15161E),
+                                                            FlutterFlowTheme.of(context).primaryText,
                                                         fontSize: 14.0,
                                                         letterSpacing: 0.0,
                                                         fontWeight:
@@ -2614,7 +2614,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: Color(0xFF15161E),
+                                                color: FlutterFlowTheme.of(context).primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -2672,7 +2672,7 @@ class _FormDevisPaiementDirecteWidgetState
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: Color(0xFF15161E),
+                                              color: FlutterFlowTheme.of(context).primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,

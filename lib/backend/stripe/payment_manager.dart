@@ -150,6 +150,7 @@ Future<StripePaymentResponse> showWebPaymentSheet(
       ? Theme.of(context).brightness == Brightness.dark
       : themeStyle == ThemeMode.dark;
   buttonColor = buttonColor ?? FlutterFlowTheme.of(context).primary;
+  final sheetTheme = isDarkMode ? DarkModeTheme() : LightModeTheme();
   final screenWidth = MediaQuery.sizeOf(context).width;
 
   final buildPaymentSheet = (BuildContext context, double width) => Column(
@@ -162,7 +163,7 @@ Future<StripePaymentResponse> showWebPaymentSheet(
               child: Container(
                 width: width,
                 padding: const EdgeInsets.fromLTRB(24.0, 14.0, 24.0, 24.0),
-                color: isDarkMode ? Color(0xFF101213) : Colors.white,
+                color: sheetTheme.secondaryBackground,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,10 +177,8 @@ Future<StripePaymentResponse> showWebPaymentSheet(
                             Expanded(
                               child: Text(
                                 'Payment Information',
-                                style: GoogleFonts.outfit(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : Color(0xFF101213),
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: sheetTheme.primaryText,
                                   fontSize: 28,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -192,9 +191,7 @@ Future<StripePaymentResponse> showWebPaymentSheet(
                                 child: Icon(
                                   Icons.close_rounded,
                                   size: 22,
-                                  color: isDarkMode
-                                      ? Color(0xFF95A1AC)
-                                      : Color(0xFF57636C),
+                                  color: sheetTheme.secondaryText,
                                 ),
                               ),
                             ),
@@ -204,10 +201,8 @@ Future<StripePaymentResponse> showWebPaymentSheet(
                           const SizedBox(height: 8.0),
                           Text(
                             description,
-                            style: GoogleFonts.outfit(
-                              color: isDarkMode
-                                  ? Color(0xFF95A1AC)
-                                  : Color(0xFF57636C),
+                            style: GoogleFonts.plusJakartaSans(
+                              color: sheetTheme.secondaryText,
                               fontSize: 14,
                             ),
                           ),
@@ -226,18 +221,16 @@ Future<StripePaymentResponse> showWebPaymentSheet(
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: isDarkMode
-                                ? Color(0xFF22282F)
-                                : Color(0xFFE0E3E7),
+                            color: sheetTheme.alternate,
                             width: 2.0,
                           ),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        fillColor: Color(0xFFF1F4F8),
+                        fillColor: sheetTheme.accent1,
                         filled: isDarkMode,
                       ),
-                      style: GoogleFonts.outfit(
-                        color: isDarkMode ? Colors.white : Color(0xFF101213),
+                      style: GoogleFonts.plusJakartaSans(
+                        color: sheetTheme.primaryText,
                         fontSize: 14,
                       ),
                       // enablePostalCode: true,
@@ -280,7 +273,7 @@ Future<StripePaymentResponse> showWebPaymentSheet(
                         width: double.infinity,
                         height: 44,
                         color: buttonColor,
-                        textStyle: GoogleFonts.outfit(
+                        textStyle: GoogleFonts.plusJakartaSans(
                           color: buttonTextColor ?? Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

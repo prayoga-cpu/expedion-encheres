@@ -119,7 +119,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
           iconTheme:
               IconThemeData(color: FlutterFlowTheme.of(context).primaryText),
           automaticallyImplyLeading: false,
@@ -145,7 +145,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                   'esmcfxjx' /* Modification */,
                 ),
                 style: FlutterFlowTheme.of(context).headlineLarge.override(
-                      font: GoogleFonts.interTight(
+                      font: GoogleFonts.plusJakartaSans(
                         fontWeight: FlutterFlowTheme.of(context)
                             .headlineLarge
                             .fontWeight,
@@ -191,7 +191,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                           style: FlutterFlowTheme.of(context)
                               .headlineMedium
                               .override(
-                                font: GoogleFonts.interTight(
+                                font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.w600,
                                   fontStyle: FlutterFlowTheme.of(context)
                                       .headlineMedium
@@ -228,7 +228,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .titleMedium
                                         .override(
-                                          font: GoogleFonts.interTight(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight: FontWeight.w600,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
@@ -267,7 +267,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -334,7 +334,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -394,7 +394,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -461,7 +461,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -522,7 +522,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -589,7 +589,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -642,7 +642,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .titleMedium
                                         .override(
-                                          font: GoogleFonts.interTight(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight: FontWeight.w600,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
@@ -680,7 +680,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -747,7 +747,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -808,7 +808,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -875,7 +875,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -943,7 +943,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1020,7 +1020,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
                                                                 context)
@@ -1081,7 +1081,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1158,7 +1158,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
                                                                 context)
@@ -1228,7 +1228,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -1295,7 +1295,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1405,7 +1405,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1442,7 +1442,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .titleMedium
                                         .override(
-                                          font: GoogleFonts.interTight(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight: FontWeight.w600,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
@@ -1487,7 +1487,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       hintStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1553,7 +1553,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
@@ -1620,7 +1620,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       hintStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -1686,7 +1686,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
@@ -1763,7 +1763,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
                                                     .override(
-                                                      font: GoogleFonts.inter(
+                                                      font: GoogleFonts.plusJakartaSans(
                                                         fontWeight:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -1839,7 +1839,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1906,7 +1906,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
                                                     .override(
-                                                      font: GoogleFonts.inter(
+                                                      font: GoogleFonts.plusJakartaSans(
                                                         fontWeight:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -1982,7 +1982,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.inter(
+                                                font: GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -2056,7 +2056,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       hintStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -2122,7 +2122,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
@@ -2190,7 +2190,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       hintStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -2256,7 +2256,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
@@ -2424,7 +2424,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                       textStyle: FlutterFlowTheme.of(context)
                                           .titleMedium
                                           .override(
-                                            font: GoogleFonts.interTight(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w600,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)

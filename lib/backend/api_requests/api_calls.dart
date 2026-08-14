@@ -15,7 +15,14 @@ export 'api_manager.dart' show ApiCallResponse;
 /// Defaults to the local dev server (tools/local_payment_server.js) so the flow
 /// works WITHOUT deploying / fixing the Firebase Cloud Function. For production,
 /// host that same server (or a corrected Cloud Function) and point this here.
-const _kPaymentServerBaseUrl = 'http://localhost:4242';
+// TODO(EXPEDITOO-TESTING): localhost fallback — deploy the payment server
+// (tools/local_payment_server.js, or a fixed Cloud Function) and set
+// PAYMENT_SERVER_URL in the Vercel build env (wired through vercel-build.sh)
+// so deployed builds stop pointing at localhost:4242.
+const _kPaymentServerBaseUrl = String.fromEnvironment(
+  'PAYMENT_SERVER_URL',
+  defaultValue: 'http://localhost:4242',
+);
 
 /// Airtable Personal Access Tokens, supplied at build time via
 /// `--dart-define=AIRTABLE_PAT=...` (and `AIRTABLE_PAT_TRANSPORTEURS=...`)
@@ -381,8 +388,9 @@ class GetClientQuotesCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'GetClientQuotes',
-      apiUrl:
-          'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\", SEARCH(\"${numBordereau}\", {N°Bordereau}))',
+      apiUrl: (numBordereau == null || numBordereau.isEmpty)
+          ? 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula={UID}=\"${userID}\"'
+          : 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\", SEARCH(\"${numBordereau}\", {N°Bordereau}))',
       callType: ApiCallType.GET,
       headers: {
         'Authorization':
@@ -480,7 +488,7 @@ class GetClientQuotesNewCall {
     return ApiManager.instance.makeApiCall(
       callName: 'GetClientQuotesNew',
       apiUrl:
-          'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\"\",{Confirmer le devis}=\"\")',
+          'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\",{Confirmer le devis}=\"\")',
       callType: ApiCallType.GET,
       headers: {
         'Authorization':
@@ -883,8 +891,9 @@ class GetClientQuotesTransportCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'GetClientQuotesTransport',
-      apiUrl:
-          'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=SEARCH(\"${villeRetrait}\", {Ville de retrait})',
+      apiUrl: (villeRetrait == null || villeRetrait.isEmpty)
+          ? 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS'
+          : 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=SEARCH(\"${villeRetrait}\", {Ville de retrait})',
       callType: ApiCallType.GET,
       headers: {
         'Authorization':

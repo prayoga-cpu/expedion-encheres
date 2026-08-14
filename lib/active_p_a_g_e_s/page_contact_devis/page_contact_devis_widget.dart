@@ -83,7 +83,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
           iconTheme:
               IconThemeData(color: FlutterFlowTheme.of(context).primaryText),
           automaticallyImplyLeading: false,
@@ -109,7 +109,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                   'kc10mk8f' /* Contact */,
                 ),
                 style: FlutterFlowTheme.of(context).headlineLarge.override(
-                      font: GoogleFonts.interTight(
+                      font: GoogleFonts.plusJakartaSans(
                         fontWeight: FlutterFlowTheme.of(context)
                             .headlineLarge
                             .fontWeight,
@@ -150,7 +150,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                         style: FlutterFlowTheme.of(context)
                             .displaySmall
                             .override(
-                              font: GoogleFonts.interTight(
+                              font: GoogleFonts.plusJakartaSans(
                                 fontWeight: FontWeight.bold,
                                 fontStyle: FlutterFlowTheme.of(context)
                                     .displaySmall
@@ -171,7 +171,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                         ),
                         textAlign: TextAlign.center,
                         style: FlutterFlowTheme.of(context).bodyLarge.override(
-                              font: GoogleFonts.inter(
+                              font: GoogleFonts.plusJakartaSans(
                                 fontWeight: FlutterFlowTheme.of(context)
                                     .bodyLarge
                                     .fontWeight,
@@ -229,7 +229,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .titleMedium
                                       .override(
-                                        font: GoogleFonts.interTight(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w600,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -250,7 +250,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight:
                                               FlutterFlowTheme.of(context)
                                                   .bodyMedium
@@ -308,7 +308,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .titleMedium
                                         .override(
-                                          font: GoogleFonts.interTight(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight: FontWeight.w600,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
@@ -355,7 +355,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .headlineSmall
                                   .override(
-                                    font: GoogleFonts.interTight(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w600,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .headlineSmall
@@ -395,7 +395,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -462,7 +462,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -527,7 +527,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                         hintStyle: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyMedium
@@ -594,7 +594,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -655,7 +655,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                 hintStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -711,7 +711,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .fontWeight,
@@ -751,7 +751,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                 hintStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -807,7 +807,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .fontWeight,
@@ -854,7 +854,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                       hintStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
@@ -920,7 +920,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(
-                                          font: GoogleFonts.inter(
+                                          font: GoogleFonts.plusJakartaSans(
                                             fontWeight:
                                                 FlutterFlowTheme.of(context)
                                                     .bodyMedium
@@ -978,7 +978,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                 hintStyle: FlutterFlowTheme.of(context)
                                     .bodyMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .fontWeight,
@@ -1034,7 +1034,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .fontWeight,
@@ -1098,7 +1098,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                 textStyle: FlutterFlowTheme.of(context)
                                     .titleSmall
                                     .override(
-                                      font: GoogleFonts.interTight(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w600,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleSmall
@@ -1158,7 +1158,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .titleMedium
                                   .override(
-                                    font: GoogleFonts.interTight(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w600,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .titleMedium
@@ -1178,7 +1178,7 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .fontWeight,

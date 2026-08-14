@@ -1,3 +1,4 @@
+import '/design_system/ds_logo.dart';
 import '/active_p_a_g_e_s/liste_a_p_p_b_a_r/liste_a_p_p_b_a_r_widget.dart';
 import '/auth/base_auth_user_provider.dart';
 import '/auth/firebase_auth/auth_util.dart';
@@ -61,7 +62,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(70.0),
           child: AppBar(
-            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
             automaticallyImplyLeading: false,
             title: Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
@@ -94,7 +95,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .titleLarge
                                   .override(
-                                    font: GoogleFonts.interTight(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w600,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .titleLarge
@@ -109,24 +110,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                         .fontStyle,
                                   ),
                             ),
-                          Container(
-                            width: 30.0,
-                            height: 30.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.asset(
-                                'assets/images/1cbd084bc5eb4fddba058d26b8cab44f.png',
-                                width: 200.0,
-                                height: 200.0,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
+                          const XpdLogoMark(size: 30.0),
                         ].divide(SizedBox(width: 10.0)),
                       ),
                     ),
@@ -155,7 +139,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -179,7 +163,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                           style: FlutterFlowTheme.of(context)
                               .bodyLarge
                               .override(
-                                font: GoogleFonts.inter(
+                                font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.w500,
                                   fontStyle: FlutterFlowTheme.of(context)
                                       .bodyLarge
@@ -208,7 +192,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyLarge
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyLarge
@@ -240,7 +224,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -272,7 +256,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -304,7 +288,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -336,7 +320,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
@@ -368,7 +352,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -419,7 +403,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w500,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -465,7 +449,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w500,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -639,13 +623,13 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .titleLarge
                                     .override(
-                                      font: GoogleFonts.readexPro(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w600,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .titleLarge
                                             .fontStyle,
                                       ),
-                                      color: Color(0xFF12151C),
+                                      color: FlutterFlowTheme.of(context).primaryText,
                                       fontSize: 22.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
@@ -661,7 +645,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyMedium
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.normal,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyMedium
@@ -685,7 +669,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .labelMedium
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w500,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .labelMedium
@@ -715,13 +699,13 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                       'p3llsagy' /* Profile Settings */,
                     ),
                     style: FlutterFlowTheme.of(context).labelLarge.override(
-                          font: GoogleFonts.inter(
+                          font: GoogleFonts.plusJakartaSans(
                             fontWeight: FontWeight.w600,
                             fontStyle: FlutterFlowTheme.of(context)
                                 .labelLarge
                                 .fontStyle,
                           ),
-                          color: Color(0xFF12151C),
+                          color: FlutterFlowTheme.of(context).primaryText,
                           fontSize: 16.0,
                           letterSpacing: 0.0,
                           fontWeight: FontWeight.w600,
@@ -779,14 +763,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -803,7 +787,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -876,14 +860,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -900,7 +884,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -973,14 +957,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -997,7 +981,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1070,14 +1054,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1094,7 +1078,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1167,14 +1151,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1191,7 +1175,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1231,13 +1215,13 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                       '3hed0y9v' /* App Preferences */,
                     ),
                     style: FlutterFlowTheme.of(context).labelLarge.override(
-                          font: GoogleFonts.inter(
+                          font: GoogleFonts.plusJakartaSans(
                             fontWeight: FontWeight.w600,
                             fontStyle: FlutterFlowTheme.of(context)
                                 .labelLarge
                                 .fontStyle,
                           ),
-                          color: Color(0xFF12151C),
+                          color: FlutterFlowTheme.of(context).primaryText,
                           fontSize: 16.0,
                           letterSpacing: 0.0,
                           fontWeight: FontWeight.w600,
@@ -1295,14 +1279,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1319,7 +1303,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1395,14 +1379,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1419,7 +1403,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1495,14 +1479,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: Color(0xFF12151C),
+                                            color: FlutterFlowTheme.of(context).primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1519,7 +1503,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .labelMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w500,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1559,13 +1543,13 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                       'tmtmqw13' /* Support & Legal */,
                     ),
                     style: FlutterFlowTheme.of(context).labelLarge.override(
-                          font: GoogleFonts.inter(
+                          font: GoogleFonts.plusJakartaSans(
                             fontWeight: FontWeight.w600,
                             fontStyle: FlutterFlowTheme.of(context)
                                 .labelLarge
                                 .fontStyle,
                           ),
-                          color: Color(0xFF12151C),
+                          color: FlutterFlowTheme.of(context).primaryText,
                           fontSize: 16.0,
                           letterSpacing: 0.0,
                           fontWeight: FontWeight.w600,
@@ -1619,14 +1603,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
                                                   .bodyLarge
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF12151C),
+                                        color: FlutterFlowTheme.of(context).primaryText,
                                         fontSize: 16.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
@@ -1685,14 +1669,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
                                                   .bodyLarge
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF12151C),
+                                        color: FlutterFlowTheme.of(context).primaryText,
                                         fontSize: 16.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
@@ -1751,14 +1735,14 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
                                                   .bodyLarge
                                                   .fontStyle,
                                         ),
-                                        color: Color(0xFF12151C),
+                                        color: FlutterFlowTheme.of(context).primaryText,
                                         fontSize: 16.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
@@ -1813,7 +1797,7 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                               textStyle: FlutterFlowTheme.of(context)
                                   .labelMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .labelMedium

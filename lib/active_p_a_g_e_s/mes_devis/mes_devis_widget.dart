@@ -1,5 +1,7 @@
+import '/design_system/ds_logo.dart';
 import '/active_p_a_g_e_s/liste_a_p_p_b_a_r/liste_a_p_p_b_a_r_widget.dart';
 import '/active_p_a_g_e_s/paiement/paiement_widget.dart';
+import '/design_system/design_system.dart';
 import '/flutter_flow/devis_status_badge.dart';
 import '/auth/base_auth_user_provider.dart';
 import '/auth/firebase_auth/auth_util.dart';
@@ -106,7 +108,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(70.0),
               child: AppBar(
-                backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+                backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
                 automaticallyImplyLeading: false,
                 title: Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
@@ -139,7 +141,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .titleLarge
                                       .override(
-                                        font: GoogleFonts.interTight(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w600,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -155,24 +157,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                             .fontStyle,
                                       ),
                                 ),
-                              Container(
-                                width: 30.0,
-                                height: 30.0,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.asset(
-                                    'assets/images/1cbd084bc5eb4fddba058d26b8cab44f.png',
-                                    width: 200.0,
-                                    height: 200.0,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
+                              const XpdLogoMark(size: 30.0),
                             ].divide(SizedBox(width: 10.0)),
                           ),
                         ),
@@ -201,7 +186,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -239,7 +224,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .bodyLarge
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w500,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
@@ -271,7 +256,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -302,7 +287,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .bodyLarge
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w500,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
@@ -335,7 +320,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -368,7 +353,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -400,7 +385,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                 style: FlutterFlowTheme.of(context)
                                     .bodyLarge
                                     .override(
-                                      font: GoogleFonts.inter(
+                                      font: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w500,
                                         fontStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
@@ -433,7 +418,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .bodyLarge
                                       .override(
-                                        font: GoogleFonts.inter(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w500,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
@@ -489,7 +474,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                                     context)
                                                 .bodyLarge
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -540,7 +525,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                                     context)
                                                 .bodyLarge
                                                 .override(
-                                                  font: GoogleFonts.inter(
+                                                  font: GoogleFonts.plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -697,7 +682,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                                         .titleLarge
                                                         .override(
                                                           font: GoogleFonts
-                                                              .interTight(
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                             fontStyle:
@@ -731,7 +716,7 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -831,7 +816,7 @@ bordereau */
                                                         .bodyMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -915,7 +900,7 @@ bordereau */
                                                       .headlineSmall
                                                       .override(
                                                         font: GoogleFonts
-                                                            .interTight(
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -952,7 +937,7 @@ bordereau */
                                                         .labelMedium
                                                         .override(
                                                           font:
-                                                              GoogleFonts.inter(
+                                                              GoogleFonts.plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1047,7 +1032,7 @@ bordereau */
                                                               .headlineSmall
                                                               .override(
                                                                 font: GoogleFonts
-                                                                    .interTight(
+                                                                    .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
@@ -1091,7 +1076,7 @@ bordereau */
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .labelMedium
@@ -1186,7 +1171,7 @@ bordereau */
                                                               .headlineSmall
                                                               .override(
                                                                 font: GoogleFonts
-                                                                    .interTight(
+                                                                    .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
@@ -1230,7 +1215,7 @@ bordereau */
                                                                 .override(
                                                                   font:
                                                                       GoogleFonts
-                                                                          .inter(
+                                                                          .plusJakartaSans(
                                                                     fontWeight: FlutterFlowTheme.of(
                                                                             context)
                                                                         .labelMedium
@@ -1269,229 +1254,31 @@ bordereau */
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  20.0, 20.0, 20.0, 20.0),
-                              child: Material(
-                                color: Colors.transparent,
-                                elevation: 1.0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
+                              padding: const EdgeInsets.all(20.0),
+                              // `DSSearchBar` mirrors the Expeditoo home search: filled `accent1`
+                              // field, leading magnifier, inline submit, detached filter button.
+                              child: DSSearchBar(
+                                controller: _model.textController!,
+                                hintText: 'Rechercher par numéro de bordereau...',
+                                submitLabel: 'Rechercher',
+                                focusNode: _model.textFieldFocusNode,
+                                // As-you-type search is preserved from the
+                                // field this replaced; the submit button only
+                                // makes it explicit, as it is on Expeditoo.
+                                onChanged: (_) => EasyDebounce.debounce(
+                                  '_model.textController',
+                                  const Duration(milliseconds: 400),
+                                  () async {
+                                    safeSetState(
+                                        () => _model.apiRequestCompleter = null);
+                                    await _model.waitForApiRequestCompleted(
+                                        maxWait: 400);
+                                  },
                                 ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    border: Border.all(
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            5.0, 0.0, 0.0, 0.0),
-                                        child: Icon(
-                                          Icons.search_sharp,
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          size: 24.0,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          width: 200.0,
-                                          child: TextFormField(
-                                            controller: _model.textController,
-                                            focusNode:
-                                                _model.textFieldFocusNode,
-                                            onChanged: (_) =>
-                                                EasyDebounce.debounce(
-                                              '_model.textController',
-                                              Duration(milliseconds: 400),
-                                              () async {
-                                                safeSetState(() =>
-                                                    _model.apiRequestCompleter =
-                                                        null);
-                                                await _model
-                                                    .waitForApiRequestCompleted(
-                                                        maxWait: 400);
-                                              },
-                                            ),
-                                            autofocus: false,
-                                            enabled: true,
-                                            obscureText: false,
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              labelStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontStyle,
-                                                      ),
-                                              hintText:
-                                                  FFLocalizations.of(context)
-                                                      .getText(
-                                                '55zhpkpn' /* Recherchez le numéro du  borde... */,
-                                              ),
-                                              hintStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .fontStyle,
-                                                      ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Color(0x00000000),
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(0.0),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: Color(0x00000000),
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(0.0),
-                                              ),
-                                              errorBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .error,
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(0.0),
-                                              ),
-                                              focusedErrorBorder:
-                                                  OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .error,
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(0.0),
-                                              ),
-                                              filled: true,
-                                              fillColor:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                              suffixIcon: _model.textController!
-                                                      .text.isNotEmpty
-                                                  ? InkWell(
-                                                      onTap: () async {
-                                                        _model.textController
-                                                            ?.clear();
-                                                        safeSetState(() => _model
-                                                                .apiRequestCompleter =
-                                                            null);
-                                                        await _model
-                                                            .waitForApiRequestCompleted(
-                                                                maxWait: 400);
-                                                        safeSetState(() {});
-                                                      },
-                                                      child: Icon(
-                                                        Icons.clear,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        size: 20.0,
-                                                      ),
-                                                    )
-                                                  : null,
-                                            ),
-                                            style: FlutterFlowTheme.of(context)
-                                                .bodyMedium
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontWeight,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyMedium
-                                                            .fontStyle,
-                                                  ),
-                                                  letterSpacing: 0.0,
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyMedium
-                                                          .fontStyle,
-                                                ),
-                                            cursorColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .primaryText,
-                                            enableInteractiveSelection: true,
-                                            validator: _model
-                                                .textControllerValidator
-                                                .asValidator(context),
-                                          ),
-                                        ),
-                                      ),
-                                    ].divide(SizedBox(width: 2.0)),
-                                  ),
-                                ),
+                                onSubmitted: (_) async {
+                                  safeSetState(() => _model.apiRequestCompleter = null);
+                                  await _model.waitForApiRequestCompleted(maxWait: 400);
+                                },
                               ),
                             ),
                             if (!FFAppState().HIDEitem)
@@ -1527,7 +1314,7 @@ bordereau */
                                       textStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w600,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1590,7 +1377,7 @@ bordereau */
                                       textStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
-                                            font: GoogleFonts.inter(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w600,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1679,60 +1466,21 @@ bordereau */
                                                 [];
 
                                         if (quotes.isEmpty) {
-                                          return Container(
-                                            padding: const EdgeInsets.all(32.0),
-                                            decoration: BoxDecoration(
-                                              color: FlutterFlowTheme.of(context).secondaryBackground,
-                                              borderRadius: BorderRadius.circular(12.0),
-                                              border: Border.all(
-                                                color: FlutterFlowTheme.of(context).alternate,
-                                                width: 1.0,
-                                              ),
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.assignment_outlined,
-                                                  size: 64.0,
-                                                  color: FlutterFlowTheme.of(context).secondaryText,
-                                                ),
-                                                const SizedBox(height: 16.0),
-                                                Text(
-                                                  "Aucun devis disponible",
-                                                  style: FlutterFlowTheme.of(context).titleMedium.override(
-                                                    font: GoogleFonts.interTight(fontWeight: FontWeight.w600),
-                                                    color: FlutterFlowTheme.of(context).primaryText,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8.0),
-                                                Text(
-                                                  "Vous n'avez pas encore demandé de devis. Cliquez sur le bouton ci-dessous pour faire votre première demande.",
-                                                  textAlign: TextAlign.center,
-                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                    font: GoogleFonts.inter(),
-                                                    color: FlutterFlowTheme.of(context).secondaryText,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 20.0),
-                                                FFButtonWidget(
-                                                  onPressed: () async {
-                                                    context.pushNamed(ChoixDevisWidget.routeName);
-                                                  },
-                                                  text: "Demander un devis",
-                                                  options: FFButtonOptions(
-                                                    height: 40.0,
-                                                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                                                    color: FlutterFlowTheme.of(context).primary,
-                                                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                                      font: GoogleFonts.interTight(fontWeight: FontWeight.w600),
-                                                      color: Colors.white,
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(8.0),
-                                                  ),
-                                                ),
-                                              ],
+                                          // `centered-empty-state.tsx` parity:
+                                          // icon in a muted ring, then title,
+                                          // muted body, action 24px below.
+                                          return DSEmptyState(
+                                            icon: Icons.assignment_outlined,
+                                            title: 'Aucun devis disponible',
+                                            description:
+                                                "Vous n'avez pas encore demandé de devis. Faites votre première demande pour commencer.",
+                                            action: DSButton(
+                                              label: 'Demander un devis',
+                                              icon: Icons.add_rounded,
+                                              onPressed: () async {
+                                                context.pushNamed(
+                                                    ChoixDevisWidget.routeName);
+                                              },
                                             ),
                                           );
                                         }
@@ -1751,1967 +1499,331 @@ bordereau */
                                           separatorBuilder: (_, __) =>
                                               SizedBox(height: 20.0),
                                           itemBuilder: (context, quotesIndex) {
-                                            final quotesItem =
-                                                quotes[quotesIndex];
-                                            return Stack(
-                                              children: [
-                                                if (getJsonField(
+                                            final quotesItem = quotes[quotesIndex];
+                                            final devis = DevisSummary.fromAirtable(quotesItem);
+
+                                            final typeDevisValide = getJsonField(
+                                              quotesItem,
+                                              r'''$.fields["Type de Devis validé"]''',
+                                            );
+                                            final paiementRecu = getJsonField(
+                                              quotesItem,
+                                              r'''$.fields["PAIEMENT RECU"]''',
+                                            );
+
+                                            // Quote priced but not yet accepted — send the client to validation.
+                                            Future<void> openValidation() async {
+                                              FFAppState().statutDuDevis = getJsonField(
+                                                quotesItem,
+                                                r'''$.fields["VALIDER DEVIS"]''',
+                                              ).toString();
+                                              FFAppState().StatPaiement = getJsonField(
+                                                quotesItem,
+                                                r'''$.fields["STATUT DU PAIEMENT"]''',
+                                              ).toString();
+                                              FFAppState().SelectedQuoteNum = getJsonField(
+                                                quotesItem,
+                                                r'''$.fields["Numéro Devis"]''',
+                                              ).toString();
+                                              safeSetState(() {});
+                                              if (!((FFAppState().StatPaiement == 'Paiement reçu') &&
+                                                  (FFAppState().statutDuDevis == 'Devis Validé'))) {
+                                                context.pushNamed(
+                                                  PageValidationDevisWidget.routeName,
+                                                  queryParameters: {
+                                                    'tarifAssADV': serializeParam(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Devis+ass ADv (devis stnd+ass AD valorem)"]''',
+                                                      ),
+                                                      ParamType.int,
+                                                    ),
+                                                    'tarifAssSTD': serializeParam(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Devis standard + (TVA ou pas)"]''',
+                                                      ),
+                                                      ParamType.int,
+                                                    ),
+                                                    'typeDevisChoisi': serializeParam(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Type de Devis validé"]''',
+                                                      ).toString(),
+                                                      ParamType.String,
+                                                    ),
+                                                    'quoteID': serializeParam(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Record ID"]''',
+                                                      ).toString(),
+                                                      ParamType.String,
+                                                    ),
+                                                    'devisValideOuPas': serializeParam(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["VALIDER DEVIS"]''',
+                                                      ).toString(),
+                                                      ParamType.String,
+                                                    ),
+                                                  }.withoutNulls,
+                                                );
+                                              }
+                                            }
+
+                                            // Paid quotes open the full detail sheet.
+                                            Future<void> openDetails() async {
+                                              context.pushNamed(
+                                                DetailsDevisWidget.routeName,
+                                                queryParameters: {
+                                                  'prenom': serializeParam(
+                                                    getJsonField(
                                                       quotesItem,
-                                                      r'''$.fields["Devis disponible"]''',
-                                                    ) !=
-                                                    null)
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.transparent,
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          blurRadius: 2.0,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primary,
-                                                          offset:
-                                                              Offset(0.0, 0.0),
-                                                        )
-                                                      ],
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12.0),
-                                                    ),
-                                                    child: Material(
-                                                      color: Colors.transparent,
-                                                      elevation: 1.0,
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12.0),
-                                                      ),
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryBackground,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      12.0),
-                                                          border: Border.all(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .alternate,
-                                                            width: 1.0,
-                                                          ),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  16.0),
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Padding(
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            0.0,
-                                                                            0.0,
-                                                                            0.0,
-                                                                            10.0),
-                                                                    child: Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .max,
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .spaceBetween,
-                                                                      children: [
-                                                                        Container(
-                                                                          width:
-                                                                              150.0,
-                                                                          height:
-                                                                              20.0,
-                                                                          decoration:
-                                                                              BoxDecoration(
-                                                                            color:
-                                                                                FlutterFlowTheme.of(context).secondaryBackground,
-                                                                          ),
-                                                                          child:
-                                                                              Text(
-                                                                            'Devis N° ${getJsonField(
-                                                                              quotesItem,
-                                                                              r'''$.fields["Numéro Devis"]''',
-                                                                            ).toString()}',
-                                                                            style: FlutterFlowTheme.of(context).titleMedium.override(
-                                                                                  font: GoogleFonts.interTight(
-                                                                                    fontWeight: FlutterFlowTheme.of(context).titleMedium.fontWeight,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                                                                                  ),
-                                                                                  color: FlutterFlowTheme.of(context).primary,
-                                                                                  letterSpacing: 0.0,
-                                                                                  fontWeight: FlutterFlowTheme.of(context).titleMedium.fontWeight,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                                                                                ),
-                                                                          ),
-                                                                        ),
-                                                                        Column(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.max,
-                                                                          children: [
-                                                                            Text(
-                                                                              getJsonField(
-                                                                                quotesItem,
-                                                                                r'''$.fields["VALIDER DEVIS"]''',
-                                                                              ).toString(),
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    color: FlutterFlowTheme.of(context).primary,
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                            Text(
-                                                                              '€ ${getJsonField(
-                                                                                quotesItem,
-                                                                                r'''$.fields["Tarif Devis correspondant"]''',
-                                                                              ).toString()}',
-                                                                              style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                    font: GoogleFonts.inter(
-                                                                                      fontWeight: FontWeight.w600,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                    ),
-                                                                                    fontSize: 16.0,
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FontWeight.w600,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                  ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                  Row(
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .max,
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Expanded(
-                                                                        child:
-                                                                            Column(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.min,
-                                                                          crossAxisAlignment:
-                                                                              CrossAxisAlignment.start,
-                                                                          children:
-                                                                              [
-                                                                            Column(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  FFLocalizations.of(context).getText(
-                                                                                    'clfj04ol' /* Date de Demande */,
-                                                                                  ),
-                                                                                  style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                        ),
-                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                                Container(
-                                                                                  width: 150.0,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                  ),
-                                                                                  child: Text(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Date demande devis"]''',
-                                                                                    ).toString(),
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
-                                                                                ),
-                                                                              ].divide(SizedBox(height: 4.0)),
-                                                                            ),
-                                                                            Column(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  FFLocalizations.of(context).getText(
-                                                                                    '6p64eaoa' /* Maison de Ventes */,
-                                                                                  ),
-                                                                                  style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                        ),
-                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                                Container(
-                                                                                  width: 150.0,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                  ),
-                                                                                  child: Text(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Nom de la maison de ventes"]''',
-                                                                                    ).toString(),
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
-                                                                                ),
-                                                                              ].divide(SizedBox(height: 4.0)),
-                                                                            ),
-                                                                            Column(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  FFLocalizations.of(context).getText(
-                                                                                    'rti2f7zc' /* Ville Retrait */,
-                                                                                  ),
-                                                                                  style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                        ),
-                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                                Container(
-                                                                                  width: 150.0,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                  ),
-                                                                                  child: Text(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Ville de retrait"]''',
-                                                                                    ).toString(),
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
-                                                                                ),
-                                                                              ].divide(SizedBox(height: 4.0)),
-                                                                            ),
-                                                                          ].divide(SizedBox(height: 8.0)),
-                                                                        ),
-                                                                      ),
-                                                                      Expanded(
-                                                                        child:
-                                                                            Column(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.min,
-                                                                          crossAxisAlignment:
-                                                                              CrossAxisAlignment.start,
-                                                                          children:
-                                                                              [
-                                                                            Column(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  FFLocalizations.of(context).getText(
-                                                                                    'ohtw591f' /* Numéro de Bordereau */,
-                                                                                  ),
-                                                                                  style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                        ),
-                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                                Container(
-                                                                                  width: 150.0,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                  ),
-                                                                                  child: Text(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["N°Bordereau"]''',
-                                                                                    ).toString(),
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
-                                                                                ),
-                                                                              ].divide(SizedBox(height: 4.0)),
-                                                                            ),
-                                                                            Column(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  FFLocalizations.of(context).getText(
-                                                                                    '22bnt4ae' /* Ville Livraison */,
-                                                                                  ),
-                                                                                  style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                        ),
-                                                                                        color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                                Container(
-                                                                                  width: 150.0,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                  ),
-                                                                                  child: Text(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Ville de livraison"]''',
-                                                                                    ).toString(),
-                                                                                    style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                          font: GoogleFonts.inter(
-                                                                                            fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                            fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                          ),
-                                                                                          letterSpacing: 0.0,
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                  ),
-                                                                                ),
-                                                                              ].divide(SizedBox(height: 4.0)),
-                                                                            ),
-                                                                          ].divide(SizedBox(height: 8.0)),
-                                                                        ),
-                                                                      ),
-                                                                    ].divide(SizedBox(
-                                                                        width:
-                                                                            50.0)),
-                                                                  ),
-                                                                ].divide(SizedBox(
-                                                                    height:
-                                                                        12.0)),
-                                                              ),
-                                                              Container(
-                                                                width: double
-                                                                    .infinity,
-                                                                height: 1.0,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .alternate,
-                                                                ),
-                                                              ),
-                                                              Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    FFLocalizations.of(
-                                                                            context)
-                                                                        .getText(
-                                                                      'ydenye71' /* Statuts */,
-                                                                    ),
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleMedium
-                                                                        .override(
-                                                                          font:
-                                                                              GoogleFonts.interTight(
-                                                                            fontWeight:
-                                                                                FlutterFlowTheme.of(context).titleMedium.fontWeight,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                                                                          ),
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).primaryText,
-                                                                          letterSpacing:
-                                                                              0.0,
-                                                                          fontWeight: FlutterFlowTheme.of(context)
-                                                                              .titleMedium
-                                                                              .fontWeight,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .titleMedium
-                                                                              .fontStyle,
-                                                                        ),
-                                                                  ),
-                                                                  DevisStatusBadge(
-                                                                    statutDevis: getJsonField(
-                                                                      quotesItem,
-                                                                      r'''$.fields["VALIDER DEVIS"]''',
-                                                                    )?.toString() ?? '',
-                                                                    statutPaiement: getJsonField(
-                                                                      quotesItem,
-                                                                      r'''$.fields["STATUT DU PAIEMENT"]''',
-                                                                    )?.toString() ?? '',
-                                                                    statutRetrait: getJsonField(
-                                                                      quotesItem,
-                                                                      r'''$.fields["Retrait fait"]''',
-                                                                    )?.toString() ?? '',
-                                                                    statutLivraison: getJsonField(
-                                                                      quotesItem,
-                                                                      r'''$.fields["livraison fait"]''',
-                                                                    )?.toString() ?? '',
-                                                                  ),
-                                                                ].divide(SizedBox(
-                                                                    height:
-                                                                        12.0)),
-                                                              ),
-                                                              Container(
-                                                                width: double
-                                                                    .infinity,
-                                                                height: 1.0,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .alternate,
-                                                                ),
-                                                              ),
-                                                              Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .max,
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .spaceBetween,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Stack(
-                                                                    children: [
-                                                                      if (getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Type de Devis validé"]''',
-                                                                          ) ==
-                                                                          null)
-                                                                        Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.01),
-                                                                          child:
-                                                                              FFButtonWidget(
-                                                                            onPressed:
-                                                                                () async {
-                                                                              FFAppState().statutDuDevis = getJsonField(
-                                                                                quotesItem,
-                                                                                r'''$.fields["VALIDER DEVIS"]''',
-                                                                              ).toString();
-                                                                              FFAppState().StatPaiement = getJsonField(
-                                                                                quotesItem,
-                                                                                r'''$.fields["STATUT DU PAIEMENT"]''',
-                                                                              ).toString();
-                                                                              FFAppState().SelectedQuoteNum = getJsonField(
-                                                                                quotesItem,
-                                                                                r'''$.fields["Numéro Devis"]''',
-                                                                              ).toString();
-                                                                              safeSetState(() {});
-                                                                              if (!((FFAppState().StatPaiement == 'Paiement reçu') && (FFAppState().statutDuDevis == 'Devis Validé'))) {
-                                                                                context.pushNamed(
-                                                                                  PageValidationDevisWidget.routeName,
-                                                                                  queryParameters: {
-                                                                                    'tarifAssADV': serializeParam(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Devis+ass ADv (devis stnd+ass AD valorem)"]''',
-                                                                                      ),
-                                                                                      ParamType.int,
-                                                                                    ),
-                                                                                    'tarifAssSTD': serializeParam(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Devis standard + (TVA ou pas)"]''',
-                                                                                      ),
-                                                                                      ParamType.int,
-                                                                                    ),
-                                                                                    'typeDevisChoisi': serializeParam(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Type de Devis validé"]''',
-                                                                                      ).toString(),
-                                                                                      ParamType.String,
-                                                                                    ),
-                                                                                    'quoteID': serializeParam(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Record ID"]''',
-                                                                                      ).toString(),
-                                                                                      ParamType.String,
-                                                                                    ),
-                                                                                    'devisValideOuPas': serializeParam(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["VALIDER DEVIS"]''',
-                                                                                      ).toString(),
-                                                                                      ParamType.String,
-                                                                                    ),
-                                                                                  }.withoutNulls,
-                                                                                );
-                                                                              }
-                                                                            },
-                                                                            text:
-                                                                                FFLocalizations.of(context).getText(
-                                                                              'q6a53wci' /* ACCEPTER */,
-                                                                            ),
-                                                                            options:
-                                                                                FFButtonOptions(
-                                                                              height: 40.0,
-                                                                              padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                                                              iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                                                              color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                              textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                                                                    font: GoogleFonts.interTight(
-                                                                                      fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                                    ),
-                                                                                    color: FlutterFlowTheme.of(context).primary,
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                                  ),
-                                                                              elevation: 0.0,
-                                                                              borderSide: BorderSide(
-                                                                                color: FlutterFlowTheme.of(context).primary,
-                                                                              ),
-                                                                              borderRadius: BorderRadius.circular(8.0),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      if (getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["PAIEMENT RECU"]''',
-                                                                          ) !=
-                                                                          null)
-                                                                        Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.01),
-                                                                          child:
-                                                                              FFButtonWidget(
-                                                                            onPressed:
-                                                                                () async {
-                                                                              context.pushNamed(
-                                                                                DetailsDevisWidget.routeName,
-                                                                                queryParameters: {
-                                                                                  'prenom': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Prénom"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'nom': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Nom"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'email': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["E-mail"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'telephone': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Téléphone"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'queSouhaitezVous': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["En tant que particulier que souhaitez-vous?"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'adRetrait': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Adresse de retrait"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'codePostalRetrait': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Code postal de retrait"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'villeRetrait': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Ville de retrait"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'nomHDV': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["AHDV(Lieu de retrait)CP clients"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'telRetrait': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Téléphone de retrait"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'montant': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Montant de la marchandise"]''',
-                                                                                    ),
-                                                                                    ParamType.int,
-                                                                                  ),
-                                                                                  'tranche': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Tranche Montant de la marchandise"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'dateDeVente': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Date de vente"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'numBordereau': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["N°Bordereau"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'bordereauAcquite': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Bordereau acquitté ou pas"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'descriptionObjet': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["DESCRIPTION de l'objet"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'longueur': serializeParam(
-                                                                                    valueOrDefault<String>(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Longueur"]''',
-                                                                                      )?.toString(),
-                                                                                      '.',
-                                                                                    ),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'largeur': serializeParam(
-                                                                                    valueOrDefault<String>(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Largeur"]''',
-                                                                                      )?.toString(),
-                                                                                      '.',
-                                                                                    ),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'hauteur': serializeParam(
-                                                                                    valueOrDefault<String>(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Hauteur"]''',
-                                                                                      )?.toString(),
-                                                                                      '.',
-                                                                                    ),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'poids': serializeParam(
-                                                                                    valueOrDefault<String>(
-                                                                                      getJsonField(
-                                                                                        quotesItem,
-                                                                                        r'''$.fields["Poids"]''',
-                                                                                      )?.toString(),
-                                                                                      '.',
-                                                                                    ),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'objetProtege': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Objet protégé ou emballé ?"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'adLivraison': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Adresse de livraison"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'codePostalLiv': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Code postal de livraison"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'villeLiv': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Ville de livraison"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'paysLiv': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Pays de livraison"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'telLiv': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Téléphone de livraison"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'nomDestinataire': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Nom du destinataire"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'commentaire': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Commentaire"]''',
-                                                                                    ).toString(),
-                                                                                    ParamType.String,
-                                                                                  ),
-                                                                                  'conditionsGenerals': serializeParam(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fileds["Conditions générales"]''',
-                                                                                    ),
-                                                                                    ParamType.bool,
-                                                                                  ),
-                                                                                }.withoutNulls,
-                                                                              );
-                                                                            },
-                                                                            text:
-                                                                                FFLocalizations.of(context).getText(
-                                                                              '44pw4849' /* DETAILS */,
-                                                                            ),
-                                                                            options:
-                                                                                FFButtonOptions(
-                                                                              height: 40.0,
-                                                                              padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                                                              iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                                                              color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                              textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                                                                    font: GoogleFonts.interTight(
-                                                                                      fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                                    ),
-                                                                                    color: FlutterFlowTheme.of(context).primary,
-                                                                                    letterSpacing: 0.0,
-                                                                                    fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                                    fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                                  ),
-                                                                              elevation: 0.0,
-                                                                              borderSide: BorderSide(
-                                                                                color: FlutterFlowTheme.of(context).primary,
-                                                                              ),
-                                                                              borderRadius: BorderRadius.circular(8.0),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      if (getJsonField(
-                                                                                quotesItem,
-                                                                                r'''$.fields["PAIEMENT RECU"]''',
-                                                                              ) ==
-                                                                              null)
-                                                                        Align(
-                                                                          alignment: AlignmentDirectional(
-                                                                              0.0,
-                                                                              0.01),
-                                                                          child:
-                                                                              Builder(
-                                                                            builder: (context) =>
-                                                                                FFButtonWidget(
-                                                                              onPressed: () async {
-                                                                                FFAppState().SelectedPrice = castToType<int>(getJsonField(
-                                                                                  quotesItem,
-                                                                                  r'''$.fields["Tarif Devis correspondant"]''',
-                                                                                )) ?? 50;
-                                                                                FFAppState().SelectedQuoteNum = (getJsonField(
-                                                                                  quotesItem,
-                                                                                  r'''$.fields["Numéro Devis"]''',
-                                                                                ) ?? '10770').toString();
-                                                                                FFAppState().QuoteId = (getJsonField(
-                                                                                  quotesItem,
-                                                                                  r'''$.fields["Record ID"]''',
-                                                                                ) ?? getJsonField(
-                                                                                  quotesItem,
-                                                                                  r'''$.id''',
-                                                                                ) ?? '').toString();
-                                                                                FFAppState().TypeDeDevisValide = (getJsonField(
-                                                                                  quotesItem,
-                                                                                  r'''$.fields["Type de Devis validé"]''',
-                                                                                ) ?? 'Devis Standard').toString();
-                                                                                safeSetState(() {});
-                                                                                await showDialog(
-                                                                                  context: context,
-                                                                                  builder: (dialogContext) {
-                                                                                    return Dialog(
-                                                                                      elevation: 0,
-                                                                                      insetPadding: EdgeInsets.zero,
-                                                                                      backgroundColor: Colors.transparent,
-                                                                                      alignment: AlignmentDirectional(0.0, 0.0).resolve(Directionality.of(context)),
-                                                                                      child: GestureDetector(
-                                                                                        onTap: () {
-                                                                                          FocusScope.of(dialogContext).unfocus();
-                                                                                          FocusManager.instance.primaryFocus?.unfocus();
-                                                                                        },
-                                                                                        child: PaiementWidget(
-                                                                                          tarifSTD: FFAppState().SelectedPrice,
-                                                                                          quoteNum: FFAppState().SelectedQuoteNum,
-                                                                                          tarifADV: FFAppState().SelectedPrice,
-                                                                                          quoteID: FFAppState().QuoteId,
-                                                                                        ),
-                                                                                      ),
-                                                                                    );
-                                                                                  },
-                                                                                );
-                                                                              },
-                                                                              text: FFLocalizations.of(context).getText(
-                                                                                'tnnxeir6' /* PAYER */,
-                                                                              ),
-                                                                              options: FFButtonOptions(
-                                                                                height: 40.0,
-                                                                                padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                                                                iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                                                                color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                                                                      font: GoogleFonts.interTight(
-                                                                                        fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                                      ),
-                                                                                      color: FlutterFlowTheme.of(context).success,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                                    ),
-                                                                                elevation: 0.0,
-                                                                                borderSide: BorderSide(
-                                                                                  color: FlutterFlowTheme.of(context).primary,
-                                                                                ),
-                                                                                borderRadius: BorderRadius.circular(8.0),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                    ],
-                                                                  ),
-                                                                  FFButtonWidget(
-                                                                    onPressed:
-                                                                        () async {
-                                                                      context
-                                                                          .pushNamed(
-                                                                        PageContactDevisWidget
-                                                                            .routeName,
-                                                                        queryParameters:
-                                                                            {
-                                                                          'numDevis':
-                                                                              serializeParam(
-                                                                            getJsonField(
-                                                                              quotesItem,
-                                                                              r'''$.fields["Numéro Devis"]''',
-                                                                            ).toString(),
-                                                                            ParamType.String,
-                                                                          ),
-                                                                        }.withoutNulls,
-                                                                      );
-                                                                    },
-                                                                    text: FFLocalizations.of(
-                                                                            context)
-                                                                        .getText(
-                                                                      'c4jkpi4c' /* CONTACT */,
-                                                                    ),
-                                                                    icon: Icon(
-                                                                      Icons
-                                                                          .contact_support_sharp,
-                                                                      size:
-                                                                          15.0,
-                                                                    ),
-                                                                    options:
-                                                                        FFButtonOptions(
-                                                                      height:
-                                                                          40.0,
-                                                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                                                          16.0,
-                                                                          0.0,
-                                                                          16.0,
-                                                                          0.0),
-                                                                      iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0),
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground,
-                                                                      textStyle: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleSmall
-                                                                          .override(
-                                                                            font:
-                                                                                GoogleFonts.interTight(
-                                                                              fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                              fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                            ),
-                                                                            color:
-                                                                                FlutterFlowTheme.of(context).primary,
-                                                                            letterSpacing:
-                                                                                0.0,
-                                                                            fontWeight:
-                                                                                FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                          ),
-                                                                      elevation:
-                                                                          0.0,
-                                                                      borderSide:
-                                                                          BorderSide(
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primary,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8.0),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ].divide(SizedBox(
-                                                                height: 16.0)),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
+                                                      r'''$.fields["Prénom"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
                                                   ),
-                                                if (getJsonField(
+                                                  'nom': serializeParam(
+                                                    getJsonField(
                                                       quotesItem,
-                                                      r'''$.fields["Devis disponible"]''',
-                                                    ) ==
-                                                    null)
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.transparent,
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          blurRadius: 2.0,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .alternate,
-                                                          offset:
-                                                              Offset(0.0, 0.0),
-                                                        )
-                                                      ],
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12.0),
-                                                    ),
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryBackground,
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            blurRadius: 2.0,
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primary,
-                                                            offset: Offset(
-                                                                0.0, 0.0),
-                                                          )
-                                                        ],
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12.0),
-                                                        border: Border.all(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .alternate,
-                                                          width: 1.0,
-                                                        ),
-                                                      ),
-                                                      child: Padding(
-                                                        padding: EdgeInsets.all(
-                                                            16.0),
-                                                        child: Column(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          10.0),
-                                                                  child: Row(
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .max,
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    children: [
-                                                                      Container(
-                                                                        width:
-                                                                            150.0,
-                                                                        height:
-                                                                            20.0,
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).secondaryBackground,
-                                                                        ),
-                                                                        child:
-                                                                            Text(
-                                                                          'Devis N° ${getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Numéro Devis"]''',
-                                                                          ).toString()}',
-                                                                          style: FlutterFlowTheme.of(context)
-                                                                              .titleMedium
-                                                                              .override(
-                                                                                font: GoogleFonts.interTight(
-                                                                                  fontWeight: FlutterFlowTheme.of(context).titleMedium.fontWeight,
-                                                                                  fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                                                                                ),
-                                                                                color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                letterSpacing: 0.0,
-                                                                                fontWeight: FlutterFlowTheme.of(context).titleMedium.fontWeight,
-                                                                                fontStyle: FlutterFlowTheme.of(context).titleMedium.fontStyle,
-                                                                              ),
-                                                                        ),
-                                                                      ),
-                                                                      Text(
-                                                                        FFLocalizations.of(context)
-                                                                            .getText(
-                                                                          'wa0ganio' /* En cours de traitement */,
-                                                                        ),
-                                                                        style: FlutterFlowTheme.of(context)
-                                                                            .bodyMedium
-                                                                            .override(
-                                                                              font: GoogleFonts.inter(
-                                                                                fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                              ),
-                                                                              color: FlutterFlowTheme.of(context).secondaryText,
-                                                                              letterSpacing: 0.0,
-                                                                              fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                              fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                            ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .max,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.start,
-                                                                        children:
-                                                                            [
-                                                                          Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
-                                                                            children:
-                                                                                [
-                                                                              Text(
-                                                                                FFLocalizations.of(context).getText(
-                                                                                  'n7cf4h3u' /* Date de Demande */,
-                                                                                ),
-                                                                                style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                      font: GoogleFonts.inter(
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                      color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                    ),
-                                                                              ),
-                                                                              Container(
-                                                                                width: 150.0,
-                                                                                decoration: BoxDecoration(
-                                                                                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                ),
-                                                                                child: Text(
-                                                                                  getJsonField(
-                                                                                    quotesItem,
-                                                                                    r'''$.fields["Date demande devis"]''',
-                                                                                  ).toString(),
-                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                              ),
-                                                                            ].divide(SizedBox(height: 4.0)),
-                                                                          ),
-                                                                          Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
-                                                                            children:
-                                                                                [
-                                                                              Text(
-                                                                                FFLocalizations.of(context).getText(
-                                                                                  'j0jyy09k' /* Maison de Ventes */,
-                                                                                ),
-                                                                                style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                      font: GoogleFonts.inter(
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                      color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                    ),
-                                                                              ),
-                                                                              Container(
-                                                                                width: 150.0,
-                                                                                decoration: BoxDecoration(
-                                                                                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                ),
-                                                                                child: Text(
-                                                                                  getJsonField(
-                                                                                    quotesItem,
-                                                                                    r'''$.fields["Nom de la maison de ventes"]''',
-                                                                                  ).toString(),
-                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                              ),
-                                                                            ].divide(SizedBox(height: 4.0)),
-                                                                          ),
-                                                                          Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
-                                                                            children:
-                                                                                [
-                                                                              Text(
-                                                                                FFLocalizations.of(context).getText(
-                                                                                  '8u09ms0n' /* Ville Retrait */,
-                                                                                ),
-                                                                                style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                      font: GoogleFonts.inter(
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                      color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                    ),
-                                                                              ),
-                                                                              Container(
-                                                                                width: 150.0,
-                                                                                decoration: BoxDecoration(
-                                                                                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                ),
-                                                                                child: Text(
-                                                                                  getJsonField(
-                                                                                    quotesItem,
-                                                                                    r'''$.fields["Ville de retrait"]''',
-                                                                                  ).toString(),
-                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                              ),
-                                                                            ].divide(SizedBox(height: 4.0)),
-                                                                          ),
-                                                                        ].divide(SizedBox(height: 8.0)),
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.start,
-                                                                        children:
-                                                                            [
-                                                                          Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
-                                                                            children:
-                                                                                [
-                                                                              Text(
-                                                                                FFLocalizations.of(context).getText(
-                                                                                  't89ujlh2' /* Numéro de Bordereau */,
-                                                                                ),
-                                                                                style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                      font: GoogleFonts.inter(
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                      color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                    ),
-                                                                              ),
-                                                                              Container(
-                                                                                width: 150.0,
-                                                                                decoration: BoxDecoration(
-                                                                                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                ),
-                                                                                child: Text(
-                                                                                  getJsonField(
-                                                                                    quotesItem,
-                                                                                    r'''$.fields["N°Bordereau"]''',
-                                                                                  ).toString(),
-                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                              ),
-                                                                            ].divide(SizedBox(height: 4.0)),
-                                                                          ),
-                                                                          Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
-                                                                            children:
-                                                                                [
-                                                                              Text(
-                                                                                FFLocalizations.of(context).getText(
-                                                                                  'ke01v5n7' /* Ville Livraison */,
-                                                                                ),
-                                                                                style: FlutterFlowTheme.of(context).labelSmall.override(
-                                                                                      font: GoogleFonts.inter(
-                                                                                        fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                      ),
-                                                                                      color: FlutterFlowTheme.of(context).secondaryText,
-                                                                                      letterSpacing: 0.0,
-                                                                                      fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
-                                                                                      fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
-                                                                                    ),
-                                                                              ),
-                                                                              Container(
-                                                                                width: 150.0,
-                                                                                decoration: BoxDecoration(
-                                                                                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                                ),
-                                                                                child: Text(
-                                                                                  valueOrDefault<String>(
-                                                                                    getJsonField(
-                                                                                      quotesItem,
-                                                                                      r'''$.fields["Ville de livraison"]''',
-                                                                                    )?.toString(),
-                                                                                    '...',
-                                                                                  ),
-                                                                                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                                                                                        font: GoogleFonts.inter(
-                                                                                          fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                          fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                        ),
-                                                                                        letterSpacing: 0.0,
-                                                                                        fontWeight: FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                                                                                        fontStyle: FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                                                                                      ),
-                                                                                ),
-                                                                              ),
-                                                                            ].divide(SizedBox(height: 4.0)),
-                                                                          ),
-                                                                        ].divide(SizedBox(height: 8.0)),
-                                                                      ),
-                                                                    ),
-                                                                  ].divide(SizedBox(
-                                                                      width:
-                                                                          50.0)),
-                                                                ),
-                                                              ].divide(SizedBox(
-                                                                  height:
-                                                                      12.0)),
-                                                            ),
-                                                            Container(
-                                                              width: double
-                                                                  .infinity,
-                                                              height: 1.0,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .alternate,
-                                                              ),
-                                                            ),
-                                                            Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .max,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceBetween,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                FFButtonWidget(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    context
-                                                                        .pushNamed(
-                                                                      DetailsDevisWidget
-                                                                          .routeName,
-                                                                      queryParameters:
-                                                                          {
-                                                                        'prenom':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Prénom"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'nom':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Nom"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'email':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["E-mail"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'telephone':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Téléphone"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'queSouhaitezVous':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["En tant que particulier que souhaitez-vous?"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'adRetrait':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Adresse de retrait"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'codePostalRetrait':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Code postal de retrait"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'villeRetrait':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Ville de retrait"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'nomHDV':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["AHDV(Lieu de retrait)CP clients"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'telRetrait':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Téléphone de retrait"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'montant':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Montant de la marchandise"]''',
-                                                                          ),
-                                                                          ParamType
-                                                                              .int,
-                                                                        ),
-                                                                        'tranche':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Tranche Montant de la marchandise"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'dateDeVente':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Date de vente"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'numBordereau':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["N°Bordereau"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'bordereauAcquite':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Bordereau acquitté ou pas"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'descriptionObjet':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["DESCRIPTION de l'objet"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'longueur':
-                                                                            serializeParam(
-                                                                          valueOrDefault<
-                                                                              String>(
-                                                                            getJsonField(
-                                                                              quotesItem,
-                                                                              r'''$.fields["Longueur"]''',
-                                                                            )?.toString(),
-                                                                            '.',
-                                                                          ),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'largeur':
-                                                                            serializeParam(
-                                                                          valueOrDefault<
-                                                                              String>(
-                                                                            getJsonField(
-                                                                              quotesItem,
-                                                                              r'''$.fields["Largeur"]''',
-                                                                            )?.toString(),
-                                                                            '.',
-                                                                          ),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'hauteur':
-                                                                            serializeParam(
-                                                                          valueOrDefault<
-                                                                              String>(
-                                                                            getJsonField(
-                                                                              quotesItem,
-                                                                              r'''$.fields["Hauteur"]''',
-                                                                            )?.toString(),
-                                                                            '.',
-                                                                          ),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'poids':
-                                                                            serializeParam(
-                                                                          valueOrDefault<
-                                                                              String>(
-                                                                            getJsonField(
-                                                                              quotesItem,
-                                                                              r'''$.fields["Poids"]''',
-                                                                            )?.toString(),
-                                                                            '.',
-                                                                          ),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'objetProtege':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Objet protégé ou emballé ?"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'adLivraison':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Adresse de livraison"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'codePostalLiv':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Code postal de livraison"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'villeLiv':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Ville de livraison"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'paysLiv':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Pays de livraison"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'telLiv':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Téléphone de livraison"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'nomDestinataire':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Nom du destinataire"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'commentaire':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Commentaire"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                        'conditionsGenerals':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fileds["Conditions générales"]''',
-                                                                          ),
-                                                                          ParamType
-                                                                              .bool,
-                                                                        ),
-                                                                      }.withoutNulls,
-                                                                    );
-                                                                  },
-                                                                  text: FFLocalizations.of(
-                                                                          context)
-                                                                      .getText(
-                                                                    '2znxyixj' /* DETAILS */,
-                                                                  ),
-                                                                  options:
-                                                                      FFButtonOptions(
-                                                                    height:
-                                                                        40.0,
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            16.0,
-                                                                            0.0,
-                                                                            16.0,
-                                                                            0.0),
-                                                                    iconPadding:
-                                                                        EdgeInsetsDirectional.fromSTEB(
-                                                                            0.0,
-                                                                            0.0,
-                                                                            0.0,
-                                                                            0.0),
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
-                                                                    textStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleSmall
-                                                                        .override(
-                                                                          font:
-                                                                              GoogleFonts.interTight(
-                                                                            fontWeight:
-                                                                                FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                          ),
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).secondaryText,
-                                                                          letterSpacing:
-                                                                              0.0,
-                                                                          fontWeight: FlutterFlowTheme.of(context)
-                                                                              .titleSmall
-                                                                              .fontWeight,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .titleSmall
-                                                                              .fontStyle,
-                                                                        ),
-                                                                    elevation:
-                                                                        0.0,
-                                                                    borderSide:
-                                                                        BorderSide(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .alternate,
-                                                                    ),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            8.0),
-                                                                  ),
-                                                                ),
-                                                                FFButtonWidget(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    context
-                                                                        .pushNamed(
-                                                                      PageContactDevisWidget
-                                                                          .routeName,
-                                                                      queryParameters:
-                                                                          {
-                                                                        'numDevis':
-                                                                            serializeParam(
-                                                                          getJsonField(
-                                                                            quotesItem,
-                                                                            r'''$.fields["Numéro Devis"]''',
-                                                                          ).toString(),
-                                                                          ParamType
-                                                                              .String,
-                                                                        ),
-                                                                      }.withoutNulls,
-                                                                    );
-                                                                  },
-                                                                  text: FFLocalizations.of(
-                                                                          context)
-                                                                      .getText(
-                                                                    '70mde94h' /* CONTACT */,
-                                                                  ),
-                                                                  icon: Icon(
-                                                                    Icons
-                                                                        .contact_support_sharp,
-                                                                    size: 15.0,
-                                                                  ),
-                                                                  options:
-                                                                      FFButtonOptions(
-                                                                    height:
-                                                                        40.0,
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            16.0,
-                                                                            0.0,
-                                                                            16.0,
-                                                                            0.0),
-                                                                    iconPadding:
-                                                                        EdgeInsetsDirectional.fromSTEB(
-                                                                            0.0,
-                                                                            0.0,
-                                                                            0.0,
-                                                                            0.0),
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
-                                                                    textStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleSmall
-                                                                        .override(
-                                                                          font:
-                                                                              GoogleFonts.interTight(
-                                                                            fontWeight:
-                                                                                FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                            fontStyle:
-                                                                                FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                          ),
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).secondaryText,
-                                                                          letterSpacing:
-                                                                              0.0,
-                                                                          fontWeight: FlutterFlowTheme.of(context)
-                                                                              .titleSmall
-                                                                              .fontWeight,
-                                                                          fontStyle: FlutterFlowTheme.of(context)
-                                                                              .titleSmall
-                                                                              .fontStyle,
-                                                                        ),
-                                                                    elevation:
-                                                                        0.0,
-                                                                    borderSide:
-                                                                        BorderSide(
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .alternate,
-                                                                    ),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            8.0),
-                                                                  ),
-                                                                ),
-                                                                FFButtonWidget(
-                                                                  onPressed: () async {
-                                                                    FFAppState().SelectedPrice = 50;
-                                                                    FFAppState().SelectedQuoteNum = (getJsonField(
-                                                                      quotesItem,
-                                                                      r'''$.fields["Numéro Devis"]''',
-                                                                    ) ?? '10770').toString();
-                                                                    FFAppState().QuoteId = (getJsonField(
-                                                                      quotesItem,
-                                                                      r'''$.fields["Record ID"]''',
-                                                                    ) ?? getJsonField(
-                                                                      quotesItem,
-                                                                      r'''$.id''',
-                                                                    ) ?? '').toString();
-                                                                    FFAppState().TypeDeDevisValide = 'Devis Standard';
-                                                                    safeSetState(() {});
-                                                                    await showDialog(
-                                                                      context: context,
-                                                                      builder: (dialogContext) {
-                                                                        return Dialog(
-                                                                          elevation: 0,
-                                                                          insetPadding: EdgeInsets.zero,
-                                                                          backgroundColor: Colors.transparent,
-                                                                          alignment: AlignmentDirectional(0.0, 0.0).resolve(Directionality.of(context)),
-                                                                          child: GestureDetector(
-                                                                            onTap: () {
-                                                                              FocusScope.of(dialogContext).unfocus();
-                                                                              FocusManager.instance.primaryFocus?.unfocus();
-                                                                            },
-                                                                            child: PaiementWidget(
-                                                                              tarifSTD: FFAppState().SelectedPrice,
-                                                                              quoteNum: FFAppState().SelectedQuoteNum,
-                                                                              tarifADV: FFAppState().SelectedPrice,
-                                                                              quoteID: FFAppState().QuoteId,
-                                                                            ),
-                                                                          ),
-                                                                        );
-                                                                      },
-                                                                    );
-                                                                  },
-                                                                  text: FFLocalizations.of(context).getText(
-                                                                    'tnnxeir6' /* PAYER */,
-                                                                  ),
-                                                                  options: FFButtonOptions(
-                                                                    height: 40.0,
-                                                                    padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                                                    iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                                                    color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                    textStyle: FlutterFlowTheme.of(context).titleSmall.override(
-                                                                          font: GoogleFonts.interTight(
-                                                                            fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                            fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                          ),
-                                                                          color: FlutterFlowTheme.of(context).success,
-                                                                          letterSpacing: 0.0,
-                                                                          fontWeight: FlutterFlowTheme.of(context).titleSmall.fontWeight,
-                                                                          fontStyle: FlutterFlowTheme.of(context).titleSmall.fontStyle,
-                                                                        ),
-                                                                    elevation: 0.0,
-                                                                    borderSide: BorderSide(
-                                                                      color: FlutterFlowTheme.of(context).primary,
-                                                                    ),
-                                                                    borderRadius: BorderRadius.circular(8.0),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ].divide(SizedBox(
-                                                              height: 16.0)),
-                                                        ),
-                                                      ),
-                                                    ),
+                                                      r'''$.fields["Nom"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
                                                   ),
-                                              ],
+                                                  'email': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["E-mail"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'telephone': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Téléphone"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'queSouhaitezVous': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["En tant que particulier que souhaitez-vous?"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'adRetrait': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Adresse de retrait"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'codePostalRetrait': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Code postal de retrait"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'villeRetrait': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Ville de retrait"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'nomHDV': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["AHDV(Lieu de retrait)CP clients"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'telRetrait': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Téléphone de retrait"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'montant': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Montant de la marchandise"]''',
+                                                    ),
+                                                    ParamType.int,
+                                                  ),
+                                                  'tranche': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Tranche Montant de la marchandise"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'dateDeVente': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Date de vente"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'numBordereau': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["N°Bordereau"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'bordereauAcquite': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Bordereau acquitté ou pas"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'descriptionObjet': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["DESCRIPTION de l'objet"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'longueur': serializeParam(
+                                                    valueOrDefault<String>(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Longueur"]''',
+                                                      )?.toString(),
+                                                      '.',
+                                                    ),
+                                                    ParamType.String,
+                                                  ),
+                                                  'largeur': serializeParam(
+                                                    valueOrDefault<String>(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Largeur"]''',
+                                                      )?.toString(),
+                                                      '.',
+                                                    ),
+                                                    ParamType.String,
+                                                  ),
+                                                  'hauteur': serializeParam(
+                                                    valueOrDefault<String>(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Hauteur"]''',
+                                                      )?.toString(),
+                                                      '.',
+                                                    ),
+                                                    ParamType.String,
+                                                  ),
+                                                  'poids': serializeParam(
+                                                    valueOrDefault<String>(
+                                                      getJsonField(
+                                                        quotesItem,
+                                                        r'''$.fields["Poids"]''',
+                                                      )?.toString(),
+                                                      '.',
+                                                    ),
+                                                    ParamType.String,
+                                                  ),
+                                                  'objetProtege': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Objet protégé ou emballé ?"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'adLivraison': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Adresse de livraison"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'codePostalLiv': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Code postal de livraison"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'villeLiv': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Ville de livraison"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'paysLiv': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Pays de livraison"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'telLiv': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Téléphone de livraison"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'nomDestinataire': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Nom du destinataire"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'commentaire': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fields["Commentaire"]''',
+                                                    ).toString(),
+                                                    ParamType.String,
+                                                  ),
+                                                  'conditionsGenerals': serializeParam(
+                                                    getJsonField(
+                                                      quotesItem,
+                                                      r'''$.fileds["Conditions générales"]''',
+                                                    ),
+                                                    ParamType.bool,
+                                                  ),
+                                                }.withoutNulls,
+                                              );
+                                            }
+
+                                            final VoidCallback? primaryAction = paiementRecu != null
+                                                ? openDetails
+                                                : (typeDevisValide == null ? openValidation : null);
+
+                                            return DSQuoteCard(
+                                              devis: devis,
+                                              onTap: primaryAction,
+                                              action: typeDevisValide == null
+                                                  ? DSButton(
+                                                      label: FFLocalizations.of(context).getVariableText(
+                                                        frText: 'Valider le devis',
+                                                        enText: 'Accept quote',
+                                                      ),
+                                                      icon: Icons.check_rounded,
+                                                      expand: true,
+                                                      onPressed: openValidation,
+                                                    )
+                                                  : (paiementRecu != null
+                                                      ? DSButton(
+                                                          label: FFLocalizations.of(context).getVariableText(
+                                                            frText: 'Voir le détail',
+                                                            enText: 'View details',
+                                                          ),
+                                                          variant: DSButtonVariant.outline,
+                                                          icon: Icons.receipt_long_outlined,
+                                                          expand: true,
+                                                          onPressed: openDetails,
+                                                        )
+                                                      : null),
                                             );
                                           },
                                         );

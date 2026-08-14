@@ -10,12 +10,18 @@ import '../../flutter_flow/flutter_flow_util.dart';
 import '/backend/backend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stream_transform/stream_transform.dart';
+import '../expeditoo/expedion_auth.dart';
 import 'firebase_auth_manager.dart';
 
 export 'firebase_auth_manager.dart';
 
-final _authManager = FirebaseAuthManager();
-FirebaseAuthManager get authManager => _authManager;
+/// Authentication runs through Expeditoo's Better Auth, falling back to
+/// Firebase for accounts that predate the migration. [ExpedionAuthManager]
+/// implements the same mixins [FirebaseAuthManager] does, so every call site
+/// — `authManager.signInWithEmail`, `.resetPassword`, `.signOut` — is
+/// unchanged by the switch.
+final _authManager = ExpedionAuthManager();
+ExpedionAuthManager get authManager => _authManager;
 
 String get currentUserEmail =>
     currentUserDocument?.email ?? currentUser?.email ?? '';

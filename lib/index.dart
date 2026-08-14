@@ -42,3 +42,7 @@ export '/active_p_a_g_e_s/paiement_resultat/paiement_success_widget.dart'
     show PaiementSuccessWidget;
 export '/active_p_a_g_e_s/paiement_resultat/paiement_cancel_widget.dart'
     show PaiementCancelWidget;
+export '/active_p_a_g_e_s/confirmer_les_details/confirmer_les_details_widget.dart'
+    show ConfirmerLesDetailsWidget;
+export '/active_p_a_g_e_s/suivi_de_livraison/suivi_de_livraison_widget.dart'
+    show SuiviDeLivraisonWidget;

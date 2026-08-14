@@ -60,9 +60,24 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
     });
   }
 
+  // TODO(EXPEDITOO-TESTING): *** SECURITY — SPOOFABLE MARK-PAID FALLBACK ***
+  // When the verify server is unreachable, this page PATCHes Airtable directly
+  // and marks the quote paid with ZERO verification: anyone who visits
+  // /success?recordId=<id> can mark an unpaid quote as paid. The flag below
+  // defaults to true ONLY so testing works without a deployed payment server.
+  // Before any real payment flows the owner MUST: (1) deploy the payment
+  // server and set PAYMENT_SERVER_URL, (2) flip this default to false (or
+  // build with --dart-define=ALLOW_UNVERIFIED_MARKPAID=false), and then
+  // (3) delete the fallback branch and this flag entirely.
+  static const bool _kAllowUnverifiedMarkPaid = bool.fromEnvironment(
+    'ALLOW_UNVERIFIED_MARKPAID',
+    defaultValue: true,
+  );
+
   /// Verifies the payment server-side (the session is actually paid) and lets
   /// the server mark the quote paid in Airtable. Falls back to a direct
-  /// client-side Airtable update if the server is unreachable.
+  /// client-side Airtable update if the server is unreachable — see the loud
+  /// TODO above; the fallback is gated and must be removed for production.
   Future<bool> _confirmPayment(String recordId) async {
     final result = await ConfirmPaymentCall.call(
       sessionId: widget.sessionId ?? '',
@@ -71,7 +86,12 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
     if (result.succeeded) {
       return ConfirmPaymentCall.updated(result.jsonBody);
     }
-    // Server unreachable → best-effort direct update.
+    if (!_kAllowUnverifiedMarkPaid) {
+      // No verified confirmation available; leave the quote untouched. The
+      // Stripe payment itself still succeeded — reconcile via webhook/server.
+      return false;
+    }
+    // Server unreachable → best-effort direct update (UNVERIFIED, see TODO).
     final fallback = await MarkQuotePaidCall.call(quoteID: recordId);
     return fallback.succeeded;
   }
@@ -111,7 +131,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                     'Paiement réussi',
                     textAlign: TextAlign.center,
                     style: theme.headlineSmall.override(
-                      font: GoogleFonts.interTight(),
+                      font: GoogleFonts.plusJakartaSans(),
                       color: theme.primaryText,
                       letterSpacing: 0.0,
                     ),
@@ -121,7 +141,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                     'Merci ! Votre paiement a bien été pris en compte.',
                     textAlign: TextAlign.center,
                     style: theme.bodyMedium.override(
-                      font: GoogleFonts.inter(),
+                      font: GoogleFonts.plusJakartaSans(),
                       color: theme.secondaryText,
                       letterSpacing: 0.0,
                     ),
@@ -149,7 +169,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                             statusMessage,
                             textAlign: TextAlign.center,
                             style: theme.labelMedium.override(
-                              font: GoogleFonts.inter(),
+                              font: GoogleFonts.plusJakartaSans(),
                               color: theme.secondaryText,
                               letterSpacing: 0.0,
                             ),
@@ -165,7 +185,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                       'Référence : ${widget.sessionId}',
                       textAlign: TextAlign.center,
                       style: theme.labelSmall.override(
-                        font: GoogleFonts.inter(),
+                        font: GoogleFonts.plusJakartaSans(),
                         color: theme.secondaryText,
                         letterSpacing: 0.0,
                       ),
@@ -180,7 +200,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                       height: 48.0,
                       color: theme.primary,
                       textStyle: theme.titleSmall.override(
-                        font: GoogleFonts.interTight(),
+                        font: GoogleFonts.plusJakartaSans(),
                         color: theme.info,
                         letterSpacing: 0.0,
                       ),

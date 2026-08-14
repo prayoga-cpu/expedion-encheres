@@ -96,7 +96,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                       FFAppState().TypeDeDevisValide,
                       style:
                           FlutterFlowTheme.of(context).headlineSmall.override(
-                                font: GoogleFonts.interTight(
+                                font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .headlineSmall
                                       .fontWeight,
@@ -113,7 +113,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         'Devis #${widget.quoteNum}',
                         style:
                             FlutterFlowTheme.of(context).bodyMedium.override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .fontWeight,
@@ -150,7 +150,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                           style: FlutterFlowTheme.of(context)
                               .titleMedium
                               .override(
-                                font: GoogleFonts.interTight(
+                                font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .titleMedium
                                       .fontWeight,
@@ -166,7 +166,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                           style: FlutterFlowTheme.of(context)
                               .titleMedium
                               .override(
-                                font: GoogleFonts.interTight(
+                                font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .titleMedium
                                       .fontWeight,
@@ -191,7 +191,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                       'Valable jusqu\'au : $expiryFormatted',
                       style:
                           FlutterFlowTheme.of(context).labelSmall.override(
-                                font: GoogleFonts.inter(
+                                font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .labelSmall
                                       .fontWeight,
@@ -309,7 +309,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         textStyle: FlutterFlowTheme.of(context)
                             .titleSmall
                             .override(
-                              font: GoogleFonts.interTight(
+                              font: GoogleFonts.plusJakartaSans(
                                 fontWeight: FlutterFlowTheme.of(context)
                                     .titleSmall
                                     .fontWeight,
@@ -403,7 +403,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         textStyle: FlutterFlowTheme.of(context)
                             .titleSmall
                             .override(
-                              font: GoogleFonts.interTight(),
+                              font: GoogleFonts.plusJakartaSans(),
                               color: FlutterFlowTheme.of(context).primary,
                               letterSpacing: 0.0,
                             ),

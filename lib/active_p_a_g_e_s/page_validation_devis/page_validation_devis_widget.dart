@@ -1,3 +1,4 @@
+import '/design_system/ds_logo.dart';
 import '/active_p_a_g_e_s/liste_a_p_p_b_a_r/liste_a_p_p_b_a_r_widget.dart';
 import '/active_p_a_g_e_s/paiement/paiement_widget.dart';
 import '/auth/base_auth_user_provider.dart';
@@ -89,7 +90,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(70.0),
           child: AppBar(
-            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
             automaticallyImplyLeading: false,
             title: Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
@@ -122,7 +123,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .titleLarge
                                   .override(
-                                    font: GoogleFonts.interTight(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w600,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .titleLarge
@@ -137,24 +138,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                         .fontStyle,
                                   ),
                             ),
-                          Container(
-                            width: 30.0,
-                            height: 30.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.asset(
-                                'assets/images/1cbd084bc5eb4fddba058d26b8cab44f.png',
-                                width: 200.0,
-                                height: 200.0,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
+                          const XpdLogoMark(size: 30.0),
                         ].divide(SizedBox(width: 10.0)),
                       ),
                     ),
@@ -183,7 +167,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -219,7 +203,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyLarge
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyLarge
@@ -251,7 +235,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyMedium
@@ -281,7 +265,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyLarge
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyLarge
@@ -313,7 +297,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -345,7 +329,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -376,7 +360,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .bodyLarge
                                 .override(
-                                  font: GoogleFonts.inter(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w500,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .bodyLarge
@@ -409,7 +393,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                               style: FlutterFlowTheme.of(context)
                                   .bodyLarge
                                   .override(
-                                    font: GoogleFonts.inter(
+                                    font: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w500,
                                       fontStyle: FlutterFlowTheme.of(context)
                                           .bodyLarge
@@ -460,7 +444,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w500,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -506,7 +490,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                         textStyle: FlutterFlowTheme.of(context)
                                             .bodyLarge
                                             .override(
-                                              font: GoogleFonts.inter(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w500,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)
@@ -630,7 +614,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                             style: FlutterFlowTheme.of(context)
                                 .headlineMedium
                                 .override(
-                                  font: GoogleFonts.interTight(
+                                  font: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w600,
                                     fontStyle: FlutterFlowTheme.of(context)
                                         .headlineMedium
@@ -653,7 +637,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                           style: FlutterFlowTheme.of(context)
                               .bodyMedium
                               .override(
-                                font: GoogleFonts.inter(
+                                font: GoogleFonts.plusJakartaSans(
                                   fontWeight: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .fontWeight,
@@ -740,7 +724,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                             .titleLarge
                                                             .override(
                                                               font: GoogleFonts
-                                                                  .interTight(
+                                                                  .plusJakartaSans(
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
@@ -781,7 +765,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                               .titleMedium
                                                               .override(
                                                                 font: GoogleFonts
-                                                                    .interTight(
+                                                                    .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -850,7 +834,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -905,7 +889,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontStyle:
@@ -931,7 +915,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                       .titleMedium
                                                       .override(
                                                         font: GoogleFonts
-                                                            .interTight(
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -1023,7 +1007,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                             .titleLarge
                                                             .override(
                                                               font: GoogleFonts
-                                                                  .interTight(
+                                                                  .plusJakartaSans(
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
@@ -1064,7 +1048,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                               .titleMedium
                                                               .override(
                                                                 font: GoogleFonts
-                                                                    .interTight(
+                                                                    .plusJakartaSans(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -1133,7 +1117,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1188,7 +1172,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.inter(
+                                                        font: GoogleFonts.plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontStyle:
@@ -1214,7 +1198,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                       .titleMedium
                                                       .override(
                                                         font: GoogleFonts
-                                                            .interTight(
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -1259,10 +1243,16 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                               (widget.tarifAssADV ?? 50) * 100,
                                           currency: 'EUR',
                                           userID: currentUserUid,
+                                          // TODO(EXPEDITOO-TESTING): redirect
+                                          // URLs now derive from the app
+                                          // origin / APP_PUBLIC_URL define
+                                          // (was placeholder testurl.net.fr).
+                                          // Owner: set APP_PUBLIC_URL at build
+                                          // time (see vercel-build.sh).
                                           cancelUrl:
-                                              'https://www.testurl.net.fr/cancel',
+                                              '${paiementRedirectBaseUrl()}/cancel',
                                           successUrl:
-                                              'https://www.testurl.net.fr/success',
+                                              '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
                                           productName:
                                               'Retrait/Expedition de biens',
                                           quantity: 1,
@@ -1300,10 +1290,16 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                               (widget.tarifAssSTD ?? 50) * 100,
                                           currency: 'eur',
                                           userID: currentUserUid,
+                                          // TODO(EXPEDITOO-TESTING): redirect
+                                          // URLs now derive from the app
+                                          // origin / APP_PUBLIC_URL define
+                                          // (was placeholder testurl.net.fr).
+                                          // Owner: set APP_PUBLIC_URL at build
+                                          // time (see vercel-build.sh).
                                           cancelUrl:
-                                              'https://www.testurl.net.fr/cancel',
+                                              '${paiementRedirectBaseUrl()}/cancel',
                                           successUrl:
-                                              'https://www.testurl.net.fr/success',
+                                              '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
                                           productName:
                                               'Retrait/Expedition de biens',
                                           quantity: 1,
@@ -1353,7 +1349,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                       textStyle: FlutterFlowTheme.of(context)
                                           .titleSmall
                                           .override(
-                                            font: GoogleFonts.interTight(
+                                            font: GoogleFonts.plusJakartaSans(
                                               fontWeight: FontWeight.w600,
                                               fontStyle:
                                                   FlutterFlowTheme.of(context)
@@ -1467,7 +1463,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                         textStyle: FlutterFlowTheme.of(context)
                                             .titleSmall
                                             .override(
-                                              font: GoogleFonts.interTight(
+                                              font: GoogleFonts.plusJakartaSans(
                                                 fontWeight: FontWeight.w600,
                                                 fontStyle:
                                                     FlutterFlowTheme.of(context)

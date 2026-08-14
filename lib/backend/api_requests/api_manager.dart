@@ -510,6 +510,27 @@ class ApiManager {
     ApiCallOptions? options,
     http.Client? client,
   }) async {
+    if (apiUrl.contains('api.airtable.com') && body != null && bodyType == BodyType.JSON) {
+      try {
+        final decodedBody = json.decode(body);
+        if (decodedBody is Map<String, dynamic> && decodedBody.containsKey('fields')) {
+          final fields = decodedBody['fields'];
+          if (fields is Map<String, dynamic>) {
+            fields.removeWhere((key, value) {
+              if (value is List && value.isNotEmpty) {
+                final first = value.first;
+                if (first is Map && first['url'] == '') {
+                  return true;
+                }
+              }
+              return false;
+            });
+            body = json.encode(decodedBody);
+          }
+        }
+      } catch (_) {}
+    }
+
     final callOptions = options ??
         ApiCallOptions(
           callName: callName,

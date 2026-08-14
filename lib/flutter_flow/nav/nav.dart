@@ -98,6 +98,22 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => MesDevisWidget(),
         ),
         FFRoute(
+          name: ConfirmerLesDetailsWidget.routeName,
+          path: ConfirmerLesDetailsWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => ConfirmerLesDetailsWidget(
+            quoteId: params.getParam('quoteId', ParamType.String) ?? '',
+          ),
+        ),
+        FFRoute(
+          name: SuiviDeLivraisonWidget.routeName,
+          path: SuiviDeLivraisonWidget.routePath,
+          requireAuth: true,
+          builder: (context, params) => SuiviDeLivraisonWidget(
+            quoteId: params.getParam('quoteId', ParamType.String) ?? '',
+          ),
+        ),
+        FFRoute(
           name: FormDemandeDevisWidget.routeName,
           path: FormDemandeDevisWidget.routePath,
           builder: (context, params) => FormDemandeDevisWidget(),
