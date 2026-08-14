@@ -67,17 +67,29 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
   // defaults to true ONLY so testing works without a deployed payment server.
   // Before any real payment flows the owner MUST: (1) deploy the payment
   // server and set PAYMENT_SERVER_URL, (2) flip this default to false (or
-  // build with --dart-define=ALLOW_UNVERIFIED_MARKPAID=false), and then
-  // (3) delete the fallback branch and this flag entirely.
+  // build with --dart-define=ALLOW_UNVERIFIED_MARKPAID=false, which
+  // vercel-build.sh forwards), and then (3) delete the fallback branch and
+  // this flag entirely.
   static const bool _kAllowUnverifiedMarkPaid = bool.fromEnvironment(
     'ALLOW_UNVERIFIED_MARKPAID',
     defaultValue: true,
   );
 
+  /// Whether the confirm call never reached the server at all.
+  ///
+  /// `ApiCallResponse.succeeded` is merely `200 <= statusCode < 300`, so a
+  /// server that answers 402/403/404 ("this session was never paid") is a
+  /// *definitive rejection*, not an outage, and must be trusted. Only a
+  /// transport failure counts as unreachable: `ApiManager.makeApiCall` catches
+  /// those and builds `ApiCallResponse(null, {}, -1, exception: e)`, so a
+  /// status below any real HTTP code means no answer was received.
+  static bool _isUnreachable(ApiCallResponse result) => result.statusCode < 100;
+
   /// Verifies the payment server-side (the session is actually paid) and lets
   /// the server mark the quote paid in Airtable. Falls back to a direct
-  /// client-side Airtable update if the server is unreachable — see the loud
-  /// TODO above; the fallback is gated and must be removed for production.
+  /// client-side Airtable update ONLY when the server could not be reached —
+  /// see the loud TODO above; the fallback is gated and must be removed for
+  /// production.
   Future<bool> _confirmPayment(String recordId) async {
     final result = await ConfirmPaymentCall.call(
       sessionId: widget.sessionId ?? '',
@@ -86,9 +98,10 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
     if (result.succeeded) {
       return ConfirmPaymentCall.updated(result.jsonBody);
     }
-    if (!_kAllowUnverifiedMarkPaid) {
-      // No verified confirmation available; leave the quote untouched. The
-      // Stripe payment itself still succeeded — reconcile via webhook/server.
+    if (!_isUnreachable(result) || !_kAllowUnverifiedMarkPaid) {
+      // The server answered and refused (or the fallback is off): leave the
+      // quote untouched. Never override a definitive "not paid" with an
+      // unverified PATCH. Reconcile via the payment server / Stripe webhook.
       return false;
     }
     // Server unreachable → best-effort direct update (UNVERIFIED, see TODO).

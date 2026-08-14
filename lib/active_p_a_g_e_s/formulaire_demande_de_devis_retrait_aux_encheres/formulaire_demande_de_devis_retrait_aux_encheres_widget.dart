@@ -9,6 +9,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import '/flutter_flow/upload_data.dart';
+import 'dart:async';
 import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,10 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   late FormulaireDemandeDeDevisRetraitAuxEncheresModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// The staged express-card bordereau's upload while it is in flight. Submit
+  /// awaits it, so submitting early cannot silently drop the file.
+  Future<void>? _draftBordereauUpload;
 
   @override
   void initState() {
@@ -161,11 +166,12 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     // upload it post-frame so the submit's uploadedFileUrl is populated.
     final draftBordereau = draft?.bordereau;
     if (draftBordereau != null && draftBordereau.bytes.isNotEmpty) {
-      _model.uploadedLocalFile_uploadDataBordereauFDDencheres = FFUploadedFile(
+      final stagedLocalFile = FFUploadedFile(
         name: draftBordereau.storagePath.split('/').last,
         bytes: draftBordereau.bytes,
         originalFilename: draftBordereau.originalFilename,
       );
+      _model.uploadedLocalFile_uploadDataBordereauFDDencheres = stagedLocalFile;
       // TODO(EXPEDITOO-TESTING): best-effort upload of the express-card
       // bordereau. If Firebase Storage rejects the stored path (e.g. the file
       // was picked while signed out), uploadedFileUrl stays empty and the
@@ -174,22 +180,30 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       // signed-in user's prefix before uploading (expose a public path helper
       // in lib/flutter_flow/upload_data.dart) so this upload can't be
       // rejected by storage rules.
+      final uploadDone = Completer<void>();
+      _draftBordereauUpload = uploadDone.future;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        safeSetState(() =>
-            _model.isDataUploading_uploadDataBordereauFDDencheres = true);
+        safeSetState(
+            () => _model.isDataUploading_uploadDataBordereauFDDencheres = true);
         String? url;
         try {
-          url =
-              await uploadData(draftBordereau.storagePath, draftBordereau.bytes);
+          url = await uploadData(
+              draftBordereau.storagePath, draftBordereau.bytes);
         } catch (_) {
           url = null; // Best effort — the visitor can re-pick the file.
         } finally {
           _model.isDataUploading_uploadDataBordereauFDDencheres = false;
         }
-        if (url != null) {
+        // Only claim the slot if it is still the staged file: while this was in
+        // flight the visitor may have picked their own bordereau (or removed
+        // this one), and that choice wins.
+        if (url != null &&
+            identical(_model.uploadedLocalFile_uploadDataBordereauFDDencheres,
+                stagedLocalFile)) {
           _model.uploadedFileUrl_uploadDataBordereauFDDencheres = url;
         }
         safeSetState(() {});
+        uploadDone.complete();
       });
     }
 
@@ -1597,7 +1611,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -2347,7 +2362,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -2920,67 +2936,83 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                           ),
                         ),
                         FFButtonWidget(
-                          onPressed: () async {
-                            _model.apiResultpf2 =
-                                await CreateAirtableQuoteCall.call(
-                              prenom: _model.prnomTextController.text,
-                              nom: _model.nomTextController.text,
-                              eMail: _model.eMailTextController.text,
-                              telephone: _model.tlphoneTextController.text,
-                              assuranceadvalorem: _model.assuanceoupasValue,
-                              adressederetrait:
-                                  _model.adressederetraitTextController.text,
-                              codepostalderetrait:
-                                  _model.codepostalTextController.text,
-                              lieuderetrait:
-                                  _model.lieuderetraitTextController.text,
-                              nomdelamaisondeventes: _model
-                                  .nomdelamaisondeventesTextController.text,
-                              telephonederetrait:
-                                  _model.tlphonederetraitTextController.text,
-                              montantdelamarchandise: int.tryParse(
-                                  _model.montantTextController.text),
-                              tranche: _model.trancheValue,
-                              datedevente:
-                                  _model.datedeventeTextController.text,
-                              nBordereau: _model.nBordereauTextController.text,
-                              bordereauacquitte: _model.bordereauacquitteValue,
-                              dESCRIPTIONdelobjet:
-                                  _model.descriptionobjetTextController.text,
-                              longueurdelobjet:
-                                  _model.longueurTextController.text,
-                              largeurdelobjet:
-                                  _model.largeurTextController.text,
-                              hauteurdelobjet:
-                                  _model.hauteurTextController.text,
-                              poidsdelobjet:
-                                  _model.poidsdelobjetkgTextController.text,
-                              protgouemball: _model.emballeoupasValue,
-                              adressedelivraison:
-                                  _model.adressedelivraisonTextController.text,
-                              adressedelivraisonL2:
-                                  _model.adresselivraisonL2TextController.text,
-                              codepostaldelivraison:
-                                  _model.codepostallivraisonTextController.text,
-                              villedelivraison:
-                                  _model.villelivraisonTextController.text,
-                              telephonedelivraison:
-                                  _model.telephonelivasonTextController.text,
-                              nomdudestinataire:
-                                  _model.nomDestinataireTextController.text,
-                              uid: currentUserUid,
-                              bordereauDocURL: _model
-                                  .uploadedFileUrl_uploadDataBordereauFDDencheres,
-                              imagesURL: _model
-                                  .uploadedFileUrl_uploadDataImageDDRencheres,
-                            );
+                          // Disabled while a bordereau is uploading — the same
+                          // guard the file picker relies on — so the quote can't
+                          // be sent without its attachment.
+                          onPressed: _model
+                                  .isDataUploading_uploadDataBordereauFDDencheres
+                              ? null
+                              : () async {
+                                  // The express-card bordereau may still be in
+                                  // flight; wait for it before submitting.
+                                  await _draftBordereauUpload;
 
-                            if ((_model.apiResultpf2?.succeeded ?? true)) {
-                              context.pushNamed(MesDevisWidget.routeName);
-                            }
+                                  _model.apiResultpf2 =
+                                      await CreateAirtableQuoteCall.call(
+                                    prenom: _model.prnomTextController.text,
+                                    nom: _model.nomTextController.text,
+                                    eMail: _model.eMailTextController.text,
+                                    telephone:
+                                        _model.tlphoneTextController.text,
+                                    assuranceadvalorem:
+                                        _model.assuanceoupasValue,
+                                    adressederetrait: _model
+                                        .adressederetraitTextController.text,
+                                    codepostalderetrait:
+                                        _model.codepostalTextController.text,
+                                    lieuderetrait:
+                                        _model.lieuderetraitTextController.text,
+                                    nomdelamaisondeventes: _model
+                                        .nomdelamaisondeventesTextController
+                                        .text,
+                                    telephonederetrait: _model
+                                        .tlphonederetraitTextController.text,
+                                    montantdelamarchandise: int.tryParse(
+                                        _model.montantTextController.text),
+                                    tranche: _model.trancheValue,
+                                    datedevente:
+                                        _model.datedeventeTextController.text,
+                                    nBordereau:
+                                        _model.nBordereauTextController.text,
+                                    bordereauacquitte:
+                                        _model.bordereauacquitteValue,
+                                    dESCRIPTIONdelobjet: _model
+                                        .descriptionobjetTextController.text,
+                                    longueurdelobjet:
+                                        _model.longueurTextController.text,
+                                    largeurdelobjet:
+                                        _model.largeurTextController.text,
+                                    hauteurdelobjet:
+                                        _model.hauteurTextController.text,
+                                    poidsdelobjet: _model
+                                        .poidsdelobjetkgTextController.text,
+                                    protgouemball: _model.emballeoupasValue,
+                                    adressedelivraison: _model
+                                        .adressedelivraisonTextController.text,
+                                    adressedelivraisonL2: _model
+                                        .adresselivraisonL2TextController.text,
+                                    codepostaldelivraison: _model
+                                        .codepostallivraisonTextController.text,
+                                    villedelivraison: _model
+                                        .villelivraisonTextController.text,
+                                    telephonedelivraison: _model
+                                        .telephonelivasonTextController.text,
+                                    nomdudestinataire: _model
+                                        .nomDestinataireTextController.text,
+                                    uid: currentUserUid,
+                                    bordereauDocURL: _model
+                                        .uploadedFileUrl_uploadDataBordereauFDDencheres,
+                                    imagesURL: _model
+                                        .uploadedFileUrl_uploadDataImageDDRencheres,
+                                  );
 
-                            safeSetState(() {});
-                          },
+                                  if ((_model.apiResultpf2?.succeeded ??
+                                      true)) {
+                                    context.pushNamed(MesDevisWidget.routeName);
+                                  }
+
+                                  safeSetState(() {});
+                                },
                           text: FFLocalizations.of(context).getText(
                             'sj1gfp8m' /* Envoyer */,
                           ),

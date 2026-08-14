@@ -31,19 +31,32 @@ int computePaiementAmountCents({
   return base * 100;
 }
 
-/// Absolute base URL Stripe should redirect back to after Checkout. On web we
-/// use the app's own origin (e.g. `http://localhost:60816`) so the user lands
-/// back inside the running app; on mobile we fall back to the public site,
-/// which is opened in the system browser.
-// TODO(EXPEDITOO-TESTING): the non-web fallback comes from the APP_PUBLIC_URL
-// dart-define (wired through vercel-build.sh). Owner: set APP_PUBLIC_URL to the
-// real deployed origin so mobile builds redirect back to the right site.
-String paiementRedirectBaseUrl() => kIsWeb
-    ? Uri.base.origin
-    : const String.fromEnvironment(
-        'APP_PUBLIC_URL',
-        defaultValue: 'https://expedionencheres.com',
-      );
+/// The APP_PUBLIC_URL dart-define, trailing slash removed, or '' when the
+/// build did not set one.
+const String _kAppPublicUrl = String.fromEnvironment('APP_PUBLIC_URL');
+
+/// Absolute base URL Stripe should redirect back to after Checkout.
+///
+/// An explicit APP_PUBLIC_URL wins on every platform, web included — the only
+/// build this project produces is `flutter build web`, so a define the web
+/// branch ignored would be dead code. With no define, web uses the app's own
+/// origin (e.g. `http://localhost:60816`, or whatever host served the
+/// deployment) so the user lands back inside the running app, and mobile falls
+/// back to the public site, which is opened in the system browser.
+// TODO(EXPEDITOO-TESTING): vercel-build.sh passes APP_PUBLIC_URL through but
+// leaves it empty by default, so each deployment redirects back to its own
+// origin. Owner: set it in the Vercel environment only when Stripe must return
+// to a different origin than the one serving the app (e.g. a custom domain in
+// front of a preview host), and set it for mobile builds.
+String paiementRedirectBaseUrl() {
+  final configured = _kAppPublicUrl.trim();
+  if (configured.isNotEmpty) {
+    return configured.endsWith('/')
+        ? configured.substring(0, configured.length - 1)
+        : configured;
+  }
+  return kIsWeb ? Uri.base.origin : 'https://expedionencheres.com';
+}
 
 class PaiementModel extends FlutterFlowModel<PaiementWidget> {
   ///  State fields for stateful widgets in this component.

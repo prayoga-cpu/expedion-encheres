@@ -37,8 +37,13 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
     // Whatever the landing page's quote form collected, so the visitor does
     // not retype the two or three things they already told us. Null unless
     // they arrived here from one of those forms.
-    final draft = QuoteDraft.consume();
-    final delivery = draft?.deliveryParts;
+    //
+    // Read with [QuoteDraft.peek], never [QuoteDraft.consume]: this form is not
+    // reachable from any navigation and its "Valider" button submits nothing,
+    // so consuming here would destroy the draft for the forms that can send it
+    // (`FormulaireDemandeDeDevisRetraitAuxEncheres`,
+    // `FormulaireDeDevisParBordereau`).
+    final draft = QuoteDraft.peek();
 
     _model.nomTextController ??= TextEditingController(
         text: valueOrDefault(currentUserDocument?.nom, ''));
@@ -61,12 +66,14 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
     _model.adresseRetraitTextController ??= TextEditingController();
     _model.adresseRetraitFocusNode ??= FocusNode();
 
-    _model.codePostalRetraitTextController ??=
-        TextEditingController(text: delivery?.postcode ?? '');
+    // Left empty on purpose: these are the RETRAIT (pickup) fields, and the
+    // draft's postcode/city describe the DELIVERY destination. This form has no
+    // delivery address fields to seed, so the delivery half of the draft simply
+    // has no home here — writing it into pickup would invert the journey.
+    _model.codePostalRetraitTextController ??= TextEditingController();
     _model.codePostalRetraitFocusNode ??= FocusNode();
 
-    _model.villeRetraitTextController ??=
-        TextEditingController(text: delivery?.city ?? '');
+    _model.villeRetraitTextController ??= TextEditingController();
     _model.villeRetraitFocusNode ??= FocusNode();
 
     // The landing page asks for the auction house as one free-text line
@@ -154,7 +161,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                         .displayMedium
                                         .fontStyle,
                                   ),
-                                  color: FlutterFlowTheme.of(context).primaryText,
+                                  color:
+                                      FlutterFlowTheme.of(context).primaryText,
                                   fontSize: 35.0,
                                   letterSpacing: 0.0,
                                   fontWeight: FontWeight.bold,
@@ -226,7 +234,9 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -284,7 +294,9 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: FlutterFlowTheme.of(context).primaryText,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -332,7 +344,9 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                           .bodyMedium
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 14.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.normal,
@@ -390,7 +404,9 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                         .bodyMedium
                                                         .fontStyle,
                                               ),
-                                              color: FlutterFlowTheme.of(context).primaryText,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
                                               fontSize: 14.0,
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.normal,
@@ -435,7 +451,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -486,7 +503,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -524,7 +542,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -575,7 +594,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -671,7 +691,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight:
                                                         FlutterFlowTheme.of(
                                                                 context)
@@ -983,7 +1004,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1034,7 +1056,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1072,7 +1095,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1123,7 +1147,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1160,7 +1185,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1211,7 +1237,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1248,7 +1275,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1299,7 +1327,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1336,7 +1365,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1387,7 +1417,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1454,7 +1485,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1505,7 +1537,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1709,7 +1742,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -1764,7 +1798,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1815,7 +1850,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1852,7 +1888,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1903,7 +1940,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -1939,7 +1977,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -1990,7 +2029,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -2026,7 +2066,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -2077,7 +2118,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -2113,7 +2155,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -2164,7 +2207,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -2200,7 +2244,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -2251,7 +2296,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,
@@ -2326,7 +2372,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -2377,7 +2424,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                                   .bodyMedium
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 14.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.normal,
@@ -2428,7 +2476,8 @@ class _FormDemandeDevisWidgetState extends State<FormDemandeDevisWidget> {
                                             .bodyMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 14.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.normal,

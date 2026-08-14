@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '/backend/quote_draft.dart';
 import '../auth_manager.dart';
 import '../firebase_auth/firebase_auth_manager.dart';
 import '../firebase_auth/firebase_user_provider.dart';
@@ -219,7 +220,8 @@ class ExpedionAuthManager extends AuthManager
           return null;
         }
       } catch (error) {
-        if (kDebugMode) debugPrint('[ExpedionAuth] Google via Expeditoo: $error');
+        if (kDebugMode)
+          debugPrint('[ExpedionAuth] Google via Expeditoo: $error');
       }
     }
     return _firebase.signInWithGoogle(context);
@@ -235,6 +237,9 @@ class ExpedionAuthManager extends AuthManager
 
   @override
   Future signOut() async {
+    // Anything the landing page parked belongs to the person signing out, not
+    // to whoever uses this browser next.
+    QuoteDraft.clear();
     await ExpeditooAuthClient.signOut();
     _expeditooSession.add(null);
     await _google.signOut().catchError((_) => null);
