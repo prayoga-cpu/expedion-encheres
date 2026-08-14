@@ -61,8 +61,7 @@ class DSTopNav extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final isDesktop =
-        MediaQuery.sizeOf(context).width >= _desktopBreakpoint;
+    final isDesktop = MediaQuery.sizeOf(context).width >= _desktopBreakpoint;
 
     return Container(
       height: height,
@@ -166,8 +165,7 @@ class _DSNavLinkButtonState extends State<_DSNavLinkButton> {
         child: AnimatedContainer(
           duration: DSMotion.duration,
           curve: DSMotion.curve,
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           decoration: BoxDecoration(
             color: _hovered ? theme.accent1 : Colors.transparent,
             borderRadius: BorderRadius.circular(DSShape.control),
@@ -189,7 +187,8 @@ class _DSNavLinkButtonState extends State<_DSNavLinkButton> {
 
 /// Light-on-dark toggle, as in the Expeditoo header.
 class DSThemeToggle extends StatelessWidget {
-  const DSThemeToggle({super.key, required this.isDark, required this.onChanged});
+  const DSThemeToggle(
+      {super.key, required this.isDark, required this.onChanged});
 
   final bool isDark;
   final ValueChanged<bool> onChanged;

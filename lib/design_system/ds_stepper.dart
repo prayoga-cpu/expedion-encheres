@@ -30,8 +30,9 @@ class DSStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final progress =
-        steps.isEmpty ? 0.0 : (currentStep + 1).clamp(0, steps.length) / steps.length;
+    final progress = steps.isEmpty
+        ? 0.0
+        : (currentStep + 1).clamp(0, steps.length) / steps.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

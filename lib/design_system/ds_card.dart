@@ -56,9 +56,8 @@ class _DSCardState extends State<DSCard> {
       child: Padding(padding: widget.padding, child: widget.child),
     );
 
-    final content = widget.clip
-        ? ClipRRect(borderRadius: radius, child: card)
-        : card;
+    final content =
+        widget.clip ? ClipRRect(borderRadius: radius, child: card) : card;
 
     if (widget.onTap == null) return content;
 

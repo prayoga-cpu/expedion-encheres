@@ -54,7 +54,8 @@ class DSPageLoader extends StatelessWidget {
           ),
           if (message != null) ...[
             const SizedBox(height: 16.0),
-            Text(message!, textAlign: TextAlign.center, style: theme.labelMedium),
+            Text(message!,
+                textAlign: TextAlign.center, style: theme.labelMedium),
           ],
         ],
       ),

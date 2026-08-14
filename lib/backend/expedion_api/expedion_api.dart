@@ -2,43 +2,68 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '/auth/expeditoo/expeditoo_auth_client.dart';
 import '/auth/firebase_auth/auth_util.dart';
 
 /// Client for the Expedion quotes API served by Expeditoo's Next.js app.
 ///
-/// This is the Phase A repoint: the same data the Flutter UI reads from
-/// Airtable today, served from the PostgreSQL database shared with Expeditoo
-/// (ROADMAP.md §5). Only the data layer moves — no screen changes are implied
-/// by this file existing.
+/// This is the whole data layer: quotes, their events and bordereau extraction
+/// all come from the PostgreSQL database shared with Expeditoo. It replaces the
+/// Airtable `CONTACTS` table the app used to read.
 ///
-/// Configuration, all supplied at build time:
+/// Configuration is one define, shared with [ExpeditooAuthClient] since the
+/// same Next.js app serves both:
 ///
 ///   --dart-define=EXPEDION_API_BASE_URL=https://app.expeditoo.fr
-///   --dart-define=EXPEDION_API_KEY=...
 ///
-/// SECURITY. `EXPEDION_API_KEY` authenticates *the app*, not the signed-in
-/// user; the server pairs it with the `x-expedion-uid` header to decide whose
-/// quotes to return. A `--dart-define` is compiled into the bundle, so on
-/// Flutter **web** this key is readable by anyone who opens devtools. Ship the
-/// web target only once either (a) calls are proxied through a server that
-/// holds the key, or (b) the Firebase → Better Auth migration lands and the
-/// server can verify a real user token. On iOS/Android/macOS the compiled-in
-/// key is the same trade-off the Airtable PAT already makes today.
+/// ## Authentication
+///
+/// Calls carry the signed-in user's **Better Auth session token**, which the
+/// server resolves to a real user (`requireExpedionCaller` in
+/// `expeditoo-ship/src/lib/expedion-auth.ts`). Nothing about the caller's
+/// identity is client-asserted, so this is safe to ship on web — the earlier
+/// shared-key design, where a compiled-in key let any holder claim any UID, is
+/// no longer used for user calls.
+///
+/// `EXPEDION_API_KEY` remains supported for one case only: a client still
+/// signed in through Firebase, which has no Better Auth session for the server
+/// to read. That path names the Firebase UID in `x-expedion-uid` and keeps the
+/// old trust model, so **do not supply that define to a web build** — leave it
+/// unset and web users will authenticate by session or not at all.
 class ExpedionApi {
   ExpedionApi._();
 
-  static const String baseUrl =
-      String.fromEnvironment('EXPEDION_API_BASE_URL');
+  static const String baseUrl = String.fromEnvironment('EXPEDION_API_BASE_URL');
+
+  /// Legacy app-level key. Native builds only — see the class comment.
   static const String _apiKey = String.fromEnvironment('EXPEDION_API_KEY');
 
-  /// False until both defines are supplied, so callers can keep using the
-  /// Airtable path during the migration instead of failing at runtime.
-  static bool get isConfigured => baseUrl.isNotEmpty && _apiKey.isNotEmpty;
+  /// The API needs a base URL and *some* way to identify the caller: either a
+  /// Better Auth session, or the legacy key paired with a Firebase UID.
+  static bool get isConfigured =>
+      baseUrl.isNotEmpty && (_hasSession || _hasLegacyKey);
+
+  static bool get _hasSession =>
+      ExpeditooAuthClient.isConfigured && ExpeditooAuthClient.hasToken;
+
+  static bool get _hasLegacyKey =>
+      _apiKey.isNotEmpty && currentUserUid.isNotEmpty;
+
+  /// True when the caller is a real Better Auth user rather than the app
+  /// asserting a UID. Screens can use this to decide whether an action that
+  /// requires a verified identity is safe to offer.
+  static bool get hasUserSession => _hasSession;
 
   static Map<String, String> get _headers => {
-        'Authorization': 'Bearer $_apiKey',
-        'x-expedion-uid': currentUserUid,
         'Content-Type': 'application/json',
+        // Prefer the user's own session. Only fall back to the app key when
+        // there is none, so a signed-in user is never impersonated by it.
+        if (_hasSession)
+          'Authorization': 'Bearer ${ExpeditooAuthClient.token}'
+        else if (_hasLegacyKey) ...{
+          'Authorization': 'Bearer $_apiKey',
+          'x-expedion-uid': currentUserUid,
+        },
       };
 
   static Uri _uri(String path, [Map<String, String>? query]) => Uri.parse(
@@ -96,8 +121,7 @@ class ExpedionApi {
         ),
       );
 
-  static Future<ExpedionApiResult> acceptQuote(String id, String kind) =>
-      _send(
+  static Future<ExpedionApiResult> acceptQuote(String id, String kind) => _send(
         () => http.post(
           _uri('/api/expedion/quotes/$id/accept'),
           headers: _headers,
@@ -150,12 +174,18 @@ class ExpedionApi {
     Future<http.Response> Function() request, {
     Duration timeout = const Duration(seconds: 30),
   }) async {
-    if (!isConfigured) {
+    if (baseUrl.isEmpty) {
       return ExpedionApiResult.failure(
         code: 'NOT_CONFIGURED',
-        message:
-            'EXPEDION_API_BASE_URL and EXPEDION_API_KEY must be provided at '
-            'build time via --dart-define.',
+        message: 'EXPEDION_API_BASE_URL must be provided at build time via '
+            '--dart-define.',
+      );
+    }
+    if (!_hasSession && !_hasLegacyKey) {
+      return ExpedionApiResult.failure(
+        code: 'UNAUTHENTICATED',
+        statusCode: 401,
+        message: 'Connectez-vous pour accéder à vos devis.',
       );
     }
 

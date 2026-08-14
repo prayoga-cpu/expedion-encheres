@@ -189,7 +189,8 @@ class ExpeditooAuthClient {
 
   /// The redirect flow, for web where `google_sign_in` yields no ID token.
   /// Returns the Google consent URL for the caller to open.
-  static Future<String?> googleRedirectUrl({required String callbackUrl}) async {
+  static Future<String?> googleRedirectUrl(
+      {required String callbackUrl}) async {
     final result = await _send(
       () => http.post(
         _uri('/sign-in/social'),

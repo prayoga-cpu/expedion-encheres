@@ -50,8 +50,8 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
         TextEditingController(text: currentUserEmail);
     _model.emailFocusNode1 ??= FocusNode();
 
-    _model.emailTextController2 ??=
-        TextEditingController(text: (widget.numDevis == 'null') ? '' : (widget.numDevis ?? ''));
+    _model.emailTextController2 ??= TextEditingController(
+        text: (widget.numDevis == 'null') ? '' : (widget.numDevis ?? ''));
     _model.emailFocusNode2 ??= FocusNode();
 
     _model.sujetTextController ??= TextEditingController();
@@ -1080,7 +1080,9 @@ class _PageContactDevisWidgetState extends State<PageContactDevisWidget> {
                                   sujet: _model.sujetTextController.text,
                                   message: _model.messageTextController.text,
                                   uid: currentUserUid,
-                                  numDevis: (widget.numDevis == 'null') ? '' : (widget.numDevis ?? ''),
+                                  numDevis: (widget.numDevis == 'null')
+                                      ? ''
+                                      : (widget.numDevis ?? ''),
                                 );
 
                                 safeSetState(() {});

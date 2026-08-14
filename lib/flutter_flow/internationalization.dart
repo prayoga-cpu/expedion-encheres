@@ -390,9 +390,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'vt5055c3': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     'fpvtspp0': {
       'fr': 'Accueil',
@@ -1216,9 +1216,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     '70rp5ld8': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     'g4q998eg': {
       'fr': 'Home',
@@ -1327,9 +1327,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'f6kv0siw': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     '7xu09z6t': {
       'fr': 'Home',
@@ -1742,9 +1742,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   {
     'ink9zdky': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     'x7iapl7r': {
       'fr': 'Accueil',
@@ -2246,9 +2246,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     't96len3g': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     'xg2jcs36': {
       'fr': 'Home',
@@ -2877,9 +2877,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'krl5wkni': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     '0me6z5y9': {
       'fr': 'Home',
@@ -3096,9 +3096,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'qvs1yojv': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     'i2d1g9yg': {
       'fr': 'Accueil',
@@ -3228,9 +3228,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'b1eopx3k': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     '58p9x5jp': {
       'fr': 'Accueil',
@@ -3619,9 +3619,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     '1mwjh3e7': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     'au09be00': {
       'fr': 'Home',
@@ -4492,9 +4492,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'og0njdeh': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     'wk36iwq5': {
       'fr': 'Accueil',
@@ -4694,9 +4694,9 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
   {
     'tfabeimg': {
       'fr': 'EXPEDION',
-      'en': 'SHIPPING',
-      'es': 'ENVÍO',
-      'it': 'SPEDIZIONE',
+      'en': 'EXPEDION',
+      'es': 'EXPEDION',
+      'it': 'EXPEDION',
     },
     '1nwaxghw': {
       'fr': 'Accueil',

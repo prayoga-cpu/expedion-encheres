@@ -58,7 +58,8 @@ class DSEmptyState extends StatelessWidget {
         ),
         if (description != null) ...[
           const SizedBox(height: 4.0),
-          Text(description!, textAlign: TextAlign.center, style: theme.labelMedium),
+          Text(description!,
+              textAlign: TextAlign.center, style: theme.labelMedium),
         ],
         if (action != null) ...[
           const SizedBox(height: DSSize.sectionGap),

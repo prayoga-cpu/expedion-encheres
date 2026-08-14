@@ -629,7 +629,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                             .titleLarge
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 22.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.w600,
@@ -770,7 +771,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -867,7 +869,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -964,7 +967,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1061,7 +1065,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1158,7 +1163,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1286,7 +1292,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1386,7 +1393,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1486,7 +1494,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                       .bodyLarge
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context).primaryText,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w500,
@@ -1610,7 +1619,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                   .bodyLarge
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 16.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
@@ -1676,7 +1686,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                   .bodyLarge
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 16.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,
@@ -1742,7 +1753,8 @@ class _ParametreWidgetState extends State<ParametreWidget> {
                                                   .bodyLarge
                                                   .fontStyle,
                                         ),
-                                        color: FlutterFlowTheme.of(context).primaryText,
+                                        color: FlutterFlowTheme.of(context)
+                                            .primaryText,
                                         fontSize: 16.0,
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w500,

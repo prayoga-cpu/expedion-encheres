@@ -61,7 +61,10 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
       FFAppState().TypeDeDevisValide = '';
       safeSetState(() {});
       FFAppState().DevisValideOuPas = 'Devis Validé';
-      FFAppState().TypeDeDevisValide = (widget.typeDevisChoisi == null || widget.typeDevisChoisi == 'null') ? '' : widget.typeDevisChoisi!;
+      FFAppState().TypeDeDevisValide =
+          (widget.typeDevisChoisi == null || widget.typeDevisChoisi == 'null')
+              ? ''
+              : widget.typeDevisChoisi!;
       safeSetState(() {});
     });
 
@@ -834,7 +837,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -889,7 +893,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontStyle:
@@ -1117,7 +1122,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1172,7 +1178,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontStyle:
@@ -1273,7 +1280,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                             ),
                                             userId: currentUserUid,
                                             orderId: widget.quoteID ?? '',
-                                            amountstripe: widget.tarifAssADV ?? 50,
+                                            amountstripe:
+                                                widget.tarifAssADV ?? 50,
                                           );
 
                                           await launchURL(
@@ -1320,7 +1328,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                             ),
                                             userId: currentUserUid,
                                             orderId: widget.quoteID ?? '',
-                                            amountstripe: widget.tarifAssSTD ?? 50,
+                                            amountstripe:
+                                                widget.tarifAssSTD ?? 50,
                                           );
 
                                           await launchURL(
@@ -1434,7 +1443,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                   child: PaiementWidget(
                                                     tarifADV: FFAppState()
                                                         .SelectedPrice,
-                                                    quoteID: widget.quoteID ?? '',
+                                                    quoteID:
+                                                        widget.quoteID ?? '',
                                                     tarifSTD: FFAppState()
                                                         .SelectedPrice,
                                                     quoteNum: FFAppState()

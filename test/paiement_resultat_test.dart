@@ -93,8 +93,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Paiement réussi'), findsOneWidget);
-    expect(find.textContaining('peut prendre quelques instants'),
-        findsOneWidget);
+    expect(
+        find.textContaining('peut prendre quelques instants'), findsOneWidget);
   });
 
   testWidgets('cancel page shows the cancellation message', (tester) async {

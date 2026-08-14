@@ -274,7 +274,8 @@ class _StripePainter extends CustomPainter {
     const period = 11.0 * 1.4142135624; // period measured along the diagonal
     final extent = size.width + size.height;
     for (double d = -size.height; d < extent; d += period) {
-      canvas.drawLine(Offset(d, 0.0), Offset(d + size.height, size.height), paint);
+      canvas.drawLine(
+          Offset(d, 0.0), Offset(d + size.height, size.height), paint);
     }
   }
 
@@ -365,7 +366,9 @@ class _XpdButtonState extends State<XpdButton> {
                     fontFamily: 'Geist',
                     fontSize: widget.fontSize,
                     fontWeight: FontWeight.w500,
-                    color: enabled ? foreground : foreground.withValues(alpha: 0.5),
+                    color: enabled
+                        ? foreground
+                        : foreground.withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -488,7 +491,8 @@ class XpdLanguageToggle extends StatelessWidget {
         child: GestureDetector(
           onTap: () => onChanged(code),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
             color: on ? const Color(0x247F7F7F) : Colors.transparent,
             child: Text(
               code.toUpperCase(),
@@ -510,7 +514,8 @@ class XpdLanguageToggle extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Row(mainAxisSize: MainAxisSize.min, children: [cell('fr'), cell('en')]),
+      child: Row(
+          mainAxisSize: MainAxisSize.min, children: [cell('fr'), cell('en')]),
     );
   }
 }
@@ -684,15 +689,27 @@ class XpdHeader extends StatelessWidget implements PreferredSizeWidget {
                   XpdLogo(onTap: onLogoTap),
                   if (!compact) ...[
                     const SizedBox(width: 22.0),
+                    // Signed-in pages carry twice the links the marketing page
+                    // does, which overflows the row on a laptop. Scrolling the
+                    // link strip keeps every destination reachable instead of
+                    // clipping the last ones off the right edge, and the
+                    // toggles and account action beyond it stay put.
                     Expanded(
-                      child: Row(
-                        children: [
-                          for (final link in links)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              child: _HeaderLink(item: link),
-                            ),
-                        ],
+                      child: ScrollConfiguration(
+                        behavior: ScrollConfiguration.of(context)
+                            .copyWith(scrollbars: false),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              for (final link in links)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 16.0),
+                                  child: _HeaderLink(item: link),
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     XpdLanguageToggle(
@@ -921,7 +938,8 @@ class XpdSelect extends StatelessWidget {
               isDense: true,
               padding: const EdgeInsets.symmetric(vertical: 13.0),
               dropdownColor: palette.bg2,
-              icon: Icon(Icons.expand_more_rounded, color: palette.muted, size: 20.0),
+              icon: Icon(Icons.expand_more_rounded,
+                  color: palette.muted, size: 20.0),
               style: TextStyle(
                 fontFamily: 'Geist',
                 fontSize: 15.0,
@@ -1003,8 +1021,8 @@ class _XpdFileDropState extends State<XpdFileDrop> {
                   decoration: BoxDecoration(
                     color: palette.amberTint(0.12),
                     border: Border.all(color: palette.amberTint(0.30)),
-                    borderRadius:
-                        BorderRadius.circular(widget.chipSize > 38.0 ? 11.0 : 9.0),
+                    borderRadius: BorderRadius.circular(
+                        widget.chipSize > 38.0 ? 11.0 : 9.0),
                   ),
                   child: Center(
                     child: Text(
@@ -1157,7 +1175,8 @@ class XpdChip extends StatelessWidget {
             Container(
               width: 7.0,
               height: 7.0,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: dotColor),
+              decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: dotColor),
             ),
             const SizedBox(width: 9.0),
           ],
@@ -1198,7 +1217,8 @@ class XpdTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: filled ? 8.0 : 7.0, vertical: 4.0),
+      padding:
+          EdgeInsets.symmetric(horizontal: filled ? 8.0 : 7.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: background,
         border: borderColor == null ? null : Border.all(color: borderColor!),

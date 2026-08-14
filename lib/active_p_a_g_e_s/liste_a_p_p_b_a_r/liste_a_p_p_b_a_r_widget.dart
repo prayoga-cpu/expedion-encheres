@@ -47,7 +47,8 @@ class _ListeAPPBARWidgetState extends State<ListeAPPBARWidget> {
   }
 
   /// Highlights whichever entry corresponds to the route currently on screen.
-  bool _isCurrent(String routeName) => GoRouterState.of(context).name == routeName;
+  bool _isCurrent(String routeName) =>
+      GoRouterState.of(context).name == routeName;
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +84,7 @@ class _ListeAPPBARWidgetState extends State<ListeAPPBARWidget> {
         routeName: ChoixDevisWidget.routeName,
         // Signed-out visitors are sent to log in first, as before.
         onTap: () => context.pushNamed(
-          loggedIn
-              ? ChoixDevisWidget.routeName
-              : SeConnecterWidget.routeName,
+          loggedIn ? ChoixDevisWidget.routeName : SeConnecterWidget.routeName,
         ),
       ),
       if (loggedIn)

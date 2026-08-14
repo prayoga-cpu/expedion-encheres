@@ -114,9 +114,8 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
     for (final f in _fields) {
       final raw = _controllers[f.key]!.text.trim();
       if (raw.isEmpty) continue;
-      payload[f.key] = f.numeric
-          ? double.tryParse(raw.replaceAll(',', '.'))
-          : raw;
+      payload[f.key] =
+          f.numeric ? double.tryParse(raw.replaceAll(',', '.')) : raw;
     }
     return payload;
   }
@@ -289,8 +288,7 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
                 ),
                 const SizedBox(height: 2.0),
                 Text(
-                  confidenceText ??
-                      'Vérifiez chaque champ avant de confirmer.',
+                  confidenceText ?? 'Vérifiez chaque champ avant de confirmer.',
                   style: theme.labelSmall,
                 ),
               ],

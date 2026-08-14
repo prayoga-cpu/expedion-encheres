@@ -1,5 +1,4 @@
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/api_requests/api_calls.dart';
 import '/backend/firebase_storage/storage.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -43,9 +42,6 @@ class FormulaireDeDevisParBordereauModel
   FFUploadedFile uploadedLocalFile_uploadDataPhoto =
       FFUploadedFile(bytes: Uint8List.fromList([]), originalFilename: '');
   String uploadedFileUrl_uploadDataPhoto = '';
-
-  // Stores action output result for [Backend Call - API (CreateAirtableQuoteFromDoc)] action in Button widget.
-  ApiCallResponse? apiResultyx5;
 
   @override
   void initState(BuildContext context) {}

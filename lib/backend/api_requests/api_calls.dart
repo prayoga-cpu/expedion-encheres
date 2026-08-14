@@ -122,8 +122,7 @@ class CreateAirtableQuoteCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -182,8 +181,7 @@ class CreateAirtableQuoteFromDocCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -265,8 +263,7 @@ class PostDDallFieldsCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -328,8 +325,7 @@ class AirtableQuotePayDirectCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -357,8 +353,7 @@ class GetPriceCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/Prices?filterByFormula=AND(   {Place}=\'${place}\',   {Weight}=${weight},   {Size}=\'${size}\' )',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -393,8 +388,7 @@ class GetClientQuotesCall {
           : 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\", SEARCH(\"${numBordereau}\", {N°Bordereau}))',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -491,8 +485,7 @@ class GetClientQuotesNewCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\",{Confirmer le devis}=\"\")',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -574,8 +567,7 @@ class SeachClientQuotesNumBodereauCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\",{N°Bordereau}=\"${numBordereau}\")',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -658,8 +650,7 @@ class GetClientQuotesValideCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\",{VALIDER DEVIS}=\"${devisValide}\")',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -737,8 +728,7 @@ class GetClientQuotesPayeCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\",{STATUT DU PAIEMENT}=\"${paiement}\")',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -817,8 +807,7 @@ class GetClientQuotesWaitingForPaymentCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=AND({UID}=\"${userID}\",{Statut du devis}=\"en attente de validation\")',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -896,8 +885,7 @@ class GetClientQuotesTransportCall {
           : 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS?filterByFormula=SEARCH(\"${villeRetrait}\", {Ville de retrait})',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -990,8 +978,7 @@ class NewclientSignUpTPCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/USERS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1067,8 +1054,7 @@ class NewclientSignUpDMCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/USERS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1148,8 +1134,7 @@ class UpdateProfilinfoCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/USERS',
       callType: ApiCallType.PATCH,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1188,8 +1173,7 @@ class GetAirtableUserIDCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/USERS?filterByFormula=AND(   {UID}=\'${uid}\')',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -1220,8 +1204,7 @@ class GetUserCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/USERS',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -1298,8 +1281,7 @@ class NewTransporteurCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/TRANSPORTEURS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePatTransporteurs',
+        'Authorization': 'Bearer $_kAirtablePatTransporteurs',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1334,8 +1316,7 @@ class UpdatePropositionTansporteurCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS/${recordId}',
       callType: ApiCallType.PATCH,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1430,8 +1411,7 @@ class CreatePaymentAitableCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/PAIEMENTS',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1457,8 +1437,7 @@ class GetClientPaymentsCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/PAYMENT-Flutterflow?filterByFormula=AND(   {userId}=\'${userID}\')',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {
@@ -1516,8 +1495,7 @@ class PostMessageCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/MESSAGERIE',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1556,8 +1534,7 @@ class UpdateDevisValiderCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
       callType: ApiCallType.PATCH,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1602,8 +1579,7 @@ class MarkQuotePaidCall {
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
       callType: ApiCallType.PATCH,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1693,8 +1669,7 @@ class CreatePaymentAirtableCall {
           'https://api.airtable.com/v0/appu3jamyzCJRuOjr/PAIEMENTS FLUTTERFLOW',
       callType: ApiCallType.POST,
       headers: {
-        'Authorization':
-            'Bearer $_kAirtablePat',
+        'Authorization': 'Bearer $_kAirtablePat',
         'Content-Type': 'application/json',
       },
       params: {},

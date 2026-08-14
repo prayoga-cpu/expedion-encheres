@@ -26,8 +26,9 @@ int computePaiementAmountCents({
   int? tarifAdv,
   int? tarifStd,
 }) {
-  final base =
-      typeDevisValide == kTypeDevisAdValorem ? (tarifAdv ?? 0) : (tarifStd ?? 0);
+  final base = typeDevisValide == kTypeDevisAdValorem
+      ? (tarifAdv ?? 0)
+      : (tarifStd ?? 0);
   return base * 100;
 }
 

@@ -88,14 +88,12 @@ extension DSStatusColors on DSStatus {
   }
 
   /// Tailwind `bg-{token}/10`.
-  Color background(BuildContext context) =>
-      this == DSStatus.neutral
-          ? FlutterFlowTheme.of(context).secondary.withValues(alpha: 0.35)
-          : foreground(context).withValues(alpha: 0.10);
+  Color background(BuildContext context) => this == DSStatus.neutral
+      ? FlutterFlowTheme.of(context).secondary.withValues(alpha: 0.35)
+      : foreground(context).withValues(alpha: 0.10);
 
   /// Tailwind `border-{token}/20`.
-  Color border(BuildContext context) =>
-      this == DSStatus.neutral
-          ? FlutterFlowTheme.of(context).alternate
-          : foreground(context).withValues(alpha: 0.20);
+  Color border(BuildContext context) => this == DSStatus.neutral
+      ? FlutterFlowTheme.of(context).alternate
+      : foreground(context).withValues(alpha: 0.20);
 }

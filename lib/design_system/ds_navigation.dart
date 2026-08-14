@@ -34,8 +34,7 @@ class _DSNavItemState extends State<DSNavItem> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final foreground =
-        widget.selected ? theme.info : theme.primaryText;
+    final foreground = widget.selected ? theme.info : theme.primaryText;
 
     final background = widget.selected
         ? theme.primary
@@ -294,8 +293,7 @@ class DSSegmentedControl extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (var i = 0; i < segments.length; i++)
-            _segment(context, theme, i),
+          for (var i = 0; i < segments.length; i++) _segment(context, theme, i),
         ],
       ),
     );

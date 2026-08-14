@@ -51,8 +51,7 @@ class PaiementCancelWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 32.0),
                   FFButtonWidget(
-                    onPressed: () =>
-                        context.goNamed(MesDevisWidget.routeName),
+                    onPressed: () => context.goNamed(MesDevisWidget.routeName),
                     text: 'Retour à mes devis',
                     options: FFButtonOptions(
                       width: double.infinity,

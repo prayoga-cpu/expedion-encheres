@@ -300,3 +300,74 @@ cancelling does not open a second dialog.
   files that read it degrade to empty values. Sign-up's Airtable and Firestore
   side effects are guarded on `currentUserReference` and simply skip. Repointing
   those reads at Postgres is the remaining work.
+
+---
+
+## 9. Airtable removed from the quote path *(added)*
+
+### What moved
+
+| Screen | Was | Is |
+|---|---|---|
+| Mes devis — list, search, counters | 4 Airtable requests | `QuoteRepository.list()`, one request |
+| Mes paiements — total, count, rows | hardcoded strings | derived from the client's paid quotes |
+| Nouveau bordereau — submit | `CreateAirtableQuoteFromDoc` | `POST /api/expedion/quotes` |
+| Nouveau bordereau — render gate | `GetPrice` on Airtable | removed; the server auto-prices |
+
+New client files: `lib/backend/expedion_api/expedion_quote.dart` (typed row +
+`formatCents`) and `quote_repository.dart` (the one place screens read quotes).
+
+### Two real bugs this fixed
+
+**"New slip" did nothing.** Two causes, both now gone. The button's `InkWell`
+wrapped only the 28px `+` glyph, so pressing the tile around it did nothing at
+all. And the destination form sat behind a `FutureBuilder` on Airtable's
+`GetPrice` table whose response was *never read* — it only gated rendering, so
+with no `AIRTABLE_PAT` configured the future never completed and the page stayed
+on a spinner forever.
+
+**Submit failures were invisible.** The old handler called Airtable and
+navigated away without inspecting the result, so a rejected quote looked exactly
+like a filed one. The new handler reports the failure, keeps the form intact,
+and routes to sign-in when that is the cause.
+
+### Auth: sessions, not shared keys
+
+`requireExpedionCaller` now resolves a Better Auth session first and only falls
+back to `EXPEDION_API_KEY` + `x-expedion-uid` for clients that have none. Two
+consequences:
+
+- **Admin is a role, not a secret.** It is read from the same `admin` role the
+  web app uses, rather than inferred from which key was presented.
+- **The web build should carry no key.** Sessions are safe in a browser bundle;
+  a compiled-in key that lets any holder claim any UID is not. Leave
+  `EXPEDION_API_KEY` unset for web.
+
+`ExpedionCaller.firebaseUid` is renamed `userId`, and the service's caller
+parameter is `ExpedionCallerIdentity`. The `expedion_quotes.firebase_uid`
+column keeps its name — it now means "owner", and renaming it is a migration.
+
+### Escalation — already wired, unchanged
+
+`markPaid` stamps `escalateAfter` (`EXPEDION_ESCALATE_AFTER_HOURS`, default 48).
+`findDueForEscalation` selects quotes past that stamp **with
+`assigned_carrier_id IS NULL`**, and `/api/cron/expedion-escalate` runs every 10
+minutes per `vercel.json`, turning each into an Expeditoo listing. So a paid
+quote with no driver becomes a job automatically. None of this needed changing;
+none of it has been observed running.
+
+### Still unverified
+
+Everything above compiles (`flutter analyze`: 0 errors; `tsc --noEmit`: 0
+errors) and the web target builds, but **no request has been made against a
+running Expeditoo instance**. Specifically: no quote has been created, no list
+has been fetched, no session token has been exchanged, and the escalation cron
+has never fired. The first end-to-end run needs
+`--dart-define=EXPEDION_API_BASE_URL=…` pointed at a deployment whose
+`EXPEDION_APP_ORIGINS` includes the Expedion origin.
+
+### Screens still on Airtable
+
+`formulaire_demande_de_devis_retrait_aux_encheres`, `form_devis_paiement_directe`,
+`s_inscrire` (guarded — skips when there is no Firebase session), and everything
+under `pages_areviser/`. These were not touched.

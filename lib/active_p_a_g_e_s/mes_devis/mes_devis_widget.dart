@@ -1,37 +1,34 @@
-import '/design_system/ds_logo.dart';
-import '/active_p_a_g_e_s/liste_a_p_p_b_a_r/liste_a_p_p_b_a_r_widget.dart';
-import '/active_p_a_g_e_s/paiement/paiement_widget.dart';
-import '/design_system/design_system.dart';
-import '/flutter_flow/devis_status_badge.dart';
-import '/auth/base_auth_user_provider.dart';
-import '/auth/firebase_auth/auth_util.dart';
-import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_drop_down.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import '/flutter_flow/form_field_controller.dart';
-import 'dart:ui';
-import '/index.dart';
-import 'dart:async';
-import 'package:aligned_dialog/aligned_dialog.dart';
-import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/expedion_api/expedion_quote.dart';
+import '/backend/expedion_api/quote_repository.dart';
+import '/backend/quote_draft.dart';
+import '/design_system/ds_app_shell.dart';
+import '/design_system/ds_button.dart';
+import '/design_system/ds_palette.dart';
+import '/design_system/ds_quote_card.dart';
+import '/design_system/ds_site.dart';
+import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
+import '/main.dart';
 import 'mes_devis_model.dart';
 export 'mes_devis_model.dart';
 
-/// Créez une page qui permet aux clients de voir leurs devis, de les gérer et
-/// de les suivre.
+/// "Mes devis" — the client's quotes.
 ///
-/// La page doit contenir tous les devis des clients ainsi que des
-/// informations sur le devis.
+/// Rebuilt on [QuoteRepository], so every figure on this page comes from the
+/// Expeditoo database. The previous version made four separate Airtable
+/// requests — one for the list, one each for the "validés" and "payés"
+/// counters, one for the search — which could and did disagree with each other.
+/// Now one request feeds the list and the counters, so they cannot.
 class MesDevisWidget extends StatefulWidget {
   const MesDevisWidget({super.key});
 
+  // Route names are the app's navigation identity: the payment-result pages
+  // reach this screen with `context.goNamed('MES-DEVIS')`, so this string is
+  // load-bearing and must not be tidied.
   static String routeName = 'MES-DEVIS';
   static String routePath = '/mesDevis';
 
@@ -42,1816 +39,495 @@ class MesDevisWidget extends StatefulWidget {
 class _MesDevisWidgetState extends State<MesDevisWidget> {
   late MesDevisModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  /// The current load. Held rather than re-created in `build` so a rebuild
+  /// (theme flip, language switch, keystroke) does not re-fetch.
+  late Future<QuoteListResult> _quotes;
+
+  String _search = '';
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => MesDevisModel());
-
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      FFAppState().SelectedPrice = 0;
-      safeSetState(() {});
-    });
-
-    _model.textController ??=
-        TextEditingController(text: _model.textRechercheNumBordereau);
+    _model.textController ??= TextEditingController();
     _model.textFieldFocusNode ??= FocusNode();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    _quotes = QuoteRepository.list();
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
+  }
+
+  bool get _isEnglish =>
+      FFLocalizations.of(context).languageCode.startsWith('en');
+
+  String _t(String fr, String en) => _isEnglish ? en : fr;
+
+  void _reload() {
+    setState(() {
+      _quotes = QuoteRepository.list(
+        bordereauNumber: _search.isEmpty ? null : _search,
+      );
+    });
+  }
+
+  void _runSearch() {
+    _search = _model.textController.text.trim();
+    _reload();
+  }
+
+  /// Starts a new devis.
+  ///
+  /// The old button only made the 28px "+" glyph tappable, so pressing the card
+  /// around it did nothing — which is what "nothing happens" was. The whole
+  /// tile is the target now, and the draft is cleared first so a stale one from
+  /// the landing page cannot prefill an unrelated request.
+  void _newQuote() {
+    QuoteDraft.clear();
+    context.pushNamed(FormulaireDeDevisParBordereauWidget.routeName);
   }
 
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    return FutureBuilder<ApiCallResponse>(
-      future: GetClientQuotesCall.call(
-        userID: currentUserUid,
-      ),
-      builder: (context, snapshot) {
-        // Customize what your widget looks like when it's loading.
-        if (!snapshot.hasData) {
-          return Scaffold(
-            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            body: Center(
-              child: SizedBox(
-                width: 50.0,
-                height: 50.0,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    FlutterFlowTheme.of(context).primary,
+    final palette = XpdPalette.of(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final gutter = XpdLayout.gutterFor(width);
+
+    return XpdAppShell(
+      themeMode: MyApp.of(context).themeMode,
+      onThemeChanged: (mode) => MyApp.of(context).setThemeMode(mode),
+      languageCode: _isEnglish ? 'en' : 'fr',
+      onLanguageChanged: (code) => MyApp.of(context).setLocale(code),
+      onLogoTap: () => context.pushNamed(AccueilWidget.routeName),
+      links: _navLinks(),
+      accountLabel: _t('Espace personnel', 'Personal space'),
+      onAccountTap: () => context.pushNamed(EspacePersonnelWidget.routeName),
+      signOutLabel: _t('Déconnexion', 'Log out'),
+      onSignOut: () async {
+        final router = GoRouter.of(context);
+        router.prepareAuthEvent();
+        await authManager.signOut();
+        // A staged quote draft is tied to the person who typed it, so it must
+        // not survive them signing out on a shared machine.
+        QuoteDraft.clear();
+        if (!mounted) return;
+        router.clearRedirectLocation();
+        context.goNamedAuth(AccueilWidget.routeName, context.mounted);
+      },
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _reload();
+          await _quotes;
+        },
+        child: FutureBuilder<QuoteListResult>(
+          future: _quotes,
+          builder: (context, snapshot) {
+            final result = snapshot.data;
+            final loading = snapshot.connectionState == ConnectionState.waiting;
+
+            return ListView(
+              padding: const EdgeInsets.only(bottom: 40.0),
+              children: [
+                XpdPageHeader(
+                  title: _t('Mes devis', 'My quotes'),
+                  subtitle: _t(
+                    'Aperçu de vos demandes',
+                    'Preview of your quotes',
+                  ),
+                  action: XpdButton(
+                    label: _t('Nouveau bordereau', 'New slip'),
+                    variant: XpdButtonVariant.outline,
+                    fontSize: 14.5,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18.0,
+                      vertical: 11.0,
+                    ),
+                    onPressed: _newQuote,
                   ),
                 ),
-              ),
-            ),
-          );
-        }
-        final mesDevisGetClientQuotesResponse = snapshot.data!;
-
-        return GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-            FocusManager.instance.primaryFocus?.unfocus();
+                const SizedBox(height: 20.0),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: gutter),
+                  child: _counters(result, loading),
+                ),
+                const SizedBox(height: 20.0),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: gutter),
+                  child: _searchBar(palette),
+                ),
+                const SizedBox(height: 24.0),
+                if (loading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 64.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (result == null || !result.succeeded)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: gutter),
+                    child: _failure(palette, result),
+                  )
+                else if (result.quotes.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: gutter),
+                    child: _empty(palette),
+                  )
+                else
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: gutter),
+                    child: _list(result),
+                  ),
+              ],
+            );
           },
-          child: Scaffold(
-            key: scaffoldKey,
-            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(70.0),
-              child: AppBar(
-                backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-                automaticallyImplyLeading: false,
-                title: Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed(AccueilWidget.routeName);
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (responsiveVisibility(
-                                context: context,
-                                phone: false,
-                              ))
-                                Text(
-                                  FFLocalizations.of(context).getText(
-                                    'vt5055c3' /* EXPEDION */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .titleLarge
-                                      .override(
-                                        font: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleLarge
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w600,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .titleLarge
-                                            .fontStyle,
-                                      ),
-                                ),
-                              const XpdLogoMark(size: 30.0),
-                            ].divide(SizedBox(width: 10.0)),
-                          ),
-                        ),
-                      ),
-                      if (responsiveVisibility(
-                        context: context,
-                        phone: false,
-                      ))
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Align(
-                              alignment: AlignmentDirectional(1.49, 0.0),
-                              child: InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context.pushNamed(AccueilWidget.routeName);
-                                },
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    'fpvtspp0' /* Accueil */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        font: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyLarge
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                if (loggedIn == true) {
-                                  context.pushNamed(ChoixDevisWidget.routeName);
-                                } else {
-                                  context
-                                      .pushNamed(SeConnecterWidget.routeName);
-                                }
-                              },
-                              child: Text(
-                                FFLocalizations.of(context).getText(
-                                  'apal4ma2' /* Demander un devis */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyLarge
-                                    .override(
-                                      font: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ),
-                            if (loggedIn == true)
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context.pushNamed(MesDevisWidget.routeName);
-                                },
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    '00irxg5n' /* Mes devis */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyMedium
-                                      .override(
-                                        font: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMedium
-                                                  .fontStyle,
-                                        ),
-                                        fontSize: 16.0,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyMedium
-                                            .fontStyle,
-                                      ),
-                                ),
-                              ),
-                            InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                context.pushNamed(ParametreWidget.routeName);
-                              },
-                              child: Text(
-                                FFLocalizations.of(context).getText(
-                                  'w073iq8f' /* Parametres */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyLarge
-                                    .override(
-                                      font: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ),
-                            if (!FFAppState().HIDEitem)
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context
-                                      .pushNamed(MesPaiementsWidget.routeName);
-                                },
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    'ocvq8zzq' /* Mes paiement */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        font: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyLarge
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                ),
-                              ),
-                            if (loggedIn)
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context.pushNamed(FaqWidget.routeName);
-                                },
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    'zuezrt46' /* FAQ - Questions */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        font: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyLarge
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                ),
-                              ),
-                            InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                context.pushNamed(ContactWidget.routeName);
-                              },
-                              child: Text(
-                                FFLocalizations.of(context).getText(
-                                  'v2i0v0ek' /* Contact */,
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyLarge
-                                    .override(
-                                      font: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                      color: FlutterFlowTheme.of(context)
-                                          .primaryText,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                    ),
-                              ),
-                            ),
-                            if (loggedIn)
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  context.pushNamed(
-                                      EspacePersonnelWidget.routeName);
-                                },
-                                child: Text(
-                                  FFLocalizations.of(context).getText(
-                                    '4muehx9x' /* Espace Personnel */,
-                                  ),
-                                  style: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .override(
-                                        font: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyLarge
-                                                  .fontStyle,
-                                        ),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        letterSpacing: 0.0,
-                                        fontWeight: FontWeight.w500,
-                                        fontStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .fontStyle,
-                                      ),
-                                ),
-                              ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  50.0, 0.0, 0.0, 0.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Stack(
-                                    children: [
-                                      if (loggedIn == true)
-                                        FFButtonWidget(
-                                          onPressed: () async {
-                                            GoRouter.of(context)
-                                                .prepareAuthEvent();
-                                            await authManager.signOut();
-                                            GoRouter.of(context)
-                                                .clearRedirectLocation();
+        ),
+      ),
+    );
+  }
 
-                                            context.goNamedAuth(
-                                                AccueilWidget.routeName,
-                                                context.mounted);
-                                          },
-                                          text: FFLocalizations.of(context)
-                                              .getText(
-                                            'r5nrtaly' /* Deconnexion */,
-                                          ),
-                                          options: FFButtonOptions(
-                                            height: 40.0,
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    16.0, 0.0, 16.0, 0.0),
-                                            iconPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            textStyle: FlutterFlowTheme.of(
-                                                    context)
-                                                .bodyLarge
-                                                .override(
-                                                  font: GoogleFonts.plusJakartaSans(
-                                                    fontWeight: FontWeight.w500,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyLarge
-                                                            .fontStyle,
-                                                  ),
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryText,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyLarge
-                                                          .fontStyle,
-                                                ),
-                                            elevation: 0.0,
-                                            borderSide: BorderSide(
-                                              color: Color(0xFFFA0404),
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                        ),
-                                      if (loggedIn == false)
-                                        FFButtonWidget(
-                                          onPressed: () async {
-                                            context.pushNamed(
-                                                SeConnecterWidget.routeName);
-                                          },
-                                          text: FFLocalizations.of(context)
-                                              .getText(
-                                            'acll70j7' /* se connecter */,
-                                          ),
-                                          options: FFButtonOptions(
-                                            height: 40.0,
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    16.0, 0.0, 16.0, 0.0),
-                                            iconPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            textStyle: FlutterFlowTheme.of(
-                                                    context)
-                                                .bodyLarge
-                                                .override(
-                                                  font: GoogleFonts.plusJakartaSans(
-                                                    fontWeight: FontWeight.w500,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodyLarge
-                                                            .fontStyle,
-                                                  ),
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryText,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodyLarge
-                                                          .fontStyle,
-                                                ),
-                                            elevation: 0.0,
-                                            borderSide: BorderSide(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .alternate,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ].divide(SizedBox(width: 24.0)),
-                        ),
-                    ].divide(SizedBox(width: 32.0)),
+  List<XpdShellLink> _navLinks() => [
+        XpdShellLink(
+          label: _t('Accueil', 'Home'),
+          onTap: () => context.pushNamed(AccueilWidget.routeName),
+        ),
+        XpdShellLink(
+          label: _t('Demander un devis', 'Request a quote'),
+          onTap: () => context.pushNamed(ChoixDevisWidget.routeName),
+        ),
+        XpdShellLink(
+          label: _t('Mes devis', 'My quotes'),
+          selected: true,
+          onTap: () {},
+        ),
+        XpdShellLink(
+          label: _t('Mes paiements', 'My payments'),
+          onTap: () => context.pushNamed(MesPaiementsWidget.routeName),
+        ),
+        XpdShellLink(
+          label: 'FAQ',
+          onTap: () => context.pushNamed(FaqWidget.routeName),
+        ),
+        XpdShellLink(
+          label: 'Contact',
+          onTap: () => context.pushNamed(ContactWidget.routeName),
+        ),
+      ];
+
+  /// Total / validés / payés, all read off the same fetch as the list below.
+  Widget _counters(QuoteListResult? result, bool loading) {
+    final palette = XpdPalette.of(context);
+    final quotes = result?.quotes ?? const <ExpedionQuote>[];
+    final validated = quotes.where((q) => q.isAccepted).length;
+    final paid = quotes.where((q) => q.isPaid).length;
+    final total = result?.total ?? quotes.length;
+
+    return Row(
+      children: [
+        Expanded(
+          child: XpdStatTile(
+            value: '$total',
+            label: _t('Total', 'Total'),
+            valueColor: XpdPalette.blue,
+            loading: loading,
+          ),
+        ),
+        const SizedBox(width: 12.0),
+        Expanded(
+          child: XpdStatTile(
+            value: '$validated',
+            label: _t('Validés', 'Validated'),
+            valueColor: palette.green,
+            loading: loading,
+          ),
+        ),
+        const SizedBox(width: 12.0),
+        Expanded(
+          child: XpdStatTile(
+            value: '$paid',
+            label: _t('Payés', 'Paid'),
+            valueColor: palette.green,
+            loading: loading,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _searchBar(XpdPalette palette) => Container(
+        decoration: BoxDecoration(
+          color: palette.chip,
+          border: Border.all(color: palette.line),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            Icon(Icons.search_rounded, size: 20.0, color: palette.muted),
+            const SizedBox(width: 12.0),
+            Expanded(
+              child: TextField(
+                controller: _model.textController,
+                focusNode: _model.textFieldFocusNode,
+                onSubmitted: (_) => _runSearch(),
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 15.0,
+                  color: palette.text,
+                ),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+                  hintText: _t(
+                    'Rechercher par numéro de bordereau…',
+                    'Search by slip number…',
+                  ),
+                  hintStyle: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 15.0,
+                    color: palette.faint,
                   ),
                 ),
-                actions: [
-                  Visibility(
-                    visible: responsiveVisibility(
-                      context: context,
-                      desktop: false,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Builder(
-                          builder: (context) => Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                1.0, 0.0, 16.0, 0.0),
-                            child: FlutterFlowIconButton(
-                              borderColor:
-                                  FlutterFlowTheme.of(context).alternate,
-                              borderRadius: 8.0,
-                              borderWidth: 1.0,
-                              buttonSize: 40.0,
-                              fillColor: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                              icon: Icon(
-                                Icons.menu,
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                size: 20.0,
-                              ),
-                              onPressed: () async {
-                                await showAlignedDialog(
-                                  context: context,
-                                  isGlobal: false,
-                                  avoidOverflow: false,
-                                  targetAnchor: AlignmentDirectional(1.0, 1.0)
-                                      .resolve(Directionality.of(context)),
-                                  followerAnchor:
-                                      AlignmentDirectional(1.0, -1.0)
-                                          .resolve(Directionality.of(context)),
-                                  builder: (dialogContext) {
-                                    return Material(
-                                      color: Colors.transparent,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          FocusScope.of(dialogContext)
-                                              .unfocus();
-                                          FocusManager.instance.primaryFocus
-                                              ?.unfocus();
-                                        },
-                                        child: ListeAPPBARWidget(),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                centerTitle: false,
-                elevation: 5.0,
               ),
             ),
-            body: SafeArea(
-              top: true,
-              child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 0.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        width: 893.37,
-                        decoration: BoxDecoration(
-                          color:
-                              FlutterFlowTheme.of(context).secondaryBackground,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  16.0, 0.0, 16.0, 0.0),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(16.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                FFLocalizations.of(context)
-                                                    .getText(
-                                                  'fncdd7uq' /* Mes devis */,
-                                                ),
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .plusJakartaSans(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleLarge
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: Colors.white,
-                                                          fontSize: 26.0,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleLarge
-                                                                  .fontStyle,
-                                                        ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 4.0, 0.0, 0.0),
-                                                child: Text(
-                                                  FFLocalizations.of(context)
-                                                      .getText(
-                                                    '5u1y11xk' /* Aperçu de vos devis */,
-                                                  ),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts.plusJakartaSans(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            Color(0xCCFFFFFF),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ].divide(SizedBox(width: 20.0)),
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Material(
-                                          color: Colors.transparent,
-                                          elevation: 1.0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .secondaryBackground,
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 5.0, 0.0, 0.0),
-                                                  child: InkWell(
-                                                    splashColor:
-                                                        Colors.transparent,
-                                                    focusColor:
-                                                        Colors.transparent,
-                                                    hoverColor:
-                                                        Colors.transparent,
-                                                    highlightColor:
-                                                        Colors.transparent,
-                                                    onTap: () async {
-                                                      context.pushNamed(
-                                                          FormulaireDeDevisParBordereauWidget
-                                                              .routeName);
-                                                    },
-                                                    child: Icon(
-                                                      Icons.add,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryText,
-                                                      size: 28.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          5.0, 0.0, 5.0, 5.0),
-                                                  child: Text(
-                                                    FFLocalizations.of(context)
-                                                        .getText(
-                                                      'snzeghnb' /* Nouveau 
-bordereau */
-                                                      ,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .primary,
-                                                          fontSize: 10.0,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 10.0, 0.0, 0.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .primaryBackground,
-                                  borderRadius: BorderRadius.only(),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      16.0, 16.0, 16.0, 16.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          height: 80.0,
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(12.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  valueOrDefault<String>(
-                                                    GetClientQuotesCall.records(
-                                                      mesDevisGetClientQuotesResponse
-                                                          .jsonBody,
-                                                    )?.length?.toString(),
-                                                    '0',
-                                                  ),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .headlineSmall
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .headlineSmall
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primary,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .headlineSmall
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 4.0, 0.0, 0.0),
-                                                  child: Text(
-                                                    FFLocalizations.of(context)
-                                                        .getText(
-                                                      'lrypswbl' /* Total */,
-                                                    ),
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .labelMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .labelMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryText,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          height: 90.0,
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(12.0),
-                                            child:
-                                                FutureBuilder<ApiCallResponse>(
-                                              future: GetClientQuotesValideCall
-                                                  .call(
-                                                userID: currentUserUid,
-                                              ),
-                                              builder: (context, snapshot) {
-                                                // Customize what your widget looks like when it's loading.
-                                                if (!snapshot.hasData) {
-                                                  return Center(
-                                                    child: SizedBox(
-                                                      width: 50.0,
-                                                      height: 50.0,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                Color>(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                                final columnGetClientQuotesValideResponse =
-                                                    snapshot.data!;
-
-                                                return Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      valueOrDefault<String>(
-                                                        GetClientQuotesValideCall
-                                                            .records(
-                                                          columnGetClientQuotesValideResponse
-                                                              .jsonBody,
-                                                        )?.length?.toString(),
-                                                        '0',
-                                                      ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .headlineSmall
-                                                              .override(
-                                                                font: GoogleFonts
-                                                                    .plusJakartaSans(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .headlineSmall
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .success,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .headlineSmall
-                                                                    .fontStyle,
-                                                              ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  4.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      child: Text(
-                                                        FFLocalizations.of(
-                                                                context)
-                                                            .getText(
-                                                          '5fepikxh' /* Validés */,
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .override(
-                                                                  font:
-                                                                      GoogleFonts
-                                                                          .plusJakartaSans(
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .labelMedium
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .labelMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryText,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          height: 90.0,
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(12.0),
-                                            child:
-                                                FutureBuilder<ApiCallResponse>(
-                                              future:
-                                                  GetClientQuotesPayeCall.call(
-                                                userID: currentUserUid,
-                                                paiement: 'Paiement reçu',
-                                              ),
-                                              builder: (context, snapshot) {
-                                                // Customize what your widget looks like when it's loading.
-                                                if (!snapshot.hasData) {
-                                                  return Center(
-                                                    child: SizedBox(
-                                                      width: 50.0,
-                                                      height: 50.0,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                Color>(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                                final columnGetClientQuotesPayeResponse =
-                                                    snapshot.data!;
-
-                                                return Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      valueOrDefault<String>(
-                                                        GetClientQuotesPayeCall
-                                                            .records(
-                                                          columnGetClientQuotesPayeResponse
-                                                              .jsonBody,
-                                                        )?.length?.toString(),
-                                                        '0',
-                                                      ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .headlineSmall
-                                                              .override(
-                                                                font: GoogleFonts
-                                                                    .plusJakartaSans(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .headlineSmall
-                                                                      .fontStyle,
-                                                                ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .success,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .headlineSmall
-                                                                    .fontStyle,
-                                                              ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  4.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      child: Text(
-                                                        FFLocalizations.of(
-                                                                context)
-                                                            .getText(
-                                                          '0ka76c6r' /* Payés */,
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMedium
-                                                                .override(
-                                                                  font:
-                                                                      GoogleFonts
-                                                                          .plusJakartaSans(
-                                                                    fontWeight: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .labelMedium
-                                                                        .fontWeight,
-                                                                    fontStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .labelMedium
-                                                                        .fontStyle,
-                                                                  ),
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryText,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontWeight,
-                                                                  fontStyle: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelMedium
-                                                                      .fontStyle,
-                                                                ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ].divide(SizedBox(width: 12.0)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              // `DSSearchBar` mirrors the Expeditoo home search: filled `accent1`
-                              // field, leading magnifier, inline submit, detached filter button.
-                              child: DSSearchBar(
-                                controller: _model.textController!,
-                                hintText: 'Rechercher par numéro de bordereau...',
-                                submitLabel: 'Rechercher',
-                                focusNode: _model.textFieldFocusNode,
-                                // As-you-type search is preserved from the
-                                // field this replaced; the submit button only
-                                // makes it explicit, as it is on Expeditoo.
-                                onChanged: (_) => EasyDebounce.debounce(
-                                  '_model.textController',
-                                  const Duration(milliseconds: 400),
-                                  () async {
-                                    safeSetState(
-                                        () => _model.apiRequestCompleter = null);
-                                    await _model.waitForApiRequestCompleted(
-                                        maxWait: 400);
-                                  },
-                                ),
-                                onSubmitted: (_) async {
-                                  safeSetState(() => _model.apiRequestCompleter = null);
-                                  await _model.waitForApiRequestCompleted(maxWait: 400);
-                                },
-                              ),
-                            ),
-                            if (!FFAppState().HIDEitem)
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    16.0, 0.0, 16.0, 20.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    FlutterFlowDropDown<String>(
-                                      controller:
-                                          _model.dropDownValueController1 ??=
-                                              FormFieldController<String>(null),
-                                      options: [
-                                        FFLocalizations.of(context).getText(
-                                          '9plun7m9' /* Tous */,
-                                        ),
-                                        FFLocalizations.of(context).getText(
-                                          'uzopkub6' /* En attente */,
-                                        ),
-                                        FFLocalizations.of(context).getText(
-                                          'nriuufkw' /* Accepté */,
-                                        ),
-                                        FFLocalizations.of(context).getText(
-                                          '0zxaek5q' /* Refusé */,
-                                        )
-                                      ],
-                                      onChanged: (val) => safeSetState(
-                                          () => _model.dropDownValue1 = val),
-                                      width: 120.0,
-                                      height: 32.0,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.plusJakartaSans(
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                            lineHeight: 1.2,
-                                          ),
-                                      hintText:
-                                          FFLocalizations.of(context).getText(
-                                        '1o9dyksd' /* Statut */,
-                                      ),
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        size: 24.0,
-                                      ),
-                                      fillColor: FlutterFlowTheme.of(context)
-                                          .primaryBackground,
-                                      elevation: 2.0,
-                                      borderColor: Colors.transparent,
-                                      borderWidth: 0.0,
-                                      borderRadius: 40.0,
-                                      margin: EdgeInsetsDirectional.fromSTEB(
-                                          12.0, 0.0, 6.0, 0.0),
-                                      hidesUnderline: true,
-                                      isOverButton: false,
-                                      isSearchable: false,
-                                      isMultiSelect: false,
-                                    ),
-                                    FlutterFlowDropDown<String>(
-                                      controller:
-                                          _model.dropDownValueController2 ??=
-                                              FormFieldController<String>(null),
-                                      options: [
-                                        FFLocalizations.of(context).getText(
-                                          'ijuwzf4d' /* Plus récent */,
-                                        ),
-                                        FFLocalizations.of(context).getText(
-                                          '91aw8lbb' /* Plus ancien */,
-                                        ),
-                                        FFLocalizations.of(context).getText(
-                                          '6c1th9zn' /* Cette semaine */,
-                                        ),
-                                        FFLocalizations.of(context).getText(
-                                          'uora5ab9' /* Ce mois */,
-                                        )
-                                      ],
-                                      onChanged: (val) => safeSetState(
-                                          () => _model.dropDownValue2 = val),
-                                      width: 100.0,
-                                      height: 32.0,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            font: GoogleFonts.plusJakartaSans(
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .fontStyle,
-                                            ),
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMedium
-                                                    .fontStyle,
-                                            lineHeight: 1.2,
-                                          ),
-                                      hintText:
-                                          FFLocalizations.of(context).getText(
-                                        'fwxj134p' /* Date */,
-                                      ),
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        size: 24.0,
-                                      ),
-                                      fillColor: FlutterFlowTheme.of(context)
-                                          .primaryBackground,
-                                      elevation: 2.0,
-                                      borderColor: Colors.transparent,
-                                      borderWidth: 0.0,
-                                      borderRadius: 40.0,
-                                      margin: EdgeInsetsDirectional.fromSTEB(
-                                          12.0, 0.0, 6.0, 0.0),
-                                      hidesUnderline: true,
-                                      isOverButton: false,
-                                      isSearchable: false,
-                                      isMultiSelect: false,
-                                    ),
-                                  ].divide(SizedBox(width: 8.0)),
-                                ),
-                              ),
-                            Container(
-                              width: 900.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                              ),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    20.0, 0.0, 20.0, 0.0),
-                                child: FutureBuilder<ApiCallResponse>(
-                                  future: (_model.apiRequestCompleter ??=
-                                          Completer<ApiCallResponse>()
-                                            ..complete(GetClientQuotesCall.call(
-                                              userID: currentUserUid,
-                                              numBordereau:
-                                                  _model.textController.text,
-                                            )))
-                                      .future,
-                                  builder: (context, snapshot) {
-                                    // Customize what your widget looks like when it's loading.
-                                    if (!snapshot.hasData) {
-                                      return Center(
-                                        child: SizedBox(
-                                          width: 50.0,
-                                          height: 50.0,
-                                          child: CircularProgressIndicator(
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              FlutterFlowTheme.of(context)
-                                                  .primary,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                    final listViewGetClientQuotesResponse =
-                                        snapshot.data!;
-
-                                    return Builder(
-                                      builder: (context) {
-                                        final quotes =
-                                            GetClientQuotesCall.records(
-                                                  listViewGetClientQuotesResponse
-                                                      .jsonBody,
-                                                )?.toList() ??
-                                                [];
-
-                                        if (quotes.isEmpty) {
-                                          // `centered-empty-state.tsx` parity:
-                                          // icon in a muted ring, then title,
-                                          // muted body, action 24px below.
-                                          return DSEmptyState(
-                                            icon: Icons.assignment_outlined,
-                                            title: 'Aucun devis disponible',
-                                            description:
-                                                "Vous n'avez pas encore demandé de devis. Faites votre première demande pour commencer.",
-                                            action: DSButton(
-                                              label: 'Demander un devis',
-                                              icon: Icons.add_rounded,
-                                              onPressed: () async {
-                                                context.pushNamed(
-                                                    ChoixDevisWidget.routeName);
-                                              },
-                                            ),
-                                          );
-                                        }
-
-                                        return ListView.separated(
-                                          padding: EdgeInsets.fromLTRB(
-                                            0,
-                                            8.0,
-                                            0,
-                                            24.0,
-                                          ),
-                                          primary: false,
-                                          shrinkWrap: true,
-                                          scrollDirection: Axis.vertical,
-                                          itemCount: quotes.length,
-                                          separatorBuilder: (_, __) =>
-                                              SizedBox(height: 20.0),
-                                          itemBuilder: (context, quotesIndex) {
-                                            final quotesItem = quotes[quotesIndex];
-                                            final devis = DevisSummary.fromAirtable(quotesItem);
-
-                                            final typeDevisValide = getJsonField(
-                                              quotesItem,
-                                              r'''$.fields["Type de Devis validé"]''',
-                                            );
-                                            final paiementRecu = getJsonField(
-                                              quotesItem,
-                                              r'''$.fields["PAIEMENT RECU"]''',
-                                            );
-
-                                            // Quote priced but not yet accepted — send the client to validation.
-                                            Future<void> openValidation() async {
-                                              FFAppState().statutDuDevis = getJsonField(
-                                                quotesItem,
-                                                r'''$.fields["VALIDER DEVIS"]''',
-                                              ).toString();
-                                              FFAppState().StatPaiement = getJsonField(
-                                                quotesItem,
-                                                r'''$.fields["STATUT DU PAIEMENT"]''',
-                                              ).toString();
-                                              FFAppState().SelectedQuoteNum = getJsonField(
-                                                quotesItem,
-                                                r'''$.fields["Numéro Devis"]''',
-                                              ).toString();
-                                              safeSetState(() {});
-                                              if (!((FFAppState().StatPaiement == 'Paiement reçu') &&
-                                                  (FFAppState().statutDuDevis == 'Devis Validé'))) {
-                                                context.pushNamed(
-                                                  PageValidationDevisWidget.routeName,
-                                                  queryParameters: {
-                                                    'tarifAssADV': serializeParam(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Devis+ass ADv (devis stnd+ass AD valorem)"]''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'tarifAssSTD': serializeParam(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Devis standard + (TVA ou pas)"]''',
-                                                      ),
-                                                      ParamType.int,
-                                                    ),
-                                                    'typeDevisChoisi': serializeParam(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Type de Devis validé"]''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'quoteID': serializeParam(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Record ID"]''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                    'devisValideOuPas': serializeParam(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["VALIDER DEVIS"]''',
-                                                      ).toString(),
-                                                      ParamType.String,
-                                                    ),
-                                                  }.withoutNulls,
-                                                );
-                                              }
-                                            }
-
-                                            // Paid quotes open the full detail sheet.
-                                            Future<void> openDetails() async {
-                                              context.pushNamed(
-                                                DetailsDevisWidget.routeName,
-                                                queryParameters: {
-                                                  'prenom': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Prénom"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'nom': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Nom"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'email': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["E-mail"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'telephone': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Téléphone"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'queSouhaitezVous': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["En tant que particulier que souhaitez-vous?"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'adRetrait': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Adresse de retrait"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'codePostalRetrait': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Code postal de retrait"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'villeRetrait': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Ville de retrait"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'nomHDV': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["AHDV(Lieu de retrait)CP clients"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'telRetrait': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Téléphone de retrait"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'montant': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Montant de la marchandise"]''',
-                                                    ),
-                                                    ParamType.int,
-                                                  ),
-                                                  'tranche': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Tranche Montant de la marchandise"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'dateDeVente': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Date de vente"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'numBordereau': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["N°Bordereau"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'bordereauAcquite': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Bordereau acquitté ou pas"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'descriptionObjet': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["DESCRIPTION de l'objet"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'longueur': serializeParam(
-                                                    valueOrDefault<String>(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Longueur"]''',
-                                                      )?.toString(),
-                                                      '.',
-                                                    ),
-                                                    ParamType.String,
-                                                  ),
-                                                  'largeur': serializeParam(
-                                                    valueOrDefault<String>(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Largeur"]''',
-                                                      )?.toString(),
-                                                      '.',
-                                                    ),
-                                                    ParamType.String,
-                                                  ),
-                                                  'hauteur': serializeParam(
-                                                    valueOrDefault<String>(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Hauteur"]''',
-                                                      )?.toString(),
-                                                      '.',
-                                                    ),
-                                                    ParamType.String,
-                                                  ),
-                                                  'poids': serializeParam(
-                                                    valueOrDefault<String>(
-                                                      getJsonField(
-                                                        quotesItem,
-                                                        r'''$.fields["Poids"]''',
-                                                      )?.toString(),
-                                                      '.',
-                                                    ),
-                                                    ParamType.String,
-                                                  ),
-                                                  'objetProtege': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Objet protégé ou emballé ?"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'adLivraison': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Adresse de livraison"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'codePostalLiv': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Code postal de livraison"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'villeLiv': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Ville de livraison"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'paysLiv': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Pays de livraison"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'telLiv': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Téléphone de livraison"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'nomDestinataire': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Nom du destinataire"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'commentaire': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fields["Commentaire"]''',
-                                                    ).toString(),
-                                                    ParamType.String,
-                                                  ),
-                                                  'conditionsGenerals': serializeParam(
-                                                    getJsonField(
-                                                      quotesItem,
-                                                      r'''$.fileds["Conditions générales"]''',
-                                                    ),
-                                                    ParamType.bool,
-                                                  ),
-                                                }.withoutNulls,
-                                              );
-                                            }
-
-                                            final VoidCallback? primaryAction = paiementRecu != null
-                                                ? openDetails
-                                                : (typeDevisValide == null ? openValidation : null);
-
-                                            return DSQuoteCard(
-                                              devis: devis,
-                                              onTap: primaryAction,
-                                              action: typeDevisValide == null
-                                                  ? DSButton(
-                                                      label: FFLocalizations.of(context).getVariableText(
-                                                        frText: 'Valider le devis',
-                                                        enText: 'Accept quote',
-                                                      ),
-                                                      icon: Icons.check_rounded,
-                                                      expand: true,
-                                                      onPressed: openValidation,
-                                                    )
-                                                  : (paiementRecu != null
-                                                      ? DSButton(
-                                                          label: FFLocalizations.of(context).getVariableText(
-                                                            frText: 'Voir le détail',
-                                                            enText: 'View details',
-                                                          ),
-                                                          variant: DSButtonVariant.outline,
-                                                          icon: Icons.receipt_long_outlined,
-                                                          expand: true,
-                                                          onPressed: openDetails,
-                                                        )
-                                                      : null),
-                                            );
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 1500.0,
-                              height: 1.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            if (_search.isNotEmpty)
+              IconButton(
+                tooltip: _t('Effacer', 'Clear'),
+                icon:
+                    Icon(Icons.close_rounded, size: 18.0, color: palette.muted),
+                onPressed: () {
+                  _model.textController?.clear();
+                  _search = '';
+                  _reload();
+                },
               ),
+            XpdLink(
+              label: _t('Rechercher', 'Search'),
+              fontSize: 14.5,
+              onTap: _runSearch,
+            ),
+          ],
+        ),
+      );
+
+  Widget _list(QuoteListResult result) => Column(
+        children: [
+          for (final quote in result.quotes)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: DSQuoteCard(
+                devis: DevisSummary.fromExpedionApi(quote.raw),
+                onTap: () => _openQuote(quote),
+                action: _actionFor(quote),
+              ),
+            ),
+        ],
+      );
+
+  /// Opens the validation screen, which is also where payment happens.
+  ///
+  /// Its route still takes the two tariffs alongside the id — a leftover of the
+  /// Airtable shape, where the screen had no way to fetch them itself. They are
+  /// passed in cents from the quote so the page shows the same figures as the
+  /// card the client just pressed.
+  void _openValidation(ExpedionQuote quote, {required bool alreadyAccepted}) {
+    context.pushNamed(
+      PageValidationDevisWidget.routeName,
+      queryParameters: {
+        'quoteID': serializeParam(quote.id, ParamType.String),
+        if (quote.quoteStandardCents != null)
+          'tarifAssSTD':
+              serializeParam(quote.quoteStandardCents, ParamType.int),
+        if (quote.quoteInsuredCents != null)
+          'tarifAssADV': serializeParam(quote.quoteInsuredCents, ParamType.int),
+        if (quote.acceptedKind.isNotEmpty)
+          'typeDevisChoisi':
+              serializeParam(quote.acceptedKind, ParamType.String),
+        'devisValideOuPas':
+            serializeParam(alreadyAccepted ? 'valide' : '', ParamType.String),
+      }.withoutNulls,
+    );
+  }
+
+  /// What the client can do next with this quote.
+  Widget? _actionFor(ExpedionQuote quote) {
+    // A price is published and not yet accepted — the one action that matters.
+    if (quote.quoteAvailable && !quote.isAccepted) {
+      return DSButton(
+        label: _t('Valider le devis', 'Accept quote'),
+        icon: Icons.check_rounded,
+        expand: true,
+        onPressed: () => _openValidation(quote, alreadyAccepted: false),
+      );
+    }
+    if (quote.isAccepted && !quote.isPaid) {
+      return DSButton(
+        label: _t('Payer', 'Pay'),
+        icon: Icons.credit_card_rounded,
+        expand: true,
+        onPressed: () => _openValidation(quote, alreadyAccepted: true),
+      );
+    }
+    if (quote.isPaid) {
+      return DSButton(
+        label: _t('Suivre la livraison', 'Track delivery'),
+        variant: DSButtonVariant.outline,
+        icon: Icons.local_shipping_outlined,
+        expand: true,
+        onPressed: () => context.pushNamed(
+          SuiviDeLivraisonWidget.routeName,
+          queryParameters: {
+            'quoteId': serializeParam(quote.id, ParamType.String),
+          }.withoutNulls,
+        ),
+      );
+    }
+    // Still pending: priced by an admin or by auto-pricing, nothing to press.
+    return null;
+  }
+
+  /// Tapping the card itself goes wherever the quote currently *is*.
+  ///
+  /// `DetailsDevisWidget` is deliberately not a target: its route still takes
+  /// twenty-five flat Airtable fields rather than an id, so reaching it from
+  /// here would mean reconstructing a record shape this page no longer holds.
+  void _openQuote(ExpedionQuote quote) {
+    final quoteId = {
+      'quoteId': serializeParam(quote.id, ParamType.String),
+    }.withoutNulls;
+
+    if (quote.status == 'awaiting_confirmation') {
+      context.pushNamed(
+        ConfirmerLesDetailsWidget.routeName,
+        queryParameters: quoteId,
+      );
+      return;
+    }
+    if (quote.isPaid) {
+      context.pushNamed(
+        SuiviDeLivraisonWidget.routeName,
+        queryParameters: quoteId,
+      );
+      return;
+    }
+    if (quote.quoteAvailable) {
+      _openValidation(quote, alreadyAccepted: quote.isAccepted);
+    }
+  }
+
+  Widget _empty(XpdPalette palette) => XpdPanel(
+        padding: const EdgeInsets.symmetric(vertical: 56.0, horizontal: 28.0),
+        child: Column(
+          children: [
+            Container(
+              width: 64.0,
+              height: 64.0,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: palette.chip,
+                border: Border.all(color: palette.line),
+              ),
+              child: Icon(
+                Icons.assignment_outlined,
+                color: palette.muted,
+                size: 28.0,
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            Text(
+              _search.isEmpty
+                  ? _t('Aucun devis disponible', 'No quotes yet')
+                  : _t('Aucun résultat', 'No results'),
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 19.0,
+                fontWeight: FontWeight.w600,
+                color: palette.text,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Text(
+              _search.isEmpty
+                  ? _t(
+                      "Vous n'avez pas encore demandé de devis. Faites votre première demande pour commencer.",
+                      'You have not requested a quote yet. Make your first request to get started.',
+                    )
+                  : _t(
+                      'Aucun devis ne correspond à « $_search ».',
+                      'No quote matches “$_search”.',
+                    ),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 15.0,
+                height: 1.55,
+                color: palette.muted,
+              ),
+            ),
+            const SizedBox(height: 24.0),
+            XpdButton(
+              label: _t('Demander un devis', 'Request a quote'),
+              onPressed: _newQuote,
+            ),
+          ],
+        ),
+      );
+
+  /// Distinguishes "sign in" from "something broke": the first needs a login,
+  /// the second needs a retry, and offering the wrong one wastes the client's
+  /// time.
+  Widget _failure(XpdPalette palette, QuoteListResult? result) {
+    final needsSignIn = result?.needsSignIn ?? false;
+    return XpdPanel(
+      padding: const EdgeInsets.symmetric(vertical: 48.0, horizontal: 28.0),
+      child: Column(
+        children: [
+          Icon(
+            needsSignIn ? Icons.lock_outline_rounded : Icons.cloud_off_rounded,
+            color: palette.muted,
+            size: 32.0,
+          ),
+          const SizedBox(height: 18.0),
+          Text(
+            needsSignIn
+                ? _t('Connectez-vous', 'Sign in')
+                : _t('Chargement impossible', 'Could not load'),
+            style: TextStyle(
+              fontFamily: 'Geist',
+              fontSize: 19.0,
+              fontWeight: FontWeight.w600,
+              color: palette.text,
             ),
           ),
-        );
-      },
+          const SizedBox(height: 8.0),
+          Text(
+            result?.message ??
+                _t(
+                  'Vos devis sont temporairement indisponibles.',
+                  'Your quotes are temporarily unavailable.',
+                ),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Geist',
+              fontSize: 15.0,
+              height: 1.55,
+              color: palette.muted,
+            ),
+          ),
+          const SizedBox(height: 24.0),
+          XpdButton(
+            label: needsSignIn
+                ? _t('Se connecter', 'Sign in')
+                : _t('Réessayer', 'Try again'),
+            onPressed: needsSignIn
+                ? () => context.pushNamed(SeConnecterWidget.routeName)
+                : _reload,
+          ),
+        ],
+      ),
     );
   }
 }

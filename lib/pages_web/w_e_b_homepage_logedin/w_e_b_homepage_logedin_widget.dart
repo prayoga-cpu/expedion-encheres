@@ -794,7 +794,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                             .displayMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 36.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.bold,
@@ -891,7 +892,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -899,7 +901,9 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w600,
@@ -917,7 +921,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.normal,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -980,7 +985,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -988,7 +994,9 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w600,
@@ -1006,7 +1014,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.normal,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1069,7 +1078,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1077,7 +1087,9 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w600,
@@ -1095,7 +1107,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.normal,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1158,7 +1171,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1166,7 +1180,9 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w600,
@@ -1184,7 +1200,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.normal,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1247,7 +1264,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1255,7 +1273,9 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w600,
@@ -1273,7 +1293,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.normal,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1336,7 +1357,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1344,7 +1366,9 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context).primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 fontSize: 22.0,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.w600,
@@ -1362,7 +1386,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.normal,
                                                   fontStyle:
                                                       FlutterFlowTheme.of(
@@ -1457,7 +1482,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .headlineLarge
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.bold,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -1531,7 +1557,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .headlineLarge
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.bold,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -1605,7 +1632,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                             style: FlutterFlowTheme.of(context)
                                                 .headlineLarge
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.bold,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -1694,7 +1722,8 @@ class _WEBHomepageLogedinWidgetState extends State<WEBHomepageLogedinWidget> {
                                             .displayMedium
                                             .fontStyle,
                                       ),
-                                      color: FlutterFlowTheme.of(context).primaryText,
+                                      color: FlutterFlowTheme.of(context)
+                                          .primaryText,
                                       fontSize: 36.0,
                                       letterSpacing: 0.0,
                                       fontWeight: FontWeight.bold,

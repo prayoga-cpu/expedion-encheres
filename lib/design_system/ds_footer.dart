@@ -64,9 +64,8 @@ class DSFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
     final width = MediaQuery.sizeOf(context).width;
-    final columnCount = width >= 900.0
-        ? columns.length
-        : (width >= 560.0 ? 2 : 1);
+    final columnCount =
+        width >= 900.0 ? columns.length : (width >= 560.0 ? 2 : 1);
 
     return Container(
       width: double.infinity,
@@ -99,9 +98,9 @@ class DSFooter extends StatelessWidget {
               LayoutBuilder(
                 builder: (context, constraints) {
                   const gap = 24.0;
-                  final tileWidth = (constraints.maxWidth -
-                          gap * (columnCount - 1)) /
-                      columnCount;
+                  final tileWidth =
+                      (constraints.maxWidth - gap * (columnCount - 1)) /
+                          columnCount;
                   return Wrap(
                     spacing: gap,
                     runSpacing: 32.0,

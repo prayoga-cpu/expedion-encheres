@@ -86,7 +86,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(70.0),
               child: AppBar(
-                backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+                backgroundColor:
+                    FlutterFlowTheme.of(context).secondaryBackground,
                 automaticallyImplyLeading: false,
                 title: Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
@@ -452,7 +453,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     context)
                                                 .bodyLarge
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -503,7 +505,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     context)
                                                 .bodyLarge
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.w500,
                                                     fontStyle:
                                                         FlutterFlowTheme.of(
@@ -758,7 +761,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                       context)
                                                   .bodyMedium
                                                   .override(
-                                                    font: GoogleFonts.plusJakartaSans(
+                                                    font: GoogleFonts
+                                                        .plusJakartaSans(
                                                       fontWeight:
                                                           FontWeight.w500,
                                                       fontStyle:
@@ -835,7 +839,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                           context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -867,10 +872,11 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                               ),
                                               Icon(
                                                 Icons.email_sharp,
-                                                color: FlutterFlowTheme.of(
-                                                        context)
-                                                    .primary
-                                                    .withValues(alpha: 0.44),
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primary
+                                                        .withValues(
+                                                            alpha: 0.44),
                                                 size: 24.0,
                                               ),
                                             ].divide(SizedBox(width: 5.0)),
@@ -946,7 +952,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                       context)
                                                   .bodySmall
                                                   .override(
-                                                    font: GoogleFonts.plusJakartaSans(
+                                                    font: GoogleFonts
+                                                        .plusJakartaSans(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       fontStyle:
@@ -974,8 +981,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1030,7 +1037,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                       context)
                                                   .bodySmall
                                                   .override(
-                                                    font: GoogleFonts.plusJakartaSans(
+                                                    font: GoogleFonts
+                                                        .plusJakartaSans(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       fontStyle:
@@ -1057,7 +1065,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1111,7 +1120,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                       context)
                                                   .bodySmall
                                                   .override(
-                                                    font: GoogleFonts.plusJakartaSans(
+                                                    font: GoogleFonts
+                                                        .plusJakartaSans(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       fontStyle:
@@ -1139,8 +1149,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1195,7 +1205,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                       context)
                                                   .bodySmall
                                                   .override(
-                                                    font: GoogleFonts.plusJakartaSans(
+                                                    font: GoogleFonts
+                                                        .plusJakartaSans(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       fontStyle:
@@ -1225,7 +1236,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyLarge
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1279,7 +1291,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                       context)
                                                   .bodySmall
                                                   .override(
-                                                    font: GoogleFonts.plusJakartaSans(
+                                                    font: GoogleFonts
+                                                        .plusJakartaSans(
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       fontStyle:
@@ -1318,8 +1331,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1424,32 +1437,32 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     .getText(
                                                   'ae9079ln' /* Member Since */,
                                                 ),
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodySmall
-                                                    .override(
-                                                      font: GoogleFonts.plusJakartaSans(
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodySmall
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodySmall
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodySmall
+                                                                    .fontStyle,
+                                                          ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
                                                               .secondaryText,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodySmall
-                                                              .fontStyle,
-                                                    ),
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodySmall
+                                                                  .fontStyle,
+                                                        ),
                                               ),
                                               Text(
                                                 FFLocalizations.of(context)
@@ -1460,8 +1473,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1512,7 +1525,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                           context)
                                                       .bodySmall
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           fontStyle:
@@ -1560,32 +1574,32 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     .getText(
                                                   'nt595jlb' /* Account Type */,
                                                 ),
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodySmall
-                                                    .override(
-                                                      font: GoogleFonts.plusJakartaSans(
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodySmall
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodySmall
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodySmall
+                                                                    .fontStyle,
+                                                          ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
                                                               .secondaryText,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodySmall
-                                                              .fontStyle,
-                                                    ),
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodySmall
+                                                                  .fontStyle,
+                                                        ),
                                               ),
                                               Text(
                                                 FFLocalizations.of(context)
@@ -1596,8 +1610,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1646,7 +1660,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                           context)
                                                       .bodySmall
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           fontStyle:
@@ -1694,32 +1709,32 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     .getText(
                                                   'rl7qavxo' /* Client ID */,
                                                 ),
-                                                style: FlutterFlowTheme.of(
-                                                        context)
-                                                    .bodySmall
-                                                    .override(
-                                                      font: GoogleFonts.plusJakartaSans(
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodySmall
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodySmall
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodySmall
+                                                                    .fontStyle,
+                                                          ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
                                                               .secondaryText,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodySmall
-                                                              .fontStyle,
-                                                    ),
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodySmall
+                                                                  .fontStyle,
+                                                        ),
                                               ),
                                               Text(
                                                 'CLT${currentUserUid}',
@@ -1727,8 +1742,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
                                                         .override(
-                                                          font:
-                                                              GoogleFonts.plusJakartaSans(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -1837,7 +1852,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           fontStyle:
@@ -1865,7 +1881,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodySmall
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -1946,7 +1963,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           fontStyle:
@@ -1974,7 +1992,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodySmall
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)
@@ -2055,7 +2074,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           fontStyle:
@@ -2083,7 +2103,8 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                   FlutterFlowTheme.of(context)
                                                       .bodySmall
                                                       .override(
-                                                        font: GoogleFonts.plusJakartaSans(
+                                                        font: GoogleFonts
+                                                            .plusJakartaSans(
                                                           fontWeight:
                                                               FlutterFlowTheme.of(
                                                                       context)

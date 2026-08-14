@@ -132,7 +132,8 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
         );
       default:
         return result?.message ??
-            _t('La création du compte a échoué.', 'Could not create the account.');
+            _t('La création du compte a échoué.',
+                'Could not create the account.');
     }
   }
 
@@ -519,7 +520,8 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
                 ),
               ),
               const SizedBox(height: 30.0),
-              _groupLabel(palette, _t('ADRESSE DE FACTURATION', 'BILLING ADDRESS')),
+              _groupLabel(
+                  palette, _t('ADRESSE DE FACTURATION', 'BILLING ADDRESS')),
               const SizedBox(height: 16.0),
               XpdField(
                 label: _t('Adresse', 'Address'),

@@ -332,7 +332,8 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
                   ),
                   decoration: BoxDecoration(
                     color: palette.red.withValues(alpha: 0.10),
-                    border: Border.all(color: palette.red.withValues(alpha: 0.32)),
+                    border:
+                        Border.all(color: palette.red.withValues(alpha: 0.32)),
                     borderRadius: BorderRadius.circular(11.0),
                   ),
                   child: Text(
@@ -420,9 +421,7 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
               size: 20.0,
               color: palette.muted,
             ),
-            tooltip: _obscure
-                ? _t('Afficher', 'Show')
-                : _t('Masquer', 'Hide'),
+            tooltip: _obscure ? _t('Afficher', 'Show') : _t('Masquer', 'Hide'),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(11.0),

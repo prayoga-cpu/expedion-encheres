@@ -395,7 +395,9 @@ class DSStarRating extends StatelessWidget {
             child: Icon(
               i < rating.floor()
                   ? Icons.star_rounded
-                  : (i < rating ? Icons.star_half_rounded : Icons.star_outline_rounded),
+                  : (i < rating
+                      ? Icons.star_half_rounded
+                      : Icons.star_outline_rounded),
               size: size,
               color: theme.primary,
             ),

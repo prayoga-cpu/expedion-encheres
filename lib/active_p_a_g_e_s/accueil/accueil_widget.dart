@@ -454,7 +454,10 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                 height: 520.0,
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
-                    colors: [palette.glowColor, palette.glowColor.withValues(alpha: 0.0)],
+                    colors: [
+                      palette.glowColor,
+                      palette.glowColor.withValues(alpha: 0.0)
+                    ],
                     stops: const [0.0, 0.7],
                   ),
                 ),
@@ -583,7 +586,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
           ),
           const SizedBox(height: 16.0),
           XpdField(
-            label: _t('Enlèvement — maison de ventes', 'Pickup — auction house'),
+            label:
+                _t('Enlèvement — maison de ventes', 'Pickup — auction house'),
             hint: 'Drouot, Paris 9e',
             controller: _expressPickup,
             verticalPadding: 12.0,
@@ -607,7 +611,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             ),
             fileName: _expressFile?.originalFilename,
             chipSize: 34.0,
-            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 13.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14.0, vertical: 13.0),
             onTap: () => _pickFile((f) => _expressFile = f),
           ),
           const SizedBox(height: 16.0),
@@ -615,7 +620,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             label: _t('Obtenir un prix fixe', 'Get a fixed price'),
             fontSize: 15.5,
             expand: true,
-            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 14.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 18.0, vertical: 14.0),
             onPressed: _submitExpress,
           ),
           const SizedBox(height: 16.0),
@@ -716,7 +722,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              XpdEyebrow(_t('UN GROUPE, DEUX APPLICATIONS', 'ONE COMPANY, TWO APPS')),
+              XpdEyebrow(
+                  _t('UN GROUPE, DEUX APPLICATIONS', 'ONE COMPANY, TWO APPS')),
               const SizedBox(height: 14.0),
               XpdSectionHeading(_t(
                 'Expedion prend la commande. Expeditoo trouve le camion.',
@@ -926,7 +933,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
           constraints: BoxConstraints(maxWidth: maxWidth),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
             decoration: BoxDecoration(
               color: background ?? palette.bg2,
               border: Border.all(color: borderColor ?? palette.line2),
@@ -1023,7 +1031,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
         ),
         connector(30.0, blueLine),
         node(
-          title: _t('Les transporteurs enchèrent', 'Carriers bid, client picks'),
+          title:
+              _t('Les transporteurs enchèrent', 'Carriers bid, client picks'),
           subtitle: _t('Enchère inversée, vous choisissez', 'Reverse auction'),
           background: blueBg,
           borderColor: blueBorder,
@@ -1056,7 +1065,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 node(
-                  title: _t('Vous demandez un devis', 'Client requests a devis'),
+                  title:
+                      _t('Vous demandez un devis', 'Client requests a devis'),
                   subtitle: _t(
                     'Sur Expedion, bordereau importé',
                     'Expedion, bordereau upload',
@@ -1083,7 +1093,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                     ),
                   ),
                 node(
-                  title: _t('Livraison, un seul suivi', 'Delivery, one status feed'),
+                  title: _t(
+                      'Livraison, un seul suivi', 'Delivery, one status feed'),
                   subtitle: _t(
                     'Synchronisé entre les deux applications',
                     'Synced to both apps',
@@ -1152,7 +1163,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
           const SizedBox(height: 26.0),
           pair(
             XpdField(
-              label: _t('Enlèvement — maison de ventes', 'Pickup — auction house'),
+              label:
+                  _t('Enlèvement — maison de ventes', 'Pickup — auction house'),
               hint: 'Drouot, Paris 9e',
               controller: _pickup,
             ),
@@ -1208,7 +1220,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
               'PDF, JPG or PNG — up to 10 MB',
             ),
             fileName: _bordereau?.originalFilename,
-            trailingLabel: narrow ? null : _t('Choisir un fichier', 'Choose a file'),
+            trailingLabel:
+                narrow ? null : _t('Choisir un fichier', 'Choose a file'),
             onTap: () => _pickFile((f) => _bordereau = f),
           ),
           const SizedBox(height: 26.0),
@@ -1257,22 +1270,38 @@ class _AccueilWidgetState extends State<AccueilWidget> {
     );
 
     final nextSteps = [
-      ('01', _t(
-        'Nous lisons le bordereau et dimensionnons le lot.',
-        'We read the bordereau and size the lot.',
-      ), palette.amber),
-      ('02', _t(
-        'Un prix fixe, tout compris, arrive dans votre boîte mail.',
-        'A fixed, all-in price lands in your inbox.',
-      ), palette.amber),
-      ('03', _t(
-        'Vous acceptez, nous réservons le créneau avec la maison de ventes.',
-        'You accept, we book the pickup slot with the auction house.',
-      ), palette.amber),
-      ('04', _t(
-        'Chauffeur du réseau, ou transporteur via Expeditoo. Même suivi.',
-        'Driver from the pool, or a carrier via Expeditoo. Same tracking.',
-      ), palette.blueLink),
+      (
+        '01',
+        _t(
+          'Nous lisons le bordereau et dimensionnons le lot.',
+          'We read the bordereau and size the lot.',
+        ),
+        palette.amber
+      ),
+      (
+        '02',
+        _t(
+          'Un prix fixe, tout compris, arrive dans votre boîte mail.',
+          'A fixed, all-in price lands in your inbox.',
+        ),
+        palette.amber
+      ),
+      (
+        '03',
+        _t(
+          'Vous acceptez, nous réservons le créneau avec la maison de ventes.',
+          'You accept, we book the pickup slot with the auction house.',
+        ),
+        palette.amber
+      ),
+      (
+        '04',
+        _t(
+          'Chauffeur du réseau, ou transporteur via Expeditoo. Même suivi.',
+          'Driver from the pool, or a carrier via Expeditoo. Same tracking.',
+        ),
+        palette.blueLink
+      ),
     ];
 
     final aside = Column(
@@ -1374,7 +1403,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                   Expanded(child: form),
                   const SizedBox(width: 28.0),
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 380.0, minWidth: 300.0),
+                    constraints:
+                        const BoxConstraints(maxWidth: 380.0, minWidth: 300.0),
                     child: aside,
                   ),
                 ],
@@ -1520,7 +1550,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                   ),
                   price: '45 – 90 €',
                   features: [
-                    _t('Enlèvement et emballage inclus', 'Pickup and packing included'),
+                    _t('Enlèvement et emballage inclus',
+                        'Pickup and packing included'),
                     _t('Livraison à votre porte', 'Delivery to your door'),
                     _t('2 à 4 jours ouvrés', '2 to 4 working days'),
                   ],
@@ -1531,7 +1562,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                   price: '90 – 260 €',
                   featured: true,
                   features: [
-                    _t('Manutention à deux si nécessaire', 'Two-person handling if needed'),
+                    _t('Manutention à deux si nécessaire',
+                        'Two-person handling if needed'),
                     _t('Couvertures, coins, film', 'Blankets, corners, film'),
                     _t('Créneau de livraison de 2 h', '2h delivery window'),
                   ],
@@ -1559,7 +1591,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             ),
             const SizedBox(height: 36.0),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 26.0, vertical: 22.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 26.0, vertical: 22.0),
               decoration: BoxDecoration(
                 color: palette.chip,
                 border: Border.all(color: palette.line),
@@ -1574,7 +1607,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                       "Assurance ad valorem, 1,2 % du prix d'adjudication",
                       'Ad valorem insurance, 1.2% of the hammer price',
                     ),
-                    _t('Gardiennage offert 10 jours', 'Storage free for 10 days'),
+                    _t('Gardiennage offert 10 jours',
+                        'Storage free for 10 days'),
                     _t(
                       'Prix HT, options chiffrées au devis',
                       'Prices excl. VAT, options priced on the quote',
@@ -1798,7 +1832,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                XpdEyebrow(_t('POURQUOI ÇA ARRIVE INTACT', 'WHY IT ARRIVES INTACT')),
+                XpdEyebrow(
+                    _t('POURQUOI ÇA ARRIVE INTACT', 'WHY IT ARRIVES INTACT')),
                 const SizedBox(height: 14.0),
                 XpdSectionHeading(
                   _t("Un lot n'est pas un colis", 'A lot is not a parcel'),
@@ -1812,7 +1847,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             spacing: 16.0,
             children: [
               promise(
-                _t("Assuré à la valeur d'adjudication", 'Insured at hammer value'),
+                _t("Assuré à la valeur d'adjudication",
+                    'Insured at hammer value'),
                 _t(
                   "Couverture ad valorem sur demande, de l'enlèvement à la signature. L'attestation est jointe au devis.",
                   'Ad valorem cover on request, from pickup to signature. The certificate is attached to your quote.',
@@ -2221,14 +2257,16 @@ class _AccueilWidgetState extends State<AccueilWidget> {
 
     final entries = <(String, String)>[
       (
-        _t('De quoi avez-vous besoin pour chiffrer ?', 'What do you need to quote?'),
+        _t('De quoi avez-vous besoin pour chiffrer ?',
+            'What do you need to quote?'),
         _t(
           "Le bordereau, le code postal de livraison et la date limite d'enlèvement. Si vous connaissez les dimensions, ajoutez-les ; sinon nous appelons la maison de ventes.",
           'The bordereau, the delivery postcode and the pickup deadline. If you know the dimensions, add them; otherwise we call the auction house.',
         ),
       ),
       (
-        _t('Qui transporte réellement mon lot ?', 'Who actually carries my lot?'),
+        _t('Qui transporte réellement mon lot ?',
+            'Who actually carries my lot?'),
         _t(
           "Un chauffeur de notre réseau, attribué par notre équipe. Si aucun n'est disponible, la course est publiée sur Expeditoo, notre plateforme transporteurs, et un transporteur vérifié la prend au prix de son enchère. Même assurance, même suivi, même interlocuteur.",
           'A driver from our own pool, assigned by our team. If none is free, the job is posted on Expeditoo, our carrier platform, and a vetted carrier takes it at a bid price. Same insurance, same tracking, same contact.',
@@ -2274,7 +2312,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             const XpdEyebrow('FAQ'),
             const SizedBox(height: 12.0),
             XpdSectionHeading(
-              _t('Les questions que posent les acheteurs', 'Questions buyers ask'),
+              _t('Les questions que posent les acheteurs',
+                  'Questions buyers ask'),
             ),
             const SizedBox(height: 32.0),
             for (var i = 0; i < entries.length; i++)
@@ -2338,7 +2377,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                       AnimatedCrossFade(
                         firstChild: const SizedBox(width: double.infinity),
                         secondChild: Padding(
-                          padding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 22.0),
+                          padding:
+                              const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 22.0),
                           child: Text(
                             entries[i].$2,
                             style: TextStyle(
@@ -2542,7 +2582,8 @@ class _PinnedHeader extends SliverPersistentHeaderDelegate {
   double get maxExtent => XpdHeader.height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) =>
+  Widget build(
+          BuildContext context, double shrinkOffset, bool overlapsContent) =>
       child;
 
   @override
