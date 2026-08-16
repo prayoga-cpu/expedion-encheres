@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
+
 /// Where the Expeditoo backend lives.
 ///
 /// One place, because two clients need the same answer: [ExpedionApi] for
@@ -21,23 +23,31 @@ class ExpedionConfig {
   /// Where `pnpm dev` serves expeditoo-ship, from `~/Code/expeditoo-ship`.
   static const String _localDefault = 'http://localhost:3000';
 
-  /// The Vercel deployment.
+  /// The Vercel deployment that serves the API in production.
   ///
-  /// NOT the default right now. That deployment is stale — it answers
-  /// `/api/health` but 404s every `/api/expedion/*` route, because it predates
-  /// them — so pointing at it produces a working-looking app whose every quote
-  /// call fails. Until it is rebuilt from `main`, both debug and release
-  /// resolve to the local server.
-  // ignore: unused_field
-  static const String _vercelDeployment = 'https://expeditoo-rho.vercel.app';
+  /// Was `expeditoo-rho.vercel.app`, which had gone stale: it answered
+  /// `/api/health` but 404'd every `/api/expedion/*` route because it predated
+  /// them. Both debug and release were pointed at localhost to avoid that trap,
+  /// which then became a worse one — a deployed build asked a visitor's own
+  /// machine for the API, and Chrome blocked it outright as a public page
+  /// reaching into the loopback address space.
+  ///
+  /// This host answers `/api/expedion/quotes` with 401 rather than 404, which
+  /// is how you tell a current deployment from a stale one: the route exists
+  /// and is asking who you are.
+  static const String _vercelDeployment =
+      'https://expeditoo-ship-five.vercel.app';
 
   /// Resolved base URL, without a trailing slash.
   ///
-  /// One line to flip back once the deployment is current: restore
-  /// `kReleaseMode ? _vercelDeployment : _localDefault`. A `--dart-define`
-  /// overrides this either way, so a staging build needs no code change.
+  /// Release builds talk to the deployment; debug talks to `pnpm dev`, so a
+  /// plain `flutter run -d chrome` works against a local backend with no flags.
+  /// `--dart-define=EXPEDION_API_BASE_URL=…` overrides both, which is what a
+  /// staging build or a tunnel uses.
   static String get baseUrl {
-    final resolved = _override.isNotEmpty ? _override : _localDefault;
+    final resolved = _override.isNotEmpty
+        ? _override
+        : (kReleaseMode ? _vercelDeployment : _localDefault);
     return resolved.endsWith('/')
         ? resolved.substring(0, resolved.length - 1)
         : resolved;
