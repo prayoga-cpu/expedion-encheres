@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/expedion_api/expedion_config.dart';
 import '/backend/quote_draft.dart';
 import '/design_system/ds_logo.dart';
 import '/design_system/ds_palette.dart';
@@ -67,12 +68,24 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   final _email = TextEditingController();
   final _phone = TextEditingController();
   SelectedFile? _bordereau;
-  late String _lotType = _lotTypesFr.first;
+
+  /// Which lot type is chosen, held as an index rather than a label.
+  ///
+  /// A localised string cannot be dropdown state: `DropdownButton` asserts that
+  /// its `value` appears exactly once among its `items`, and the items are
+  /// rebuilt in the current language. Storing the French label meant that
+  /// opening the page in English — which a persisted locale now does — put a
+  /// French value against English items and crashed the section on first build.
+  /// An index is language-independent, and the label is derived from the same
+  /// list that builds the items, so the two cannot disagree.
+  int _lotTypeIndex = 0;
 
   /// Which FAQ rows are open. The design ships the first one expanded.
   final Set<int> _openFaq = {0};
 
-  static const _expeditooUrl = 'https://expeditoo-rho.vercel.app/';
+  /// Resolved from [ExpedionConfig] so the carrier-side link opens the same
+  /// instance this build reads its quotes from.
+  static String get _expeditooUrl => ExpedionConfig.expeditooWebUrl;
   static const _contactEmail = 'contact@expedion-encheres.com';
   static const _phoneNumber = '01 84 80 12 40';
 
@@ -126,19 +139,18 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   /// picks between the pair the same way the page's `applyLang` does.
   String _t(String fr, String en) => _isEnglish ? en : fr;
 
+  /// The lot-type options in the language now showing.
+  List<String> get _lotTypes => _isEnglish ? _lotTypesEn : _lotTypesFr;
+
+  /// The chosen option's label. Always drawn from [_lotTypes], which is also
+  /// what builds the dropdown's items, so the two cannot fall out of step.
+  String get _lotType => _lotTypes[_lotTypeIndex];
+
   void _setLanguage(String code) {
     if (code == (_isEnglish ? 'en' : 'fr')) return;
-    // The dropdown's selection is one of the French strings until the locale
-    // flips; carry the index across so the choice survives the switch.
-    final index = _lotTypesFr.contains(_lotType)
-        ? _lotTypesFr.indexOf(_lotType)
-        : _lotTypesEn.indexOf(_lotType);
+    // Nothing to carry across: the selection is an index, so it survives the
+    // switch and simply renders in the new language.
     MyApp.of(context).setLocale(code);
-    if (index >= 0) {
-      setState(() {
-        _lotType = code == 'en' ? _lotTypesEn[index] : _lotTypesFr[index];
-      });
-    }
   }
 
   Future<void> _scrollTo(GlobalKey key) async {
@@ -293,7 +305,7 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                   ),
                 ],
                 trailing: [
-                  _HeaderTextAction(
+                  XpdHeaderTextAction(
                     label: loggedIn
                         ? _t('Espace personnel', 'My account')
                         : _t('Connexion', 'Log in'),
@@ -1188,8 +1200,11 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             XpdSelect(
               label: _t('Type de lot', 'Type of lot'),
               value: _lotType,
-              options: _isEnglish ? _lotTypesEn : _lotTypesFr,
-              onChanged: (v) => setState(() => _lotType = v ?? _lotType),
+              options: _lotTypes,
+              onChanged: (v) {
+                final index = _lotTypes.indexOf(v ?? '');
+                if (index >= 0) setState(() => _lotTypeIndex = index);
+              },
             ),
           ),
           const SizedBox(height: 18.0),
@@ -2591,41 +2606,6 @@ class _PinnedHeader extends SliverPersistentHeaderDelegate {
 }
 
 /// A plain text action in the header's trailing group — "Connexion".
-class _HeaderTextAction extends StatefulWidget {
-  const _HeaderTextAction({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  State<_HeaderTextAction> createState() => _HeaderTextActionState();
-}
-
-class _HeaderTextActionState extends State<_HeaderTextAction> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = XpdPalette.of(context);
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Text(
-          widget.label,
-          style: TextStyle(
-            fontFamily: 'Geist',
-            fontSize: 14.5,
-            color: _hovered ? palette.blueLink : palette.muted,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// The header's links, the toggles and the account action, as a drawer on the
 /// widths where they cannot share a row.
 class _MobileMenu extends StatelessWidget {

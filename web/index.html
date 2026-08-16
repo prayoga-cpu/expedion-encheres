@@ -28,9 +28,16 @@
 
   
 
-  <!-- Favicon -->
-  <link rel="icon" href="1cbd084bc5eb4fddba058d26b8cab44f.png" sizes="any"/>
-  
+  <!-- Favicon. The SVG is what modern browsers pick up and it stays crisp at
+       any tab or bookmark size; the PNGs are the fallback, and Safari reads
+       the apple-touch-icon when the site is added to a home screen. -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png"/>
+  <link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180"/>
+  <!-- theme-color is set further down, per colour scheme — don't add an
+       unconditional one here or it wins over the light-mode variant. -->
+
 
   <!-- Open Graph & SEO tags -->
   <meta property="og:title" content="Expedion Enchères — Vos lots livrés chez vous" />

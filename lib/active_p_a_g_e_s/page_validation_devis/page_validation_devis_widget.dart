@@ -1,16 +1,12 @@
-import '/design_system/ds_logo.dart';
-import '/active_p_a_g_e_s/liste_a_p_p_b_a_r/liste_a_p_p_b_a_r_widget.dart';
+import '/app_shell.dart';
 import '/active_p_a_g_e_s/paiement/paiement_widget.dart';
-import '/auth/base_auth_user_provider.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
+import '/backend/expedion_api/expedion_quote.dart' show kQuoteKindInsured;
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
-import '/index.dart';
-import 'package:aligned_dialog/aligned_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -48,8 +44,6 @@ class PageValidationDevisWidget extends StatefulWidget {
 class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
   late PageValidationDevisModel _model;
 
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   void initState() {
     super.initState();
@@ -61,14 +55,43 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
       FFAppState().TypeDeDevisValide = '';
       safeSetState(() {});
       FFAppState().DevisValideOuPas = 'Devis Validé';
-      FFAppState().TypeDeDevisValide =
-          (widget.typeDevisChoisi == null || widget.typeDevisChoisi == 'null')
-              ? ''
-              : widget.typeDevisChoisi!;
+      FFAppState().TypeDeDevisValide = _selectedKindFromRoute();
       safeSetState(() {});
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+  }
+
+  /// Translates the accepted kind the API returns into the vocabulary this
+  /// page's buttons compare against.
+  ///
+  /// `typeDevisChoisi` carries `acceptedKind` straight off the wire, which is
+  /// `standard` / `with_ad_valorem_insurance`. The two buttons below test for
+  /// 'ADV' and the French label, so an accepted insured quote matched neither
+  /// and fell through to the standard branch — billing the wrong tariff and
+  /// relabelling the quote as standard on confirm.
+  String _selectedKindFromRoute() {
+    final kind = widget.typeDevisChoisi;
+    if (kind == null || kind.isEmpty || kind == 'null') return '';
+    return kind == kQuoteKindInsured ? 'ADV' : 'STD';
+  }
+
+  /// Whether the tariff for the currently selected kind was actually published.
+  bool get _hasPriceForSelectedKind {
+    final cents = FFAppState().TypeDeDevisValide ==
+            'Devis avec assurance AD valorem'
+        ? widget.tarifAssADV
+        : widget.tarifAssSTD;
+    return cents != null && cents > 0;
+  }
+
+  void _showMissingTariff() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+            'Tarif indisponible pour ce devis. Contactez-nous avant de payer.'),
+      ),
+    );
   }
 
   @override
@@ -87,508 +110,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
         FocusScope.of(context).unfocus();
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(70.0),
-          child: AppBar(
-            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            automaticallyImplyLeading: false,
-            title: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
-                    child: InkWell(
-                      splashColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      onTap: () async {
-                        context.pushNamed(AccueilWidget.routeName);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          if (responsiveVisibility(
-                            context: context,
-                            phone: false,
-                          ))
-                            Text(
-                              FFLocalizations.of(context).getText(
-                                'tfabeimg' /* EXPEDION */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .titleLarge
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w600,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .titleLarge
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w600,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .titleLarge
-                                        .fontStyle,
-                                  ),
-                            ),
-                          const XpdLogoMark(size: 30.0),
-                        ].divide(SizedBox(width: 10.0)),
-                      ),
-                    ),
-                  ),
-                  if (responsiveVisibility(
-                    context: context,
-                    phone: false,
-                  ))
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Align(
-                          alignment: AlignmentDirectional(1.49, 0.0),
-                          child: InkWell(
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              context.pushNamed(AccueilWidget.routeName);
-                            },
-                            child: Text(
-                              FFLocalizations.of(context).getText(
-                                '1nwaxghw' /* Accueil */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyLarge
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyLarge
-                                        .fontStyle,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            if (loggedIn == true) {
-                              context.pushNamed(ChoixDevisWidget.routeName);
-                            } else {
-                              context.pushNamed(SeConnecterWidget.routeName);
-                            }
-                          },
-                          child: Text(
-                            FFLocalizations.of(context).getText(
-                              'cp2u3llk' /* Demander un devis */,
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyLarge
-                                .override(
-                                  font: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyLarge
-                                        .fontStyle,
-                                  ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .fontStyle,
-                                ),
-                          ),
-                        ),
-                        if (loggedIn == true)
-                          InkWell(
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              context.pushNamed(MesDevisWidget.routeName);
-                            },
-                            child: Text(
-                              FFLocalizations.of(context).getText(
-                                '1h5fypr5' /* Mes devis */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .fontStyle,
-                                    ),
-                                    fontSize: 16.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .fontStyle,
-                                  ),
-                            ),
-                          ),
-                        InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed(ParametreWidget.routeName);
-                          },
-                          child: Text(
-                            FFLocalizations.of(context).getText(
-                              '6znmeqrh' /* Parametres */,
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyLarge
-                                .override(
-                                  font: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyLarge
-                                        .fontStyle,
-                                  ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .fontStyle,
-                                ),
-                          ),
-                        ),
-                        if (!FFAppState().HIDEitem)
-                          InkWell(
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              context.pushNamed(MesPaiementsWidget.routeName);
-                            },
-                            child: Text(
-                              FFLocalizations.of(context).getText(
-                                'dleq159c' /* Mes paiement */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyLarge
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyLarge
-                                        .fontStyle,
-                                  ),
-                            ),
-                          ),
-                        if (loggedIn)
-                          InkWell(
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              context.pushNamed(FaqWidget.routeName);
-                            },
-                            child: Text(
-                              FFLocalizations.of(context).getText(
-                                'ytgtqast' /* FAQ - Questions */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyLarge
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyLarge
-                                        .fontStyle,
-                                  ),
-                            ),
-                          ),
-                        InkWell(
-                          splashColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: () async {
-                            context.pushNamed(ContactWidget.routeName);
-                          },
-                          child: Text(
-                            FFLocalizations.of(context).getText(
-                              '3krmts93' /* Contact */,
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .bodyLarge
-                                .override(
-                                  font: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyLarge
-                                        .fontStyle,
-                                  ),
-                                  color:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  letterSpacing: 0.0,
-                                  fontWeight: FontWeight.w500,
-                                  fontStyle: FlutterFlowTheme.of(context)
-                                      .bodyLarge
-                                      .fontStyle,
-                                ),
-                          ),
-                        ),
-                        if (loggedIn)
-                          InkWell(
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              context
-                                  .pushNamed(EspacePersonnelWidget.routeName);
-                            },
-                            child: Text(
-                              FFLocalizations.of(context).getText(
-                                '1npb75tj' /* Espace Personnel */,
-                              ),
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyLarge
-                                  .override(
-                                    font: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w500,
-                                      fontStyle: FlutterFlowTheme.of(context)
-                                          .bodyLarge
-                                          .fontStyle,
-                                    ),
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontStyle: FlutterFlowTheme.of(context)
-                                        .bodyLarge
-                                        .fontStyle,
-                                  ),
-                            ),
-                          ),
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(
-                              50.0, 0.0, 0.0, 0.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Stack(
-                                children: [
-                                  if (loggedIn == true)
-                                    FFButtonWidget(
-                                      onPressed: () async {
-                                        GoRouter.of(context).prepareAuthEvent();
-                                        await authManager.signOut();
-                                        GoRouter.of(context)
-                                            .clearRedirectLocation();
-
-                                        context.goNamedAuth(
-                                            AccueilWidget.routeName,
-                                            context.mounted);
-                                      },
-                                      text: FFLocalizations.of(context).getText(
-                                        'yt0bpi5b' /* Deconnexion */,
-                                      ),
-                                      options: FFButtonOptions(
-                                        height: 40.0,
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            16.0, 0.0, 16.0, 0.0),
-                                        iconPadding:
-                                            EdgeInsetsDirectional.fromSTEB(
-                                                0.0, 0.0, 0.0, 0.0),
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        textStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.w500,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLarge
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyLarge
-                                                      .fontStyle,
-                                            ),
-                                        elevation: 0.0,
-                                        borderSide: BorderSide(
-                                          color: Color(0xFFFA0404),
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                    ),
-                                  if (loggedIn == false)
-                                    FFButtonWidget(
-                                      onPressed: () async {
-                                        context.pushNamed(
-                                            SeConnecterWidget.routeName);
-                                      },
-                                      text: FFLocalizations.of(context).getText(
-                                        'duf66qd4' /* se connecter */,
-                                      ),
-                                      options: FFButtonOptions(
-                                        height: 40.0,
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            16.0, 0.0, 16.0, 0.0),
-                                        iconPadding:
-                                            EdgeInsetsDirectional.fromSTEB(
-                                                0.0, 0.0, 0.0, 0.0),
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        textStyle: FlutterFlowTheme.of(context)
-                                            .bodyLarge
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.w500,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLarge
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primaryText,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyLarge
-                                                      .fontStyle,
-                                            ),
-                                        elevation: 0.0,
-                                        borderSide: BorderSide(
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ].divide(SizedBox(width: 24.0)),
-                    ),
-                ].divide(SizedBox(width: 32.0)),
-              ),
-            ),
-            actions: [
-              Visibility(
-                visible: responsiveVisibility(
-                  context: context,
-                  desktop: false,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Builder(
-                      builder: (context) => Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(1.0, 0.0, 16.0, 0.0),
-                        child: FlutterFlowIconButton(
-                          borderColor: FlutterFlowTheme.of(context).alternate,
-                          borderRadius: 8.0,
-                          borderWidth: 1.0,
-                          buttonSize: 40.0,
-                          fillColor:
-                              FlutterFlowTheme.of(context).secondaryBackground,
-                          icon: Icon(
-                            Icons.menu,
-                            color: FlutterFlowTheme.of(context).primaryText,
-                            size: 20.0,
-                          ),
-                          onPressed: () async {
-                            await showAlignedDialog(
-                              context: context,
-                              isGlobal: false,
-                              avoidOverflow: false,
-                              targetAnchor: AlignmentDirectional(1.0, 1.0)
-                                  .resolve(Directionality.of(context)),
-                              followerAnchor: AlignmentDirectional(1.0, -1.0)
-                                  .resolve(Directionality.of(context)),
-                              builder: (dialogContext) {
-                                return Material(
-                                  color: Colors.transparent,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      FocusScope.of(dialogContext).unfocus();
-                                      FocusManager.instance.primaryFocus
-                                          ?.unfocus();
-                                    },
-                                    child: ListeAPPBARWidget(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            centerTitle: false,
-            elevation: 5.0,
-          ),
-        ),
+      child: XpdPage(
+        current: XpdDestination.none,
         body: SafeArea(
           top: true,
           child: SingleChildScrollView(
@@ -1242,12 +765,19 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                 children: [
                                   FFButtonWidget(
                                     onPressed: () async {
+                                      // Refuse rather than invent a figure: the
+                                      // tariffs used to fall back to 50, which
+                                      // silently charged a made-up price when
+                                      // the server had not published one.
+                                      if (!_hasPriceForSelectedKind) {
+                                        _showMissingTariff();
+                                        return;
+                                      }
                                       if (FFAppState().TypeDeDevisValide ==
                                           'Devis avec assurance AD valorem') {
                                         _model.apiResultz01ADV =
                                             await CreatePaymentIntentCall.call(
-                                          unitAmount:
-                                              (widget.tarifAssADV ?? 50) * 100,
+                                          unitAmount: widget.tarifAssADV!,
                                           currency: 'EUR',
                                           userID: currentUserUid,
                                           // TODO(EXPEDITOO-TESTING): redirect
@@ -1280,8 +810,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                             ),
                                             userId: currentUserUid,
                                             orderId: widget.quoteID ?? '',
-                                            amountstripe:
-                                                widget.tarifAssADV ?? 50,
+                                            amountstripe: widget.tarifAssADV!,
                                           );
 
                                           await launchURL(
@@ -1294,8 +823,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                       } else {
                                         _model.apiResultz01STD =
                                             await CreatePaymentIntentCall.call(
-                                          unitAmount:
-                                              (widget.tarifAssSTD ?? 50) * 100,
+                                          unitAmount: widget.tarifAssSTD!,
                                           currency: 'eur',
                                           userID: currentUserUid,
                                           // TODO(EXPEDITOO-TESTING): redirect
@@ -1328,8 +856,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                             ),
                                             userId: currentUserUid,
                                             orderId: widget.quoteID ?? '',
-                                            amountstripe:
-                                                widget.tarifAssSTD ?? 50,
+                                            amountstripe: widget.tarifAssSTD!,
                                           );
 
                                           await launchURL(
@@ -1387,24 +914,27 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                   Builder(
                                     builder: (context) => FFButtonWidget(
                                       onPressed: () async {
-                                        if (FFAppState().TypeDeDevisValide ==
-                                            'ADV') {
-                                          FFAppState().TypeDeDevisValide = '';
-                                          safeSetState(() {});
-                                          FFAppState().TypeDeDevisValide =
-                                              'Devis avec assurance AD valorem';
-                                          FFAppState().SelectedPrice =
-                                              widget.tarifAssADV ?? 50;
-                                          safeSetState(() {});
-                                        } else {
-                                          FFAppState().TypeDeDevisValide = '';
-                                          safeSetState(() {});
-                                          FFAppState().TypeDeDevisValide =
-                                              'Devis avec assurance Standard';
-                                          FFAppState().SelectedPrice =
-                                              widget.tarifAssSTD ?? 50;
-                                          safeSetState(() {});
+                                        final insured =
+                                            FFAppState().TypeDeDevisValide ==
+                                                'ADV';
+                                        // Cents, straight from the quote. A
+                                        // missing tariff stops the flow here
+                                        // rather than opening a payment sheet
+                                        // for an amount nobody published.
+                                        final cents = insured
+                                            ? widget.tarifAssADV
+                                            : widget.tarifAssSTD;
+                                        if (cents == null || cents <= 0) {
+                                          _showMissingTariff();
+                                          return;
                                         }
+                                        FFAppState().TypeDeDevisValide = '';
+                                        safeSetState(() {});
+                                        FFAppState().TypeDeDevisValide = insured
+                                            ? 'Devis avec assurance AD valorem'
+                                            : 'Devis avec assurance Standard';
+                                        FFAppState().SelectedPrice = cents;
+                                        safeSetState(() {});
 
                                         _model.apiResulth44 =
                                             await UpdateDevisValiderCall.call(

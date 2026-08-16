@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '/backend/expedion_api/expedion_config.dart';
+
 /// Talks to Expeditoo's Better Auth, which is the account system both products
 /// share (`expeditoo-ship/src/lib/auth.ts`).
 ///
@@ -13,17 +15,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// token back in a `set-auth-token` response header; this client stores that
 /// token and presents it as `Authorization: Bearer …` on every later call.
 ///
-/// Configuration is supplied at build time and shares the base URL with
-/// [ExpedionApi], since both are served by the same Next.js app:
+/// The base URL is shared with [ExpedionApi] via [ExpedionConfig], since both
+/// are served by the same Next.js app. It resolves without any build flag —
+/// localhost in debug, the production deployment in release — and
+/// `--dart-define=EXPEDION_API_BASE_URL=…` overrides it.
 ///
-///   --dart-define=EXPEDION_API_BASE_URL=https://app.expeditoo.fr
-///
-/// [isConfigured] is false until that is present, which is what lets the app
-/// keep falling back to Firebase Auth rather than failing at launch.
+/// Sign-in failing for want of a backend is reported as an ordinary auth
+/// failure, so the app falls back to Firebase rather than refusing to start.
 class ExpeditooAuthClient {
   ExpeditooAuthClient._();
 
-  static const String baseUrl = String.fromEnvironment('EXPEDION_API_BASE_URL');
+  /// Shared with [ExpedionApi] — the same Next.js app serves auth and quotes.
+  /// Never empty: see [ExpedionConfig] for how it resolves.
+  static String get baseUrl => ExpedionConfig.baseUrl;
 
   /// Better Auth mounts its whole surface under one catch-all route.
   static const String _authPath = '/api/auth';
@@ -34,6 +38,9 @@ class ExpeditooAuthClient {
   static const String _tokenKey = '__expeditoo_session_token__';
   static const String _userKey = '__expeditoo_session_user__';
 
+  /// There is always a host to talk to, so this is always true. Kept as a
+  /// named concept because callers read it to mean "the Expeditoo backend is
+  /// reachable in principle", which is still the question they are asking.
   static bool get isConfigured => baseUrl.isNotEmpty;
 
   static String? _token;

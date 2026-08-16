@@ -1,3 +1,4 @@
+import '/app_shell.dart';
 import 'package:flutter/material.dart';
 
 import '/backend/expedion_api/expedion_api.dart';
@@ -71,25 +72,9 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.primaryBackground,
-      appBar: AppBar(
-        title: const Text('Suivi de livraison'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.safePop(),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Actualiser',
-            onPressed: () {
-              setState(() => _loading = true);
-              _load();
-            },
-          ),
-        ],
-      ),
+    return XpdPage(
+      current: XpdDestination.quotes,
+      onBack: () => context.safePop(),
       body: SafeArea(child: _body(theme)),
     );
   }

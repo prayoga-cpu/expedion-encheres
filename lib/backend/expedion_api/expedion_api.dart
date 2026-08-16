@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '/auth/expeditoo/expeditoo_auth_client.dart';
+import 'expedion_config.dart';
 import '/auth/firebase_auth/auth_util.dart';
 
 /// Client for the Expedion quotes API served by Expeditoo's Next.js app.
@@ -33,33 +35,59 @@ import '/auth/firebase_auth/auth_util.dart';
 class ExpedionApi {
   ExpedionApi._();
 
-  static const String baseUrl = String.fromEnvironment('EXPEDION_API_BASE_URL');
+  /// Resolved from [ExpedionConfig]: the `--dart-define` when given, otherwise
+  /// localhost in debug and the production deployment in release. It is never
+  /// empty, so a missing build flag is no longer a failure mode.
+  static String get baseUrl => ExpedionConfig.baseUrl;
 
   /// Legacy app-level key. Native builds only — see the class comment.
   static const String _apiKey = String.fromEnvironment('EXPEDION_API_KEY');
 
-  /// The API needs a base URL and *some* way to identify the caller: either a
-  /// Better Auth session, or the legacy key paired with a Firebase UID.
+  /// The API always has a host now; what it may lack is a way to identify the
+  /// caller — a Better Auth session, a Firebase ID token, or the legacy key
+  /// paired with a Firebase UID.
   static bool get isConfigured =>
-      baseUrl.isNotEmpty && (_hasSession || _hasLegacyKey);
+      _hasSession || _hasFirebaseToken || _hasLegacyKey;
 
   static bool get _hasSession =>
       ExpeditooAuthClient.isConfigured && ExpeditooAuthClient.hasToken;
 
+  /// A signed-in Firebase user's ID token.
+  ///
+  /// Google signs it, so the server can verify the UID rather than take the
+  /// app's word for it — which is what lets accounts predating the Better Auth
+  /// migration reach the API from a browser, where [_apiKey] must never be.
+  /// `jwtTokenStream` in `auth_util.dart` keeps this fresh; Firebase rotates
+  /// the token hourly.
+  static bool get _hasFirebaseToken => currentJwtToken.isNotEmpty;
+
+  /// Never true on web, whatever the build passed.
+  ///
+  /// The class comment says the key must not reach a web build; `vercel-build.sh`
+  /// passed it anyway, which put a credential that can name any UID into a
+  /// public bundle. A comment is not an enforcement mechanism, so the check
+  /// lives here too — the only build this project produces is `flutter build
+  /// web`, and on web the honest options are a verified session or nothing.
   static bool get _hasLegacyKey =>
-      _apiKey.isNotEmpty && currentUserUid.isNotEmpty;
+      !kIsWeb && _apiKey.isNotEmpty && currentUserUid.isNotEmpty;
 
   /// True when the caller is a real Better Auth user rather than the app
   /// asserting a UID. Screens can use this to decide whether an action that
   /// requires a verified identity is safe to offer.
   static bool get hasUserSession => _hasSession;
 
+  /// Credentials, strongest first.
+  ///
+  /// A Better Auth session and a Firebase ID token both identify a real user
+  /// the server can verify. The shared key identifies only the app and lets its
+  /// holder claim any UID, so it is the last resort and is only reached when
+  /// nobody is signed in by either system.
   static Map<String, String> get _headers => {
         'Content-Type': 'application/json',
-        // Prefer the user's own session. Only fall back to the app key when
-        // there is none, so a signed-in user is never impersonated by it.
         if (_hasSession)
           'Authorization': 'Bearer ${ExpeditooAuthClient.token}'
+        else if (_hasFirebaseToken)
+          'Authorization': 'Bearer $currentJwtToken'
         else if (_hasLegacyKey) ...{
           'Authorization': 'Bearer $_apiKey',
           'x-expedion-uid': currentUserUid,
@@ -90,6 +118,11 @@ class ExpedionApi {
           }),
           headers: _headers,
         ),
+      );
+
+  /// Who the presented credential resolves to, and whether they are an admin.
+  static Future<ExpedionApiResult> me() => _send(
+        () => http.get(_uri('/api/expedion/me'), headers: _headers),
       );
 
   static Future<ExpedionApiResult> getQuote(String id) => _send(
@@ -174,14 +207,7 @@ class ExpedionApi {
     Future<http.Response> Function() request, {
     Duration timeout = const Duration(seconds: 30),
   }) async {
-    if (baseUrl.isEmpty) {
-      return ExpedionApiResult.failure(
-        code: 'NOT_CONFIGURED',
-        message: 'EXPEDION_API_BASE_URL must be provided at build time via '
-            '--dart-define.',
-      );
-    }
-    if (!_hasSession && !_hasLegacyKey) {
+    if (!isConfigured) {
       return ExpedionApiResult.failure(
         code: 'UNAUTHENTICATED',
         statusCode: 401,
@@ -259,4 +285,36 @@ class ExpedionApiResult {
   List<dynamic> get list => data is List ? data as List<dynamic> : const [];
   Map<String, dynamic> get map =>
       data is Map<String, dynamic> ? data as Map<String, dynamic> : const {};
+}
+
+/// Who the current credential resolves to, server-side.
+///
+/// The one fact the client cannot derive: "admin" lives in Expeditoo's
+/// `user_roles`, which the app has no view of. Cached in a notifier rather than
+/// re-fetched per build, because the header rebuilds on every theme flip,
+/// language switch and keystroke.
+///
+/// This gates *visibility*, never access. Every guarded route re-derives the
+/// role server-side, so flipping [isAdmin] locally reveals a link and nothing
+/// behind it.
+class ExpedionAdminAccess {
+  ExpedionAdminAccess._();
+
+  static final ValueNotifier<bool> isAdmin = ValueNotifier<bool>(false);
+
+  /// Re-asks the server. Safe to call on every auth change; a failure leaves
+  /// the previous answer alone rather than flickering the entry point away.
+  static Future<void> refresh() async {
+    if (!ExpedionApi.isConfigured) {
+      isAdmin.value = false;
+      return;
+    }
+    final result = await ExpedionApi.me();
+    if (!result.success) return;
+    isAdmin.value = result.map['isAdmin'] == true;
+  }
+
+  /// Called on sign-out, where dropping the flag immediately matters more than
+  /// waiting for a round trip.
+  static void clear() => isAdmin.value = false;
 }

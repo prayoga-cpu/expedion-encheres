@@ -142,8 +142,10 @@ class QuoteRepository {
     String id, {
     required bool insured,
   }) async {
-    final result =
-        await ExpedionApi.acceptQuote(id, insured ? 'insured' : 'standard');
+    final result = await ExpedionApi.acceptQuote(
+      id,
+      insured ? kQuoteKindInsured : kQuoteKindStandard,
+    );
     if (!result.success) {
       return QuoteWriteResult._failure(result.code, result.message);
     }

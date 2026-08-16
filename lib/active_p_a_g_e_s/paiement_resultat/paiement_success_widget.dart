@@ -2,6 +2,7 @@ import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,8 +28,9 @@ class PaiementSuccessWidget extends StatefulWidget {
   /// Airtable record id of the paid quote, forwarded as `?recordId=...`.
   final String? recordId;
 
-  /// Test seam: marks the quote paid and returns whether it succeeded.
-  /// Defaults to a real Airtable PATCH via [MarkQuotePaidCall].
+  /// Test seam: confirms the payment and returns whether the quote was
+  /// recorded as paid. Defaults to [_confirmPayment], which verifies the Stripe
+  /// session server-side.
   final Future<bool> Function(String recordId)? markQuotePaid;
 
   static String routeName = 'PAIEMENT_SUCCESS';
@@ -60,21 +62,6 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
     });
   }
 
-  // TODO(EXPEDITOO-TESTING): *** SECURITY — SPOOFABLE MARK-PAID FALLBACK ***
-  // When the verify server is unreachable, this page PATCHes Airtable directly
-  // and marks the quote paid with ZERO verification: anyone who visits
-  // /success?recordId=<id> can mark an unpaid quote as paid. The flag below
-  // defaults to true ONLY so testing works without a deployed payment server.
-  // Before any real payment flows the owner MUST: (1) deploy the payment
-  // server and set PAYMENT_SERVER_URL, (2) flip this default to false (or
-  // build with --dart-define=ALLOW_UNVERIFIED_MARKPAID=false, which
-  // vercel-build.sh forwards), and then (3) delete the fallback branch and
-  // this flag entirely.
-  static const bool _kAllowUnverifiedMarkPaid = bool.fromEnvironment(
-    'ALLOW_UNVERIFIED_MARKPAID',
-    defaultValue: true,
-  );
-
   /// Whether the confirm call never reached the server at all.
   ///
   /// `ApiCallResponse.succeeded` is merely `200 <= statusCode < 300`, so a
@@ -85,11 +72,21 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
   /// status below any real HTTP code means no answer was received.
   static bool _isUnreachable(ApiCallResponse result) => result.statusCode < 100;
 
-  /// Verifies the payment server-side (the session is actually paid) and lets
-  /// the server mark the quote paid in Airtable. Falls back to a direct
-  /// client-side Airtable update ONLY when the server could not be reached —
-  /// see the loud TODO above; the fallback is gated and must be removed for
-  /// production.
+  /// Verifies the payment server-side — the session really is paid — and lets
+  /// the server record it.
+  ///
+  /// There is deliberately no client-side fallback. There used to be one, gated
+  /// behind `ALLOW_UNVERIFIED_MARKPAID`, which fired whenever the payment server
+  /// was unreachable and PATCHed the quote straight to paid with no check at
+  /// all: visiting `/success?recordId=<any id>` was enough to settle someone
+  /// else's quote. It defaulted to on, and `vercel-build.sh` forwarded that
+  /// default to production.
+  ///
+  /// It was also, by then, incapable of working: it wrote to the Airtable
+  /// CONTACTS base using an id that has been a Postgres key since quotes moved
+  /// off Airtable, so every call could only 404. Removing it costs nothing and
+  /// closes the hole. An unconfirmed payment now stays unconfirmed until the
+  /// payment server reconciles it, which is the honest outcome.
   Future<bool> _confirmPayment(String recordId) async {
     final result = await ConfirmPaymentCall.call(
       sessionId: widget.sessionId ?? '',
@@ -98,15 +95,13 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
     if (result.succeeded) {
       return ConfirmPaymentCall.updated(result.jsonBody);
     }
-    if (!_isUnreachable(result) || !_kAllowUnverifiedMarkPaid) {
-      // The server answered and refused (or the fallback is off): leave the
-      // quote untouched. Never override a definitive "not paid" with an
-      // unverified PATCH. Reconcile via the payment server / Stripe webhook.
-      return false;
+    if (kDebugMode) {
+      debugPrint(
+        'confirm-payment ${_isUnreachable(result) ? "unreachable" : "refused"}: '
+        'status=${result.statusCode}',
+      );
     }
-    // Server unreachable → best-effort direct update (UNVERIFIED, see TODO).
-    final fallback = await MarkQuotePaidCall.call(quoteID: recordId);
-    return fallback.succeeded;
+    return false;
   }
 
   String? get _statusMessage {
@@ -116,7 +111,9 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
       case _UpdateStatus.done:
         return 'Votre devis est confirmé comme payé.';
       case _UpdateStatus.error:
-        return 'Paiement reçu. La mise à jour du statut peut prendre quelques instants.';
+        return 'Nous n\'avons pas encore pu confirmer ce paiement. '
+            'Si votre carte a été débitée, le statut se mettra à jour '
+            'automatiquement — sinon, contactez-nous.';
       case _UpdateStatus.none:
         return null;
     }

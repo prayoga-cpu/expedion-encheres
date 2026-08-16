@@ -131,6 +131,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: MesPaiementsWidget.routeName,
           path: MesPaiementsWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => MesPaiementsWidget(),
         ),
         FFRoute(
@@ -171,6 +172,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: EspacePersonnelWidget.routeName,
           path: EspacePersonnelWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => EspacePersonnelWidget(),
         ),
         FFRoute(
@@ -213,6 +215,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: PageValidationDevisWidget.routeName,
           path: PageValidationDevisWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => PageValidationDevisWidget(
             tarifAssADV: params.getParam(
               'tarifAssADV',
@@ -249,6 +252,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: DetailsDevisWidget.routeName,
           path: DetailsDevisWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => DetailsDevisWidget(
             prenom: params.getParam(
               'prenom',

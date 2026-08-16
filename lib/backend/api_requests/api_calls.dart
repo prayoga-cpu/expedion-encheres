@@ -938,55 +938,13 @@ class UpdateDevisValiderCall {
   }
 }
 
-/// Marks an Airtable CONTACTS (quote) record as paid, client-side. This mirrors
-/// exactly what the `stripeWebhook` Cloud Function would set, so the resulting
-/// state is identical whether the quote is confirmed by the webhook or by the
-/// in-app `/success` page after a Checkout redirect.
-///
-/// NOTE: this trusts the post-payment redirect rather than a verified webhook.
-/// It matches the app's existing client-side Airtable access (the PAT is already
-/// embedded here); for cryptographically verified confirmation use the webhook.
-class MarkQuotePaidCall {
-  static Future<ApiCallResponse> call({
-    String? quoteID = '',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "records": [
-    {
-      "id": "${escapeStringForJson(quoteID)}",
-      "fields": {
-        "STATUT DU PAIEMENT": "Paiement reçu",
-        "VALIDER DEVIS": "Devis Validé"
-      }
-    }
-  ]
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'MarkQuotePaid',
-      apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
-      callType: ApiCallType.PATCH,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-}
-
 /// Asks the payment server to VERIFY a Checkout session is actually paid, then
-/// (server-side) mark the Airtable quote paid. Preferred over the client-side
-/// [MarkQuotePaidCall] because it can't be spoofed by visiting /success and
-/// avoids browser CORS on the Airtable PATCH.
+/// (server-side) record the settlement.
+///
+/// This is the only way the app marks a quote paid. The client-side
+/// `MarkQuotePaidCall` that used to sit here was spoofable — visiting /success
+/// with any recordId settled that quote — and had stopped working besides, as
+/// it addressed Airtable with what is now a Postgres id.
 class ConfirmPaymentCall {
   static Future<ApiCallResponse> call({
     String? sessionId = '',

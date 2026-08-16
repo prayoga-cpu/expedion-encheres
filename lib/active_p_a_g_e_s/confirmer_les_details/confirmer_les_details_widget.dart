@@ -1,3 +1,4 @@
+import '/app_shell.dart';
 import 'package:flutter/material.dart';
 
 import '/backend/expedion_api/expedion_api.dart';
@@ -147,16 +148,9 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: theme.primaryBackground,
-        appBar: AppBar(
-          title: const Text('Confirmer les détails'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            onPressed: () => context.safePop(),
-          ),
-        ),
+      child: XpdPage(
+        current: XpdDestination.quotes,
+        onBack: () => context.safePop(),
         body: SafeArea(child: _body(theme)),
       ),
     );

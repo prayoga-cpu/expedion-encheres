@@ -9,6 +9,7 @@ import 'auth/expeditoo/expedion_auth.dart';
 import 'auth/expeditoo/expeditoo_auth_client.dart';
 import 'auth/firebase_auth/auth_util.dart';
 
+import 'backend/expedion_api/expedion_api.dart';
 import 'backend/firebase/firebase_config.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
@@ -114,6 +115,10 @@ class _MyAppState extends State<MyApp> {
     userStream = expedionAuthUserStream()
       ..listen((user) {
         _appStateNotifier.update(user);
+        // Whether this person is an operator is a server fact, and it changes
+        // with the session — re-ask on every auth transition rather than once
+        // at start-up, when nobody is signed in yet.
+        ExpedionAdminAccess.refresh();
       });
     // Confirm the restored Expeditoo token with the server. If it was revoked
     // or has expired, this signs the session out; a network failure leaves the

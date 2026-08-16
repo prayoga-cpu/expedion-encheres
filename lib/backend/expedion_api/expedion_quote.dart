@@ -10,6 +10,16 @@
 /// old code ended up with prices that disagreed between screens.
 library;
 
+/// The two values `expedion_quote_kind` allows, spelled exactly as the server
+/// enum spells them.
+///
+/// They live here because both the repository (which sends one) and the
+/// validation page (which receives one) need the same spelling, and the two
+/// previously disagreed: the client sent `insured`, which the Zod enum rejects,
+/// so accepting an insured quote failed every time.
+const String kQuoteKindStandard = 'standard';
+const String kQuoteKindInsured = 'with_ad_valorem_insurance';
+
 class ExpedionQuote {
   const ExpedionQuote(this.raw);
 
@@ -59,7 +69,13 @@ class ExpedionQuote {
   int? get quoteStandardCents => _int('quoteStandardCents');
   int? get quoteInsuredCents => _int('quoteInsuredCents');
   int? get acceptedPriceCents => _int('acceptedPriceCents');
+
+  /// [kQuoteKindStandard] or [kQuoteKindInsured], or `''` when the client has
+  /// not accepted a price yet.
   String get acceptedKind => _string('acceptedKind');
+
+  /// Whether the accepted price is the ad valorem one.
+  bool get isInsuredKind => acceptedKind == kQuoteKindInsured;
   bool get quoteAvailable => raw['quoteAvailable'] == true;
 
   int? get declaredValueCents => _int('declaredValueCents');

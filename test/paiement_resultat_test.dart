@@ -82,7 +82,7 @@ void main() {
     expect(find.text('Votre devis est confirmé comme payé.'), findsOneWidget);
   });
 
-  testWidgets('a failed mark-paid still confirms payment with a soft notice',
+  testWidgets('an unconfirmed payment says so rather than claiming success',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: PaiementSuccessWidget(
@@ -93,8 +93,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Paiement réussi'), findsOneWidget);
-    expect(
-        find.textContaining('peut prendre quelques instants'), findsOneWidget);
+    // The page used to assert "Paiement reçu" here, which it does not know:
+    // confirmation failing is exactly the case where the payment may not have
+    // gone through. Since the unverified client-side fallback was removed, the
+    // only honest thing to report is that it is unconfirmed.
+    expect(find.textContaining('pas encore pu confirmer'), findsOneWidget);
+    expect(find.textContaining('Paiement reçu.'), findsNothing);
   });
 
   testWidgets('cancel page shows the cancellation message', (tester) async {

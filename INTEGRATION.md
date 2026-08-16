@@ -371,3 +371,71 @@ has never fired. The first end-to-end run needs
 `formulaire_demande_de_devis_retrait_aux_encheres`, `form_devis_paiement_directe`,
 `s_inscrire` (guarded — skips when there is no Firebase session), and everything
 under `pages_areviser/`. These were not touched.
+
+---
+
+## 10. Environment checklist — what Expedion still needs, and what it does not
+
+Audited by reading every `String.fromEnvironment` in `lib/` and tracing which
+API call classes are still reached from a screen. "Dead" below means no widget
+references the call any more, so the credential is unused at runtime.
+
+### Expedion (Flutter `--dart-define`)
+
+| Variable | Status | Notes |
+|---|---|---|
+| `EXPEDION_API_BASE_URL` | **optional** | Override only. Defaults to `http://localhost:3000` in both debug and release while the Vercel deployment is stale. One line in `ExpedionConfig` flips release back. |
+| `EXPEDION_API_KEY` | **do not set on web** | Legacy app-level key for Firebase-era clients. Any holder can claim any UID, so it must never reach a browser bundle. Sessions replace it. |
+| `PAYMENT_SERVER_URL` | **required for payments** | Stripe server. Defaults to `http://localhost:4242`. Not part of the Expeditoo integration. |
+| `APP_PUBLIC_URL` | **optional** | Stripe Checkout return URL. Web falls back to the page's own origin. |
+| `AIRTABLE_PAT` | **still required** | Six screens below still read Airtable. Drop it once they are repointed. |
+| `AIRTABLE_PAT_TRANSPORTEURS` | **dead — remove** | Its only consumer is `NewTransporteurCall`, which no screen calls. |
+
+### Screens still on Airtable (the only reason `AIRTABLE_PAT` survives)
+
+| Screen | Call |
+|---|---|
+| `s_inscrire` | `NewclientSignUpDMCall`, `GetAirtableUserIDCall` |
+| `espace_personnel` | `GetUserCall` |
+| `page_modif_info_perso` | `UpdateProfilinfoCall` |
+| `contact`, `page_contact_devis` | `PostMessageCall` |
+| `page_validation_devis` | `UpdateDevisValiderCall`, `CreatePaymentAitableCall` |
+| `paiement`, `paiement_resultat` | `CreatePaymentAirtableCall`, `MarkQuotePaidCall` |
+| `form_devis_paiement_directe`, `pages_areviser/*` | `GetPriceCall`, `AirtableQuotePayDirectCall` |
+
+Already dead, safe to delete with their call classes: `GetClientQuotesCall`,
+`GetClientPaymentsCall`, `CreateAirtableQuoteFromDocCall`, `PostDDallFieldsCall`,
+`NewTransporteurCall`, `UpdatePropositionTansporteurCall`.
+
+### Expeditoo (`expeditoo-ship/.env.local`, and Vercel)
+
+| Variable | Why |
+|---|---|
+| `POSTGRES_URL` | The shared database. Also what the migration scripts read. |
+| `NEXT_PUBLIC_APP_URL` | Better Auth `baseURL`, and the first allowed CORS origin. |
+| `EXPEDION_APP_ORIGINS` | **added** — comma-separated origins Expedion is served from. Feeds both Better Auth `trustedOrigins` and the CORS allowlist in `proxy.ts`. Not needed for local dev: any `http://localhost:<port>` is allowed outside production. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google sign-in, shared by both apps. |
+| `EXPEDION_API_KEY` | Only for legacy Firebase clients. Server-side only. |
+| `EXPEDION_ADMIN_API_KEY` | Repricing, driver assignment, forced escalation, write-back. |
+| `EXPEDION_SYSTEM_USER_ID` / `EXPEDION_CATEGORY_ID` | Owner and category for escalated listings. |
+| `EXPEDION_ESCALATE_AFTER_HOURS` | Auto-escalation window (default 48). |
+| `CRON_SECRET` | Guards `/api/cron/expedion-escalate`. |
+| `OPENAI_API_KEY` (+ `GEMINI_API_KEY`) | Bordereau extraction. |
+| `TWILIO_*` | Quote/driver/delivery SMS. |
+| `AIRTABLE_PAT` | **one-off only** — the import script. Not needed at runtime; do not add it to Vercel. |
+
+### Database state
+
+The schema was out of sync with the code: it had been built by `db:push`
+against an older generation. Nine tables were missing (`carriers`,
+`carrier_documents`, `carrier_drivers`, `vehicles`, `offers`, `payouts`,
+`photos`, plus the two Expedion ones) and seven exist that the schema no longer
+declares (`transporter_profiles`, `bids`, `orders`, `earnings`,
+`listing_images`, `driver_applications`, `shipment_proposals`).
+
+All nine missing tables now exist, applied additively — created only if absent,
+with constraints and indexes applied only to tables created in the same run, so
+no foreign key was ever added to a populated table. **The seven orphaned tables
+were left untouched**; dropping them is a data decision, not a schema one.
+`pnpm db:migrate` still cannot run, because drizzle's journal has no record of
+the baseline.

@@ -1,14 +1,12 @@
+import '/app_shell.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'page_adresseclient_model.dart';
 export 'page_adresseclient_model.dart';
 
@@ -91,47 +89,9 @@ class _PageAdresseclientWidgetState extends State<PageAdresseclientWidget> {
         FocusScope.of(context).unfocus();
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-          automaticallyImplyLeading: false,
-          leading: FlutterFlowIconButton(
-            borderColor: Colors.transparent,
-            borderRadius: 30.0,
-            borderWidth: 1.0,
-            buttonSize: 60.0,
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: FlutterFlowTheme.of(context).primaryText,
-              size: 30.0,
-            ),
-            onPressed: () {
-              print('IconButton pressed ...');
-            },
-          ),
-          title: Text(
-            FFLocalizations.of(context).getText(
-              '77j5kki1' /* Adressee */,
-            ),
-            style: FlutterFlowTheme.of(context).titleLarge.override(
-                  font: GoogleFonts.plusJakartaSans(
-                    fontWeight:
-                        FlutterFlowTheme.of(context).titleLarge.fontWeight,
-                    fontStyle:
-                        FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                  ),
-                  letterSpacing: 0.0,
-                  fontWeight:
-                      FlutterFlowTheme.of(context).titleLarge.fontWeight,
-                  fontStyle: FlutterFlowTheme.of(context).titleLarge.fontStyle,
-                ),
-          ),
-          actions: [],
-          centerTitle: false,
-          elevation: 4.0,
-        ),
+      child: XpdPage(
+        current: XpdDestination.none,
+        onBack: () => context.safePop(),
         body: SafeArea(
           top: true,
           child: Align(

@@ -41,6 +41,8 @@ class XpdAppShell extends StatelessWidget {
     this.onAccountTap,
     this.onSignOut,
     this.signOutLabel = 'Déconnexion',
+    this.ctaLabel,
+    this.onCtaTap,
     this.floatingActionButton,
     this.background,
   });
@@ -56,10 +58,16 @@ class XpdAppShell extends StatelessWidget {
   final String? accountLabel;
   final VoidCallback? onAccountTap;
 
-  /// Rendered as a quiet outline action, not the alarming red-bordered button
-  /// the generated pages carried — signing out is routine, not destructive.
+  /// Rendered as a quiet text action, not the alarming red-bordered button the
+  /// generated pages carried — signing out is routine, not destructive.
   final VoidCallback? onSignOut;
   final String signOutLabel;
+
+  /// The header's one filled call to action, as "Demander un devis" is on the
+  /// landing page. Every page carries the same one so the primary path out of
+  /// any screen is always in the same place.
+  final String? ctaLabel;
+  final VoidCallback? onCtaTap;
 
   final Widget? floatingActionButton;
   final Color? background;
@@ -81,6 +89,8 @@ class XpdAppShell extends StatelessWidget {
         onAccountTap: onAccountTap,
         onSignOut: onSignOut,
         signOutLabel: signOutLabel,
+        ctaLabel: ctaLabel,
+        onCtaTap: onCtaTap,
       ),
       appBar: XpdHeader(
         languageCode: languageCode,
@@ -93,30 +103,25 @@ class XpdAppShell extends StatelessWidget {
           for (final link in links)
             XpdNavItem(label: link.label, onTap: link.onTap),
         ],
+        // The landing page's trailing row, exactly: quiet text actions, then
+        // one filled call to action. Rendering the account and sign-out as
+        // outlined buttons made every page look like it was asking for two
+        // decisions at once.
         trailing: [
           if (accountLabel != null && onAccountTap != null)
-            XpdButton(
-              label: accountLabel!,
-              variant: XpdButtonVariant.outline,
-              fontSize: 14.5,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 9.0,
-              ),
-              radius: 10.0,
-              onPressed: onAccountTap,
-            ),
+            XpdHeaderTextAction(label: accountLabel!, onTap: onAccountTap!),
           if (onSignOut != null)
+            XpdHeaderTextAction(label: signOutLabel, onTap: onSignOut!),
+          if (ctaLabel != null && onCtaTap != null)
             XpdButton(
-              label: signOutLabel,
-              variant: XpdButtonVariant.outline,
+              label: ctaLabel!,
               fontSize: 14.5,
               padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
+                horizontal: 18.0,
                 vertical: 9.0,
               ),
               radius: 10.0,
-              onPressed: onSignOut,
+              onPressed: onCtaTap,
             ),
         ],
       ),
@@ -134,6 +139,8 @@ class _ShellDrawer extends StatelessWidget {
     required this.onAccountTap,
     required this.onSignOut,
     required this.signOutLabel,
+    required this.ctaLabel,
+    required this.onCtaTap,
   });
 
   final List<XpdShellLink> links;
@@ -143,6 +150,8 @@ class _ShellDrawer extends StatelessWidget {
   final VoidCallback? onAccountTap;
   final VoidCallback? onSignOut;
   final String signOutLabel;
+  final String? ctaLabel;
+  final VoidCallback? onCtaTap;
 
   @override
   Widget build(BuildContext context) {
@@ -192,12 +201,29 @@ class _ShellDrawer extends StatelessWidget {
                   ],
                 ),
               ),
-              XpdLanguageToggle(
-                languageCode: languageCode,
-                onChanged: onLanguageChanged,
+              // The column stretches its children, which blew the FR/EN pill
+              // out to the full drawer width with the two cells stranded at
+              // the left end. It keeps its intrinsic size.
+              Align(
+                alignment: Alignment.centerLeft,
+                child: XpdLanguageToggle(
+                  languageCode: languageCode,
+                  onChanged: onLanguageChanged,
+                ),
               ),
-              if (accountLabel != null && onAccountTap != null) ...[
+              if (ctaLabel != null && onCtaTap != null) ...[
                 const SizedBox(height: 16.0),
+                XpdButton(
+                  label: ctaLabel!,
+                  expand: true,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onCtaTap!();
+                  },
+                ),
+              ],
+              if (accountLabel != null && onAccountTap != null) ...[
+                const SizedBox(height: 10.0),
                 XpdButton(
                   label: accountLabel!,
                   variant: XpdButtonVariant.outline,

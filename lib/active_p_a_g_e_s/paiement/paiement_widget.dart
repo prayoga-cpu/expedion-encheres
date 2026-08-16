@@ -1,5 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/backend/expedion_api/expedion_quote.dart' show formatCents;
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -159,7 +160,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                                   ),
                         ),
                         Text(
-                          '€ ${FFAppState().SelectedPrice.toString()}',
+                          formatCents(FFAppState().SelectedPrice),
                           style:
                               FlutterFlowTheme.of(context).titleMedium.override(
                                     font: GoogleFonts.plusJakartaSans(
@@ -220,9 +221,18 @@ class _PaiementWidgetState extends State<PaiementWidget> {
 
                         final amount = computePaiementAmountCents(
                           typeDevisValide: FFAppState().TypeDeDevisValide,
-                          tarifAdv: widget.tarifADV,
-                          tarifStd: widget.tarifSTD,
+                          tarifAdvCents: widget.tarifADV,
+                          tarifStdCents: widget.tarifSTD,
                         );
+                        if (amount == null || amount <= 0) {
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Tarif indisponible pour ce devis. Contactez-nous avant de payer.'),
+                            ),
+                          );
+                          return;
+                        }
                         final baseUrl = paiementRedirectBaseUrl();
 
                         final result = await CreatePaymentIntentCall.call(
@@ -348,9 +358,18 @@ class _PaiementWidgetState extends State<PaiementWidget> {
 
                         final amount = computePaiementAmountCents(
                           typeDevisValide: FFAppState().TypeDeDevisValide,
-                          tarifAdv: widget.tarifADV,
-                          tarifStd: widget.tarifSTD,
+                          tarifAdvCents: widget.tarifADV,
+                          tarifStdCents: widget.tarifSTD,
                         );
+                        if (amount == null || amount <= 0) {
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Tarif indisponible pour ce devis. Contactez-nous avant de payer.'),
+                            ),
+                          );
+                          return;
+                        }
                         final baseUrl = paiementRedirectBaseUrl();
 
                         // The payment server creates a Checkout session and

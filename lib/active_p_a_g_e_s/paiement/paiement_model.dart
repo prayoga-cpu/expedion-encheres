@@ -15,21 +15,25 @@ import 'package:provider/provider.dart';
 /// out keeps the amount logic in one place and testable.
 const kTypeDevisAdValorem = 'Devis avec assurance AD valorem';
 
-/// Computes the Stripe charge amount, in the smallest currency unit (cents),
-/// for a quote. AD valorem quotes are billed at [tarifAdv], every other quote
-/// type at [tarifStd]. A null tariff falls back to 0.
+/// Picks the Stripe charge amount, in cents, for a quote. AD valorem quotes are
+/// billed at [tarifAdvCents], every other quote type at [tarifStdCents].
+/// Returns null when the chosen tariff is missing, so the caller refuses to
+/// open Checkout rather than charging a made-up figure.
+///
+/// The tariffs arrive already in cents — that is the unit `expedion_quotes`
+/// stores and the unit the API returns (see `ExpedionQuote`, "Money is cents on
+/// the wire throughout"). This function used to multiply by 100 on the way out,
+/// which was right when the figures came from Airtable in euros and became a
+/// 100x overcharge the moment quotes moved to Postgres.
 ///
 /// Kept as a pure top-level function so it can be unit-tested without building
 /// the widget tree or hitting Stripe.
-int computePaiementAmountCents({
+int? computePaiementAmountCents({
   required String typeDevisValide,
-  int? tarifAdv,
-  int? tarifStd,
+  int? tarifAdvCents,
+  int? tarifStdCents,
 }) {
-  final base = typeDevisValide == kTypeDevisAdValorem
-      ? (tarifAdv ?? 0)
-      : (tarifStd ?? 0);
-  return base * 100;
+  return typeDevisValide == kTypeDevisAdValorem ? tarifAdvCents : tarifStdCents;
 }
 
 /// The APP_PUBLIC_URL dart-define, trailing slash removed, or '' when the

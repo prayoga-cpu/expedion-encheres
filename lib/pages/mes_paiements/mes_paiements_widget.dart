@@ -1,16 +1,13 @@
+import '/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '/auth/firebase_auth/auth_util.dart';
 import '/backend/expedion_api/expedion_quote.dart';
 import '/backend/expedion_api/quote_repository.dart';
-import '/backend/quote_draft.dart';
 import '/design_system/ds_app_shell.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_site.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/index.dart';
-import '/main.dart';
 import 'mes_paiements_model.dart';
 export 'mes_paiements_model.dart';
 
@@ -63,51 +60,8 @@ class _MesPaiementsWidgetState extends State<MesPaiementsWidget> {
     final palette = XpdPalette.of(context);
     final gutter = XpdLayout.gutterFor(MediaQuery.sizeOf(context).width);
 
-    return XpdAppShell(
-      themeMode: MyApp.of(context).themeMode,
-      onThemeChanged: (mode) => MyApp.of(context).setThemeMode(mode),
-      languageCode: _isEnglish ? 'en' : 'fr',
-      onLanguageChanged: (code) => MyApp.of(context).setLocale(code),
-      onLogoTap: () => context.pushNamed(AccueilWidget.routeName),
-      accountLabel: _t('Espace personnel', 'Personal space'),
-      onAccountTap: () => context.pushNamed(EspacePersonnelWidget.routeName),
-      signOutLabel: _t('Déconnexion', 'Log out'),
-      onSignOut: () async {
-        final router = GoRouter.of(context);
-        router.prepareAuthEvent();
-        await authManager.signOut();
-        QuoteDraft.clear();
-        if (!mounted) return;
-        router.clearRedirectLocation();
-        context.goNamedAuth(AccueilWidget.routeName, context.mounted);
-      },
-      links: [
-        XpdShellLink(
-          label: _t('Accueil', 'Home'),
-          onTap: () => context.pushNamed(AccueilWidget.routeName),
-        ),
-        XpdShellLink(
-          label: _t('Demander un devis', 'Request a quote'),
-          onTap: () => context.pushNamed(ChoixDevisWidget.routeName),
-        ),
-        XpdShellLink(
-          label: _t('Mes devis', 'My quotes'),
-          onTap: () => context.pushNamed(MesDevisWidget.routeName),
-        ),
-        XpdShellLink(
-          label: _t('Mes paiements', 'My payments'),
-          selected: true,
-          onTap: () {},
-        ),
-        XpdShellLink(
-          label: 'FAQ',
-          onTap: () => context.pushNamed(FaqWidget.routeName),
-        ),
-        XpdShellLink(
-          label: 'Contact',
-          onTap: () => context.pushNamed(ContactWidget.routeName),
-        ),
-      ],
+    return XpdPage(
+      current: XpdDestination.payments,
       body: RefreshIndicator(
         onRefresh: () async {
           _reload();

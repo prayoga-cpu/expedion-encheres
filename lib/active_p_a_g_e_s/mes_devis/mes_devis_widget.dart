@@ -1,7 +1,7 @@
+import '/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '/auth/firebase_auth/auth_util.dart';
 import '/backend/expedion_api/expedion_quote.dart';
 import '/backend/expedion_api/quote_repository.dart';
 import '/backend/quote_draft.dart';
@@ -12,7 +12,6 @@ import '/design_system/ds_quote_card.dart';
 import '/design_system/ds_site.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
-import '/main.dart';
 import 'mes_devis_model.dart';
 export 'mes_devis_model.dart';
 
@@ -97,27 +96,8 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
     final width = MediaQuery.sizeOf(context).width;
     final gutter = XpdLayout.gutterFor(width);
 
-    return XpdAppShell(
-      themeMode: MyApp.of(context).themeMode,
-      onThemeChanged: (mode) => MyApp.of(context).setThemeMode(mode),
-      languageCode: _isEnglish ? 'en' : 'fr',
-      onLanguageChanged: (code) => MyApp.of(context).setLocale(code),
-      onLogoTap: () => context.pushNamed(AccueilWidget.routeName),
-      links: _navLinks(),
-      accountLabel: _t('Espace personnel', 'Personal space'),
-      onAccountTap: () => context.pushNamed(EspacePersonnelWidget.routeName),
-      signOutLabel: _t('Déconnexion', 'Log out'),
-      onSignOut: () async {
-        final router = GoRouter.of(context);
-        router.prepareAuthEvent();
-        await authManager.signOut();
-        // A staged quote draft is tied to the person who typed it, so it must
-        // not survive them signing out on a shared machine.
-        QuoteDraft.clear();
-        if (!mounted) return;
-        router.clearRedirectLocation();
-        context.goNamedAuth(AccueilWidget.routeName, context.mounted);
-      },
+    return XpdPage(
+      current: XpdDestination.quotes,
       body: RefreshIndicator(
         onRefresh: () async {
           _reload();
@@ -140,7 +120,8 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                   ),
                   action: XpdButton(
                     label: _t('Nouveau bordereau', 'New slip'),
-                    variant: XpdButtonVariant.outline,
+                    // The banner behind it is solid brand blue.
+                    variant: XpdButtonVariant.inverse,
                     fontSize: 14.5,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18.0,
@@ -187,34 +168,6 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
       ),
     );
   }
-
-  List<XpdShellLink> _navLinks() => [
-        XpdShellLink(
-          label: _t('Accueil', 'Home'),
-          onTap: () => context.pushNamed(AccueilWidget.routeName),
-        ),
-        XpdShellLink(
-          label: _t('Demander un devis', 'Request a quote'),
-          onTap: () => context.pushNamed(ChoixDevisWidget.routeName),
-        ),
-        XpdShellLink(
-          label: _t('Mes devis', 'My quotes'),
-          selected: true,
-          onTap: () {},
-        ),
-        XpdShellLink(
-          label: _t('Mes paiements', 'My payments'),
-          onTap: () => context.pushNamed(MesPaiementsWidget.routeName),
-        ),
-        XpdShellLink(
-          label: 'FAQ',
-          onTap: () => context.pushNamed(FaqWidget.routeName),
-        ),
-        XpdShellLink(
-          label: 'Contact',
-          onTap: () => context.pushNamed(ContactWidget.routeName),
-        ),
-      ];
 
   /// Total / validés / payés, all read off the same fetch as the list below.
   Widget _counters(QuoteListResult? result, bool loading) {
@@ -279,6 +232,10 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
                 ),
                 decoration: InputDecoration(
                   border: InputBorder.none,
+                  // The app's InputDecorationTheme fills every field with
+                  // `accent1`, which painted a second, paler rectangle inside
+                  // this bar's `chip` background. The container owns the fill.
+                  filled: false,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
                   hintText: _t(

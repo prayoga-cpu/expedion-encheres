@@ -312,7 +312,11 @@ class XpdButton extends StatefulWidget {
   State<XpdButton> createState() => _XpdButtonState();
 }
 
-enum XpdButtonVariant { filled, outline }
+/// [inverse] is the treatment for actions sitting **on** the brand blue — the
+/// page banner's action, mainly. `outline` there drew `palette.text` on solid
+/// blue behind a `line2` border, which is near-black on blue in the light
+/// theme and an almost invisible border in the dark one.
+enum XpdButtonVariant { filled, outline, inverse }
 
 class _XpdButtonState extends State<XpdButton> {
   bool _hovered = false;
@@ -321,12 +325,22 @@ class _XpdButtonState extends State<XpdButton> {
   Widget build(BuildContext context) {
     final palette = XpdPalette.of(context);
     final filled = widget.variant == XpdButtonVariant.filled;
+    final inverse = widget.variant == XpdButtonVariant.inverse;
     final enabled = widget.onPressed != null && !widget.busy;
 
-    final background = filled
-        ? (_hovered && enabled ? XpdPalette.blueHover : XpdPalette.blue)
-        : (_hovered && enabled ? palette.chip : Colors.transparent);
-    final foreground = filled ? Colors.white : palette.text;
+    final background = switch (widget.variant) {
+      XpdButtonVariant.filled =>
+        _hovered && enabled ? XpdPalette.blueHover : XpdPalette.blue,
+      XpdButtonVariant.inverse =>
+        _hovered && enabled ? const Color(0xFFEAF1FD) : Colors.white,
+      XpdButtonVariant.outline =>
+        _hovered && enabled ? palette.chip : Colors.transparent,
+    };
+    final foreground = switch (widget.variant) {
+      XpdButtonVariant.filled => Colors.white,
+      XpdButtonVariant.inverse => XpdPalette.blue,
+      XpdButtonVariant.outline => palette.text,
+    };
 
     return MouseRegion(
       cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
@@ -341,7 +355,7 @@ class _XpdButtonState extends State<XpdButton> {
           decoration: BoxDecoration(
             color: background,
             borderRadius: BorderRadius.circular(widget.radius),
-            border: filled ? null : Border.all(color: palette.line2),
+            border: filled || inverse ? null : Border.all(color: palette.line2),
           ),
           child: Row(
             mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
@@ -460,6 +474,51 @@ class XpdAnnouncementBar extends StatelessWidget {
               ),
               XpdLink(label: linkLabel, onTap: onLinkTap, fontSize: 13.0),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A quiet text action in the header's trailing row — "Espace personnel",
+/// "Déconnexion" — muted until hovered, next to the filled call to action.
+///
+/// This is the treatment the landing page's header uses, and now the only one:
+/// the signed-in pages used to draw these as outlined buttons, so the same row
+/// read as two competing actions instead of one link and one CTA.
+class XpdHeaderTextAction extends StatefulWidget {
+  const XpdHeaderTextAction({
+    super.key,
+    required this.label,
+    required this.onTap,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  State<XpdHeaderTextAction> createState() => _XpdHeaderTextActionState();
+}
+
+class _XpdHeaderTextActionState extends State<XpdHeaderTextAction> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = XpdPalette.of(context);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Text(
+          widget.label,
+          style: TextStyle(
+            fontFamily: 'Geist',
+            fontSize: 14.5,
+            color: _hovered ? palette.blueLink : palette.muted,
           ),
         ),
       ),
