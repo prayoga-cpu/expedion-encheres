@@ -55,3 +55,5 @@ app.*.map.json
 expeditoo-env
 .env
 .env.*
+.vercel
+.env*
