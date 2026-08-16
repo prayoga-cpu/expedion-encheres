@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ds_l10n.dart';
 
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -35,22 +36,27 @@ enum DevisStage {
 }
 
 extension DevisStageDisplay on DevisStage {
-  String get label {
+  /// The badge caption, in the reader's language.
+  ///
+  /// Takes a context rather than being a plain getter because the status badge
+  /// is the most visible thing on the card: it was the one part of "Mes devis"
+  /// still reading "Livré" once the header had switched to English.
+  String labelFor(BuildContext context) {
     switch (this) {
       case DevisStage.enAttente:
-        return 'En attente';
+        return xpdT(context, 'En attente', 'Pending');
       case DevisStage.devisDisponible:
-        return 'Devis disponible';
+        return xpdT(context, 'Devis disponible', 'Quote ready');
       case DevisStage.valide:
-        return 'Validé';
+        return xpdT(context, 'Validé', 'Accepted');
       case DevisStage.paye:
-        return 'Payé';
+        return xpdT(context, 'Payé', 'Paid');
       case DevisStage.retraitFait:
-        return 'Retrait fait';
+        return xpdT(context, 'Retrait fait', 'Collected');
       case DevisStage.livre:
-        return 'Livré';
+        return xpdT(context, 'Livré', 'Delivered');
       case DevisStage.escalade:
-        return 'Mise en concurrence';
+        return xpdT(context, 'Mise en concurrence', 'Out to tender');
     }
   }
 
@@ -262,9 +268,12 @@ class DSQuoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
 
+    // Falls back twice: to the auction house, then to a generic caption. Only
+    // the caption is ours to translate — the other two are the client's data.
     final title = devis.description?.isNotEmpty == true
         ? devis.description!
-        : (devis.maisonDeVentes ?? 'Demande de devis');
+        : (devis.maisonDeVentes ??
+            xpdT(context, 'Demande de devis', 'Quote request'));
 
     return DSCard(
       onTap: onTap,
@@ -286,7 +295,7 @@ class DSQuoteCard extends StatelessWidget {
               ),
               const SizedBox(width: 8.0),
               DSBadge.status(
-                label: devis.stage.label,
+                label: devis.stage.labelFor(context),
                 status: devis.stage.status,
                 icon: devis.stage.icon,
               ),
@@ -351,8 +360,8 @@ class DSQuoteCard extends StatelessWidget {
                     ),
                     Text(
                       devis.numeroDevis != null
-                          ? 'Devis ${devis.numeroDevis}'
-                          : 'Tarif à confirmer',
+                          ? '${xpdT(context, 'Devis', 'Quote')} ${devis.numeroDevis}'
+                          : xpdT(context, 'Tarif à confirmer', 'Price to be confirmed'),
                       style: theme.labelSmall,
                     ),
                   ],

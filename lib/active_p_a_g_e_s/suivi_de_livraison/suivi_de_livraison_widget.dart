@@ -80,16 +80,20 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
   }
 
   Widget _body(FlutterFlowTheme theme) {
-    if (_loading) return const DSPageLoader(message: 'Chargement du suivi…');
+    if (_loading) {
+      return DSPageLoader(
+        message: xpdT(context, 'Chargement du suivi…', 'Loading tracking…'),
+      );
+    }
 
     if (_error != null) {
       return DSEmptyState(
         icon: Icons.error_outline_rounded,
-        title: 'Suivi indisponible',
+        title: xpdT(context, 'Suivi indisponible', 'Tracking unavailable'),
         description: _error,
         variant: DSEmptyStateVariant.page,
         action: DSButton(
-          label: 'Réessayer',
+          label: xpdT(context, 'Réessayer', 'Try again'),
           icon: Icons.refresh_rounded,
           onPressed: () {
             setState(() => _loading = true);
@@ -123,14 +127,18 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
             _escalationNotice(theme),
             const SizedBox(height: DSSize.sectionGap),
           ],
-          Text('Historique', style: theme.titleMedium),
+          Text(xpdT(context, 'Historique', 'History'),
+              style: theme.titleMedium),
           const SizedBox(height: 12.0),
           if (_events.isEmpty)
-            const DSEmptyState(
+            DSEmptyState(
               icon: Icons.history_rounded,
-              title: 'Aucun événement',
-              description:
-                  'Le suivi apparaîtra ici dès que votre transport avancera.',
+              title: xpdT(context, 'Aucun événement', 'No events yet'),
+              description: xpdT(
+                context,
+                'Le suivi apparaîtra ici dès que votre transport avancera.',
+                'Tracking will appear here as soon as your shipment moves.',
+              ),
             )
           else
             DSCard(
@@ -177,7 +185,7 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Mise en concurrence',
+                  xpdT(context, 'Mise en concurrence', 'Out to tender'),
                   style: theme.labelMedium.copyWith(
                     color: theme.primary,
                     fontWeight: FontWeight.w600,
@@ -185,9 +193,14 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
                 ),
                 const SizedBox(height: 2.0),
                 Text(
-                  'Votre transport est proposé à notre réseau de '
-                  'transporteurs. Vous serez notifié dès qu’un transporteur '
-                  'est retenu.',
+                  xpdT(
+                    context,
+                    'Votre transport est proposé à notre réseau de '
+                    'transporteurs. Vous serez notifié dès qu’un transporteur '
+                    'est retenu.',
+                    'Your shipment has been offered to our carrier network. '
+                    'You will be notified as soon as a carrier takes it on.',
+                  ),
                   style: theme.labelSmall,
                 ),
               ],
@@ -211,13 +224,22 @@ class _EventRow extends StatelessWidget {
   final bool isFirst;
   final bool isLast;
 
-  static const _actorLabels = <String, String>{
-    'client': 'Vous',
-    'admin': 'Expedion',
-    'driver': 'Transporteur',
-    'expeditoo': 'Expeditoo',
-    'system': 'Automatique',
-  };
+  /// Who appended the event. The keys are the server's `actor` values; the
+  /// two brand names are the same in both languages, so only three translate.
+  static String _actorLabel(BuildContext context, String? actor) {
+    switch (actor) {
+      case 'client':
+        return xpdT(context, 'Vous', 'You');
+      case 'admin':
+        return 'Expedion';
+      case 'driver':
+        return xpdT(context, 'Transporteur', 'Carrier');
+      case 'expeditoo':
+        return 'Expeditoo';
+      default:
+        return xpdT(context, 'Automatique', 'Automatic');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +287,7 @@ class _EventRow extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          stage.label,
+                          stage.labelFor(context),
                           style: theme.labelMedium.copyWith(
                             color: theme.primaryText,
                             fontWeight: FontWeight.w600,
@@ -285,7 +307,7 @@ class _EventRow extends StatelessWidget {
                   ],
                   const SizedBox(height: 2.0),
                   Text(
-                    _actorLabels[event['actor']?.toString()] ?? 'Automatique',
+                    _actorLabel(context, event['actor']?.toString()),
                     style: theme.labelSmall.copyWith(fontSize: 11.0),
                   ),
                 ],

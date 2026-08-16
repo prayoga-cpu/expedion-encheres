@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ds_l10n.dart';
 
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'ds_tokens.dart';
@@ -53,28 +54,56 @@ class DSStorageCountdown extends StatelessWidget {
     return DSStatus.info;
   }
 
-  String _headline() {
+  String _headline(BuildContext context) {
     final days = daysRemaining;
     if (days < 0) {
       final overdue = -days;
-      return 'Frais de gardiennage en cours depuis $overdue jour'
-          '${overdue > 1 ? 's' : ''}';
+      return xpdT(
+        context,
+        'Frais de gardiennage en cours depuis $overdue jour'
+            '${overdue > 1 ? 's' : ''}',
+        'Storage fees running for $overdue day${overdue > 1 ? 's' : ''}',
+      );
     }
-    if (days == 0) return 'Dernier jour sans frais de gardiennage';
-    return '$days jour${days > 1 ? 's' : ''} avant les frais de gardiennage';
+    if (days == 0) {
+      return xpdT(
+        context,
+        'Dernier jour sans frais de gardiennage',
+        'Last free storage day',
+      );
+    }
+    return xpdT(
+      context,
+      '$days jour${days > 1 ? 's' : ''} avant les frais de gardiennage',
+      '$days day${days > 1 ? 's' : ''} before storage fees start',
+    );
   }
 
-  String? _detail() {
+  String? _detail(BuildContext context) {
     if (dailyFeeCents == null) return null;
-    final fee = (dailyFeeCents! / 100).toStringAsFixed(2).replaceAll('.', ',');
+    // Comma decimal separator in French, point in English — the figure is the
+    // same money either way, but "12.50" reads as a typo to a French client.
+    final english = xpdIsEnglish(context);
+    String money(num cents) {
+      final text = (cents / 100).toStringAsFixed(2);
+      return english ? text : text.replaceAll('.', ',');
+    }
+
+    final fee = money(dailyFeeCents!);
     final days = daysRemaining;
     if (days < 0) {
-      final accrued = (dailyFeeCents! * -days / 100)
-          .toStringAsFixed(2)
-          .replaceAll('.', ',');
-      return '$fee € par jour · $accrued € cumulés à ce jour';
+      final accrued = money(dailyFeeCents! * -days);
+      return xpdT(
+        context,
+        '$fee € par jour · $accrued € cumulés à ce jour',
+        '€$fee per day · €$accrued accrued so far',
+      );
     }
-    return '$fee € par jour au-delà du ${_formatDate(freeUntil)}';
+    return xpdT(
+      context,
+      '$fee € par jour au-delà du ${_formatDate(freeUntil)}',
+      '€$fee per day after ${_formatDate(freeUntil)}',
+    );
   }
 
   static String _formatDate(DateTime d) =>
@@ -86,7 +115,7 @@ class DSStorageCountdown extends StatelessWidget {
     final theme = FlutterFlowTheme.of(context);
     final status = _status;
     final fg = status.foreground(context);
-    final detail = _detail();
+    final detail = _detail(context);
 
     return Container(
       padding: const EdgeInsets.all(DSSize.cardPadding),
@@ -119,7 +148,7 @@ class DSStorageCountdown extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      _headline(),
+                      _headline(context),
                       style: theme.titleSmall.copyWith(
                         color: fg,
                         fontWeight: FontWeight.w600,

@@ -24,6 +24,7 @@ library;
 // primitives. `XpdPalette` carries the full colour set from the page's
 // `applyTheme()`, of which `FlutterFlowTheme` mirrors the subset it has slots
 // for; both resolve to the same values.
+export 'ds_l10n.dart';
 export 'ds_google_glyph.dart';
 export 'ds_logo.dart';
 export 'ds_palette.dart';

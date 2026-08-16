@@ -1,19 +1,28 @@
 import '/app_shell.dart';
+import '/design_system/design_system.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'choix_devis_illustrations.dart';
 import 'choix_devis_model.dart';
 export 'choix_devis_model.dart';
 
-/// Create page with tree button options: devis paiement diect, devis form,
-/// devis.
+/// The fork in the road: which of the two quote forms a client should use.
 ///
-/// And add a description area for each button
+/// Both routes end the same way — we read the lot details and send back a
+/// price — so the page has to answer one question only: *do you have the
+/// auction house's slip as a PDF?* The previous version did not answer it. Both
+/// options carried the same closing sentence ("our team will analyse your needs
+/// and send you a customised quote"), both buttons said "Open", and neither
+/// said what the client would actually be asked to do. A client with a PDF had
+/// no reason to prefer the route that reads it for them.
+///
+/// So the cards now lead with the input rather than the outcome, name the
+/// effort ("about a minute" against "about five"), and carry an illustration of
+/// the two inputs side by side. The PDF route is marked as the quicker one
+/// because it genuinely is: the extractor fills the form in.
 class ChoixDevisWidget extends StatefulWidget {
   const ChoixDevisWidget({super.key});
 
@@ -31,490 +40,277 @@ class _ChoixDevisWidgetState extends State<ChoixDevisWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => ChoixDevisModel());
-
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
+    final theme = FlutterFlowTheme.of(context);
 
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: XpdPage(
-        current: XpdDestination.requestQuote,
-        body: SafeArea(
-          top: true,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
-                  child: Text(
-                    FFLocalizations.of(context).getText(
-                      '71ds2bl2' /* Choisissez votre type de devis */,
-                    ),
-                    textAlign: TextAlign.center,
-                    style: FlutterFlowTheme.of(context).displaySmall.override(
-                          font: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FlutterFlowTheme.of(context)
-                                .displaySmall
-                                .fontStyle,
+    return XpdPage(
+      current: XpdDestination.requestQuote,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Side by side once there is room for two readable columns; the
+            // comparison is the point, and stacking hides it.
+            final sideBySide = constraints.maxWidth >= 880.0;
+            final cards = [
+              _RouteCard(
+                kind: DevisRouteKind.pdfSlip,
+                flag: xpdT(context, 'Le plus rapide', 'Fastest'),
+                title: xpdT(
+                  context,
+                  'J’ai le bordereau en PDF',
+                  'I have the slip as a PDF',
+                ),
+                summary: xpdT(
+                  context,
+                  'Déposez le PDF de la maison de ventes. Nous en extrayons '
+                  'les lots, les dimensions et l’adresse de retrait.',
+                  'Drop in the auction house’s PDF. We pull out the lots, the '
+                  'dimensions and the collection address for you.',
+                ),
+                points: [
+                  xpdT(context, 'Rien à recopier', 'Nothing to retype'),
+                  xpdT(context, 'Environ 1 minute', 'About 1 minute'),
+                  xpdT(context, 'Prix le plus fiable', 'Most accurate price'),
+                ],
+                cta: xpdT(context, 'Déposer mon bordereau', 'Upload my slip'),
+                onPressed: () => context
+                    .pushNamed(FormulaireDeDevisParBordereauWidget.routeName),
+              ),
+              _RouteCard(
+                kind: DevisRouteKind.manualDetails,
+                title: xpdT(
+                  context,
+                  'Je n’ai pas de PDF',
+                  'I don’t have a PDF',
+                ),
+                summary: xpdT(
+                  context,
+                  'Photo, scan, bordereau papier ou vente encore à venir : '
+                  'renseignez vous-même les lots et l’enlèvement.',
+                  'A photo, a scan, a paper slip, or a sale still to come: '
+                  'enter the lots and the collection details yourself.',
+                ),
+                points: [
+                  xpdT(context, 'Aucun fichier requis', 'No file needed'),
+                  xpdT(context, 'Environ 5 minutes', 'About 5 minutes'),
+                  xpdT(
+                    context,
+                    'Vous gardez la main sur chaque champ',
+                    'You control every field',
+                  ),
+                ],
+                cta: xpdT(context, 'Remplir le formulaire', 'Fill in the form'),
+                onPressed: () => context.pushNamed(
+                  FormulaireDemandeDeDevisRetraitAuxEncheresWidget.routeName,
+                ),
+              ),
+            ];
+
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 40.0),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1040.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          FFLocalizations.of(context).getText(
+                            '71ds2bl2' /* Choisissez votre type de devis */,
                           ),
-                          color: FlutterFlowTheme.of(context).secondaryText,
-                          letterSpacing: 0.0,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FlutterFlowTheme.of(context)
-                              .displaySmall
-                              .fontStyle,
+                          textAlign: TextAlign.center,
+                          style: theme.displaySmall.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.primaryText,
+                          ),
                         ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          xpdT(
+                            context,
+                            'Une seule question : avez-vous le bordereau de la '
+                            'maison de ventes en PDF ?',
+                            'Just one question: do you have the auction '
+                            'house’s slip as a PDF?',
+                          ),
+                          textAlign: TextAlign.center,
+                          style: theme.bodyMedium
+                              .copyWith(color: theme.secondaryText),
+                        ),
+                        const SizedBox(height: 28.0),
+                        if (sideBySide)
+                          IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(child: cards[0]),
+                                const SizedBox(width: 20.0),
+                                Expanded(child: cards[1]),
+                              ],
+                            ),
+                          )
+                        else ...[
+                          cards[0],
+                          const SizedBox(height: 16.0),
+                          cards[1],
+                        ],
+                        const SizedBox(height: 24.0),
+                        Text(
+                          xpdT(
+                            context,
+                            'Dans les deux cas, le devis est gratuit et sans '
+                            'engagement.',
+                            'Either way, the quote is free and comes with no '
+                            'obligation.',
+                          ),
+                          textAlign: TextAlign.center,
+                          style: theme.labelSmall
+                              .copyWith(color: theme.secondaryText),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                Text(
-                  FFLocalizations.of(context).getText(
-                    'lvr4yeik' /* Sélectionnez l'option qui corr... */,
-                  ),
-                  textAlign: TextAlign.center,
-                  style: FlutterFlowTheme.of(context).bodyMedium.override(
-                        font: GoogleFonts.plusJakartaSans(
-                          fontWeight: FlutterFlowTheme.of(context)
-                              .bodyMedium
-                              .fontWeight,
-                          fontStyle:
-                              FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                        ),
-                        color: FlutterFlowTheme.of(context).secondaryText,
-                        letterSpacing: 0.0,
-                        fontWeight:
-                            FlutterFlowTheme.of(context).bodyMedium.fontWeight,
-                        fontStyle:
-                            FlutterFlowTheme.of(context).bodyMedium.fontStyle,
-                        lineHeight: 1.4,
-                      ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// One of the two routes: illustration, what it asks of you, and the way in.
+class _RouteCard extends StatelessWidget {
+  const _RouteCard({
+    required this.kind,
+    required this.title,
+    required this.summary,
+    required this.points,
+    required this.cta,
+    required this.onPressed,
+    this.flag,
+  });
+
+  final DevisRouteKind kind;
+  final String title;
+  final String summary;
+  final List<String> points;
+  final String cta;
+  final VoidCallback onPressed;
+
+  /// Optional badge, e.g. "Fastest". Only the PDF route carries one — two
+  /// badges would rank nothing.
+  final String? flag;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    final recommended = flag != null;
+
+    return DSCard(
+      onTap: onPressed,
+      padding: EdgeInsets.zero,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(DSShape.card),
+          // The quicker route gets a tinted border rather than a different
+          // colour scheme: enough to draw the eye first, not enough to make
+          // the other one look broken.
+          border: recommended
+              ? Border.all(color: theme.primary, width: DSShape.borderWidth)
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              decoration: BoxDecoration(
+                color: theme.primaryBackground,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(DSShape.card),
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Container(
-                      width: 900.0,
-                      decoration: BoxDecoration(),
-                      child: Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(
-                            20.0, 0.0, 20.0, 0.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Material(
-                              color: Colors.transparent,
-                              elevation: 1.0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                              ),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  borderRadius: BorderRadius.circular(16.0),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(20.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  FFLocalizations.of(context)
-                                                      .getText(
-                                                    'yde5e11u' /* Demande devis retrait d'enchèr... */,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .titleLarge
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleLarge
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleLarge
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 8.0, 0.0, 0.0),
-                                                  child: Text(
-                                                    FFLocalizations.of(context)
-                                                        .getText(
-                                                      'qpnq17hp' /* insserez votre bordereau. Notr... */,
-                                                    ),
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .plusJakartaSans(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryText,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                          lineHeight: 1.4,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 16.0, 0.0, 0.0),
-                                        child: FFButtonWidget(
-                                          onPressed: () async {
-                                            context.pushNamed(
-                                                FormulaireDeDevisParBordereauWidget
-                                                    .routeName);
-                                          },
-                                          text: FFLocalizations.of(context)
-                                              .getText(
-                                            'u0whnid2' /* Ouvrir */,
-                                          ),
-                                          options: FFButtonOptions(
-                                            height: 48.0,
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    32.0, 0.0, 32.0, 0.0),
-                                            iconPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
-                                            textStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .override(
-                                                      font: GoogleFonts
-                                                          .plusJakartaSans(
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleSmall
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleSmall
-                                                                .fontStyle,
-                                                      ),
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .primaryBackground,
-                                                      fontSize: 18.0,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmall
-                                                              .fontWeight,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmall
-                                                              .fontStyle,
-                                                    ),
-                                            elevation: 0.0,
-                                            borderSide: BorderSide(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              width: 1.0,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Material(
-                              color: Colors.transparent,
-                              elevation: 1.0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                              ),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  borderRadius: BorderRadius.circular(16.0),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(20.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  FFLocalizations.of(context)
-                                                      .getText(
-                                                    'lme89yq5' /* Demande devis retrait d'Enchèr... */,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .titleLarge
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleLarge
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleLarge
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(
-                                                          0.0, 8.0, 0.0, 0.0),
-                                                  child: Text(
-                                                    FFLocalizations.of(context)
-                                                        .getText(
-                                                      'p955g0p0' /* Complétez un formulaire person... */,
-                                                    ),
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font: GoogleFonts
-                                                              .plusJakartaSans(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryText,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                          lineHeight: 1.4,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 16.0, 0.0, 0.0),
-                                        child: FFButtonWidget(
-                                          onPressed: () async {
-                                            context.pushNamed(
-                                                FormulaireDemandeDeDevisRetraitAuxEncheresWidget
-                                                    .routeName);
-                                          },
-                                          text: FFLocalizations.of(context)
-                                              .getText(
-                                            'z31kc7pq' /* Ouvrir */,
-                                          ),
-                                          options: FFButtonOptions(
-                                            height: 48.0,
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    32.0, 0.0, 32.0, 0.0),
-                                            iconPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            textStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .override(
-                                                      font: GoogleFonts
-                                                          .plusJakartaSans(
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleSmall
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleSmall
-                                                                .fontStyle,
-                                                      ),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                      fontSize: 18.0,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmall
-                                                              .fontWeight,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmall
-                                                              .fontStyle,
-                                                    ),
-                                            elevation: 0.0,
-                                            borderSide: BorderSide(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                              width: 1.0,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ].divide(SizedBox(height: 20.0)),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 1500.0,
-                      height: 1.0,
-                      decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                      ),
-                    ),
-                  ],
-                ),
-              ]
-                  .divide(SizedBox(height: 20.0))
-                  .addToStart(SizedBox(height: 30.0))
-                  .addToEnd(SizedBox(height: 30.0)),
+              ),
+              child: DevisRouteIllustration(kind: kind),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.all(DSSize.cardPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: theme.titleMedium
+                              .copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      if (recommended) ...[
+                        const SizedBox(width: 8.0),
+                        DSBadge(label: flag!, status: DSStatus.info),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    summary,
+                    style:
+                        theme.bodySmall.copyWith(color: theme.secondaryText),
+                  ),
+                  const SizedBox(height: 16.0),
+                  for (final point in points)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.check_rounded,
+                            size: 16.0,
+                            color: theme.primary,
+                          ),
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            child: Text(point, style: theme.labelMedium),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 12.0),
+                  DSButton(
+                    label: cta,
+                    expand: true,
+                    icon: kind == DevisRouteKind.pdfSlip
+                        ? Icons.upload_file_rounded
+                        : Icons.edit_note_rounded,
+                    variant: recommended
+                        ? DSButtonVariant.primary
+                        : DSButtonVariant.outline,
+                    onPressed: onPressed,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
