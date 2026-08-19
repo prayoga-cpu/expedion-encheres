@@ -1,4 +1,5 @@
 import '/app_shell.dart';
+import '/support_contact.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -342,8 +343,37 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
         ),
       );
     }
-    // Still pending: priced by an admin or by auto-pricing, nothing to press.
-    return null;
+    // Nothing is priced yet. Which of the two waiting states it is decides who
+    // the client should be nudged towards — themselves, or us.
+    //
+    // `awaiting_confirmation` means the bordereau was read and we are waiting on
+    // them to confirm the details. That is actionable, and tapping the card
+    // already goes there; it just never offered a button.
+    if (quote.status == 'awaiting_confirmation') {
+      return DSButton(
+        label: _t('Compléter ma demande', 'Complete my request'),
+        icon: Icons.edit_note_rounded,
+        expand: true,
+        onPressed: () => _openQuote(quote),
+      );
+    }
+
+    // `pending` means it is with us: either auto-pricing could not run — it
+    // needs dimensions and a geocodable address, and bails silently without
+    // them — or an operator has not published a price yet. There is nothing the
+    // client can do about either, and a card with no action and no explanation
+    // reads as an app that has forgotten about them. Offer the one thing that
+    // does help: reaching a person.
+    return DSButton(
+      label: _t('Nous contacter', 'Contact us'),
+      variant: DSButtonVariant.outline,
+      icon: Icons.support_agent_rounded,
+      expand: true,
+      onPressed: () => SupportContact.open(
+        context,
+        aboutReference: quote.reference.isEmpty ? null : quote.reference,
+      ),
+    );
   }
 
   /// Tapping the card itself goes wherever the quote currently *is*.

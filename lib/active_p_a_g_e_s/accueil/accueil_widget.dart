@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/support_contact.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -86,8 +87,10 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   /// Resolved from [ExpedionConfig] so the carrier-side link opens the same
   /// instance this build reads its quotes from.
   static String get _expeditooUrl => ExpedionConfig.expeditooWebUrl;
-  static const _contactEmail = 'contact@expedion-encheres.com';
-  static const _phoneNumber = '01 84 80 12 40';
+  // Single source, shared with the "Contact us" action on an unpriced quote —
+  // these had already diverged from the contact page's own pair once.
+  static const _contactEmail = SupportContact.email;
+  static const _phoneNumber = SupportContact.phone;
 
   static const _lotTypesFr = [
     'Tableau, objet, moins de 20 kg',
