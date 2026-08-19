@@ -4,9 +4,19 @@ service firebase.storage {
     match /{allPaths=**} {
       allow read, write: if false;
     }
+    // Bordereaux and identity documents live here. They carry the buyer's name,
+    // street address, phone, the lot description and its declared value, so the
+    // owner is the only reader.
+    //
+    // This was `allow read: if true`, which let anyone who could guess or
+    // enumerate a path download any client's auction paperwork and ID — the
+    // Firebase web config ships inside main.dart.js, so no credential was
+    // needed to try. Tightening it does not break the app: uploadData returns a
+    // getDownloadURL() token link, and those tokens are honoured independently
+    // of these rules, so every URL already stored keeps resolving.
     match /users/{userId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
