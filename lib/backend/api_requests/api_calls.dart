@@ -1,8 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
-import '../cloud_functions/cloud_functions.dart';
-
-import 'package:flutter/foundation.dart';
 
 import '/flutter_flow/flutter_flow_util.dart';
 import 'api_manager.dart';
@@ -24,12 +20,13 @@ const _kPaymentServerBaseUrl = String.fromEnvironment(
   defaultValue: 'http://localhost:4242',
 );
 
-/// Airtable Personal Access Tokens, supplied at build time via
-/// `--dart-define=AIRTABLE_PAT=...` (and `AIRTABLE_PAT_TRANSPORTEURS=...`)
-/// rather than committed to source.
+/// Airtable Personal Access Token, supplied at build time via
+/// `--dart-define=AIRTABLE_PAT=...` rather than committed to source.
+///
+/// This is the last Airtable credential the client holds. It survives only for
+/// the screens listed in INTEGRATION.md section 10; each one repointed onto
+/// `/api/expedion/*` removes a consumer, and the define goes when the last does.
 const _kAirtablePat = String.fromEnvironment('AIRTABLE_PAT');
-const _kAirtablePatTransporteurs =
-    String.fromEnvironment('AIRTABLE_PAT_TRANSPORTEURS');
 
 class CreateAirtableQuoteCall {
   static Future<ApiCallResponse> call({
@@ -119,147 +116,6 @@ class CreateAirtableQuoteCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'CreateAirtableQuote',
-      apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
-      callType: ApiCallType.POST,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-}
-
-class CreateAirtableQuoteFromDocCall {
-  static Future<ApiCallResponse> call({
-    String? prenom = '',
-    String? nom = '',
-    String? email = '',
-    String? telephone = '',
-    String? queSouhaitezVous = '',
-    String? souhaitezVousAssADV = '',
-    String? tranche = '',
-    bool? conditionsGenerales,
-    String? udi = '',
-    String? uploadedFileBordereau = '',
-    String? uploadedFileImage = '',
-    String? commentaire = '',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "fields": {
-    "Nom": "${escapeStringForJson(nom)}",
-    "Prénom": "${escapeStringForJson(prenom)}",
-    "En tant que particulier que souhaitez-vous?": "${escapeStringForJson(queSouhaitezVous)}",
-    "UID": "${escapeStringForJson(udi)}",
-    "Souhaitez-vous une assurance ad valorem": "${escapeStringForJson(souhaitezVousAssADV)}",
-    "Tranche Montant de la marchandise": "${escapeStringForJson(tranche)}",
-    "E-mail": "${escapeStringForJson(email)}",
-    "Commentaire": "${escapeStringForJson(commentaire)}",
-    "Bordereaux (document)": [
-      {
-        "url": "${escapeStringForJson(uploadedFileBordereau)}"
-      }
-    ],
-    "Images": [
-      {
-        "url": "${escapeStringForJson(uploadedFileImage)}"
-      }
-    ]
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'CreateAirtableQuoteFromDoc',
-      apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
-      callType: ApiCallType.POST,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-}
-
-class PostDDallFieldsCall {
-  static Future<ApiCallResponse> call({
-    String? prenom = '',
-    String? nom = '',
-    String? email = '',
-    String? telephone = '',
-    String? pieceID = '',
-    String? queSouhaitezVous = '',
-    String? souhaitezVousAssADV = '',
-    String? adresseRetrait = '',
-    String? codepostalRetrait = '',
-    String? villeRetrait = '',
-    String? nomMaisonVentes = '',
-    String? telephoneRerait = '',
-    double? montantMarchandise,
-    String? tranche = '',
-    String? dateVente = '',
-    String? docBordereau = '',
-    String? numBordereau = '',
-    String? bordereauAcquite = '',
-    String? descriptionObet = '',
-    String? longueurObjet = '',
-    String? largeurObjet = '',
-    String? hauteurObjet = '',
-    String? poidsObjet = '',
-    String? objetProtege = '',
-    String? imageObjet = '',
-    String? adresseLivraisonL1 = '',
-    String? adresseLivraisonL2 = '',
-    String? codePostalLivraison = '',
-    String? villeLivraison = '',
-    String? paysLivraison = '',
-    String? telephoneLivraison = '',
-    String? nomDestinataire = '',
-    bool? conditionsGenerales,
-    String? udi = '',
-    String? uploadedFileBordereau = '',
-    String? uploadedFileImage = '',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "fields": {
-    "Nom": "${escapeStringForJson(nom)}",
-    "Prénom": "${escapeStringForJson(prenom)}",
-    "En tant que particulier que souhaitez-vous?": "${escapeStringForJson(queSouhaitezVous)}",
-    "UID": "${escapeStringForJson(udi)}",
-    "Souhaitez-vous une assurance ad valorem": "${escapeStringForJson(souhaitezVousAssADV)}",
-    "Tranche Montant de la marchandise": "${escapeStringForJson(tranche)}",
-    "E-mail": "${escapeStringForJson(email)}",
-    "Bordereaux (document)": [
-      {
-        "url": "${escapeStringForJson(uploadedFileBordereau)}"
-      }
-    ],
-    "Images": [
-      {
-        "url": "${escapeStringForJson(uploadedFileImage)}"
-      }
-    ]
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'PostDDallFields',
       apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
       callType: ApiCallType.POST,
       headers: {
@@ -373,66 +229,6 @@ class GetPriceCall {
   static int? price(dynamic response) => castToType<int>(getJsonField(
         response,
         r'''$.records[:].fields.Price''',
-      ));
-}
-
-class NewclientSignUpTPCall {
-  static Future<ApiCallResponse> call({
-    String? nom = '',
-    String? prenom = '',
-    String? eMail = '',
-    String? authUserUid = '',
-    String? userType = '',
-    String? villeDeRetraitTP = '',
-    String? villeDeLivraisonTP = '',
-    String? capaciteVehiculeTP = '',
-    String? commentaireTP = '',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "fields": {
-    "Prénom": "${escapeStringForJson(prenom)}",
-    "Nom": "${escapeStringForJson(nom)}",
-    "Email": "${escapeStringForJson(eMail)}",
-    "UID": "${escapeStringForJson(authUserUid)}",
-    "Type d'utilisateur": "${escapeStringForJson(userType)}",
-    "Départ":"${escapeStringForJson(villeDeRetraitTP)}",
-    "Destination": "${escapeStringForJson(villeDeLivraisonTP)}",
-    "Capacité du véhicule": "${escapeStringForJson(capaciteVehiculeTP)}",
-    "Commentaires": "${escapeStringForJson(commentaireTP)}"
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'NewclientSignUpTP',
-      apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/USERS',
-      callType: ApiCallType.POST,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-
-  static String? nom(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$.fields.Nom''',
-      ));
-  static String? prenom(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$.fields.Prénom''',
-      ));
-  static String? email(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$.fields.Email''',
       ));
 }
 
@@ -685,80 +481,6 @@ class GetUserCall {
         response,
         r'''$.records[:].fields["Téléphone client"]''',
       ));
-}
-
-class NewTransporteurCall {
-  static Future<ApiCallResponse> call({
-    String? nom = '',
-    String? prenom = '',
-    String? uid = '',
-    String? email = '',
-    String? telephone = '',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "fields": {
-    "Prénom": "${escapeStringForJson(prenom)}",
-    "Nom": "${escapeStringForJson(nom)}",
-    "Mail chauffeur": "${escapeStringForJson(email)}",
-    "ID Flutterfow": "${escapeStringForJson(uid)}",
-    "telephone chauffeur":"${escapeStringForJson(telephone)}"
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'NewTransporteur',
-      apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/TRANSPORTEURS',
-      callType: ApiCallType.POST,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePatTransporteurs',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-}
-
-class UpdatePropositionTansporteurCall {
-  static Future<ApiCallResponse> call({
-    String? iDTransporteur = '',
-    String? nomTransporteur = '',
-    String? recordId = 'recrlWvAIcC6kMG8C',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "fields": {
-    "Transporteur Proposer FFL": "${escapeStringForJson(nomTransporteur)}",
-    "ID Transporteur": "${escapeStringForJson(iDTransporteur)}"
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'UpdatePropositionTansporteur',
-      apiUrl:
-          'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS/${recordId}',
-      callType: ApiCallType.PATCH,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
 }
 
 class CreatePaymentIntentCall {
@@ -1097,37 +819,6 @@ class ApiPagingParams {
   @override
   String toString() =>
       'PagingParams(nextPageNumber: $nextPageNumber, numItems: $numItems, lastResponse: $lastResponse,)';
-}
-
-String _toEncodable(dynamic item) {
-  if (item is DocumentReference) {
-    return item.path;
-  }
-  return item;
-}
-
-String _serializeList(List? list) {
-  list ??= <String>[];
-  try {
-    return json.encode(list, toEncodable: _toEncodable);
-  } catch (_) {
-    if (kDebugMode) {
-      print("List serialization failed. Returning empty list.");
-    }
-    return '[]';
-  }
-}
-
-String _serializeJson(dynamic jsonVar, [bool isList = false]) {
-  jsonVar ??= (isList ? [] : {});
-  try {
-    return json.encode(jsonVar, toEncodable: _toEncodable);
-  } catch (_) {
-    if (kDebugMode) {
-      print("Json serialization failed. Returning empty json.");
-    }
-    return isList ? '[]' : '{}';
-  }
 }
 
 String? escapeStringForJson(String? input) {

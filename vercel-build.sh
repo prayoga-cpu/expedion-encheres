@@ -21,7 +21,6 @@ flutter pub get
 #                               no value the app falls back to localhost and a
 #                               deployed build cannot reach its backend at all)
 #   AIRTABLE_PAT                Airtable Personal Access Token (quotes base)
-#   AIRTABLE_PAT_TRANSPORTEURS  Airtable PAT for the transporteurs base
 #   PAYMENT_SERVER_URL          deployed tools/local_payment_server.js origin;
 #                               unset means payment is refused with a message
 #                               rather than sent to a loopback address
@@ -43,6 +42,5 @@ flutter pub get
 flutter build web --release \
   --dart-define=EXPEDION_API_BASE_URL="${EXPEDION_API_BASE_URL:-}" \
   --dart-define=AIRTABLE_PAT="${AIRTABLE_PAT:-}" \
-  --dart-define=AIRTABLE_PAT_TRANSPORTEURS="${AIRTABLE_PAT_TRANSPORTEURS:-}" \
   --dart-define=PAYMENT_SERVER_URL="${PAYMENT_SERVER_URL:-}" \
   --dart-define=APP_PUBLIC_URL="${APP_PUBLIC_URL:-}"
