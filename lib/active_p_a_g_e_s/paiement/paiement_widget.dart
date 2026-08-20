@@ -254,15 +254,11 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         if (result.succeeded) {
                           final url = CreatePaymentIntentCall.sessionURL(
                               result.jsonBody);
-                          await CreatePaymentAirtableCall.call(
-                            currency: 'EUR',
-                            description: 'Paiement Devis Expedion Encheres',
-                            amountstripe: amount,
-                            orderId: quoteId,
-                            status: 'Paiement en attente',
-                            userId: currentUserUid,
-                            paymentUrl: url,
-                          );
+                          // The pending-payment record used to be a second
+                          // write, to Airtable — dead since quotes moved to
+                          // Postgres. There is nothing to double-write here:
+                          // the session itself, and later /confirm-payment,
+                          // are the record.
 
                           if (url != null) {
                             // Open Checkout in the same tab on web so Stripe

@@ -4,6 +4,7 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/expedion_api/expedion_quote.dart'
     show formatCents, kQuoteKindInsured;
+import '/backend/expedion_api/quote_repository.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -778,18 +779,9 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
 
                                       if ((_model.apiResultz01ADV?.succeeded ??
                                           true)) {
-                                        _model.apiResult1uqadv =
-                                            await CreatePaymentAitableCall.call(
-                                          sessionId:
-                                              CreatePaymentIntentCall.sessionID(
-                                            (_model.apiResultz01ADV?.jsonBody ??
-                                                ''),
-                                          ),
-                                          userId: currentUserUid,
-                                          orderId: widget.quoteID ?? '',
-                                          amountstripe: widget.tarifAssADV!,
-                                        );
-
+                                        // The pending-payment record used to be
+                                        // a second write, to Airtable — dead
+                                        // since quotes moved to Postgres.
                                         await launchURL(
                                             CreatePaymentIntentCall.sessionURL(
                                           (_model.apiResultz01ADV?.jsonBody ??
@@ -820,17 +812,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
 
                                       if ((_model.apiResultz01STD?.succeeded ??
                                           true)) {
-                                        _model.apiResult1uqstd =
-                                            await CreatePaymentAitableCall.call(
-                                          sessionId:
-                                              CreatePaymentIntentCall.sessionID(
-                                            (_model.apiResultz01STD?.jsonBody ??
-                                                ''),
-                                          ),
-                                          userId: currentUserUid,
-                                          orderId: widget.quoteID ?? '',
-                                          amountstripe: widget.tarifAssSTD!,
-                                        );
+                                        // Same: no second write, see the ADV
+                                        // branch above.
 
                                         await launchURL(
                                             CreatePaymentIntentCall.sessionURL(
@@ -907,16 +890,35 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                       FFAppState().SelectedPrice = cents;
                                       safeSetState(() {});
 
-                                      _model.apiResulth44 =
-                                          await UpdateDevisValiderCall.call(
-                                        typeDeDevisValide:
-                                            FFAppState().TypeDeDevisValide,
-                                        quoteID: widget.quoteID ?? '',
+                                      // Fixes the accepted price and kind
+                                      // server-side (`acceptedPriceCents`),
+                                      // which is what the payment server will
+                                      // trust once "Payer" is pressed — the
+                                      // client's own `cents` value above is
+                                      // display-only from this point on.
+                                      final accept =
+                                          await QuoteRepository.accept(
+                                        widget.quoteID ?? '',
+                                        insured: insured,
                                       );
+                                      if (!accept.succeeded) {
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              accept.message ??
+                                                  'Impossible de confirmer ce devis. Réessayez.',
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
 
                                       FFAppState().DevisValideOuPas =
                                           'Devis Validé';
                                       safeSetState(() {});
+                                      if (!context.mounted) return;
                                       await showDialog(
                                         context: context,
                                         builder: (dialogContext) {

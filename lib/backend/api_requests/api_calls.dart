@@ -621,45 +621,6 @@ class PostMessageCall {
   }
 }
 
-class UpdateDevisValiderCall {
-  static Future<ApiCallResponse> call({
-    String? typeDeDevisValide = '',
-    String? quoteID = '',
-    String? status = 'Devis Validé',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "records": [
-    {
-      "id": "${escapeStringForJson(quoteID)}",
-      "fields": {
-        "VALIDER DEVIS": "${escapeStringForJson(status)}",
-        "Type de Devis validé": "${escapeStringForJson(typeDeDevisValide)}"
-      }
-    }
-  ]
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'UpdateDevisValider',
-      apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/CONTACTS',
-      callType: ApiCallType.PATCH,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-}
-
 /// Asks the payment server to VERIFY a Checkout session is actually paid, then
 /// (server-side) record the settlement.
 ///
@@ -698,59 +659,6 @@ class ConfirmPaymentCall {
       getJsonField(response, r'''$.updated''') == true;
   static bool paid(dynamic response) =>
       getJsonField(response, r'''$.paid''') == true;
-}
-
-class CreatePaymentAirtableCall {
-  static Future<ApiCallResponse> call({
-    String? currency = 'EUR',
-    String? description = 'TRE',
-    int? amountstripe = 222,
-    String? orderId = 'tet',
-    String? status = 'Paiement en attente',
-    String? userId = 'TESTSESSION',
-    String? sessionId = 'TESTSESSION',
-    String? quoteID = '',
-    String? paymentUrl = '',
-    // Recipient address. Only set on the "email me the link" path; left blank
-    // for pay-now. An Airtable automation keyed on "Email is not empty" then
-    // e-mails the link for the email path only.
-    String? email = '',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "fields": {
-    "Description": "${escapeStringForJson(description)}",
-    "amount stripe": ${amountstripe},
-    "orderId": "${escapeStringForJson(orderId)}",
-    "status": "${escapeStringForJson(status)}",
-    "userId": "${escapeStringForJson(userId)}",
-    "sessionId": "${escapeStringForJson(sessionId)}",
-    "currency": "${escapeStringForJson(currency)}",
-    "lien de paiement stripe": "${escapeStringForJson(paymentUrl)}",
-    "Email": "${escapeStringForJson(email)}",
-    "N°Devis": "${escapeStringForJson(quoteID)}"
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'CreatePaymentAirtable',
-      apiUrl:
-          'https://api.airtable.com/v0/appu3jamyzCJRuOjr/PAIEMENTS FLUTTERFLOW',
-      callType: ApiCallType.POST,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
 }
 
 class SendPaymentLinkEmailCall {
