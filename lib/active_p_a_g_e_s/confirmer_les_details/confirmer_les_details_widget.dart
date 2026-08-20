@@ -38,30 +38,34 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
   Set<String> _missing = {};
 
   bool _loading = true;
-  String? _loadError;
+  String? _loadErrorCode;
   double? _confidence;
 
-  /// Field key → (label, keyboard, mono).
+  /// Field key → (label, labelEn, keyboard, mono).
   static const _fields = <_FieldSpec>[
-    _FieldSpec('bordereauNumber', 'Numéro de bordereau', mono: true),
-    _FieldSpec('auctionHouseName', 'Maison de ventes'),
-    _FieldSpec('pickupAddress', 'Adresse de retrait'),
+    _FieldSpec('bordereauNumber', 'Numéro de bordereau', 'Slip number',
+        mono: true),
+    _FieldSpec('auctionHouseName', 'Maison de ventes', 'Auction house'),
+    _FieldSpec('pickupAddress', 'Adresse de retrait', 'Collection address'),
     _FieldSpec('pickupPostalCode', 'Code postal de retrait',
+        'Collection postal code',
         keyboard: TextInputType.number, mono: true),
-    _FieldSpec('pickupCity', 'Ville de retrait'),
-    _FieldSpec('description', 'Description du lot', maxLines: 3),
-    _FieldSpec('lengthCm', 'Longueur (cm)',
+    _FieldSpec('pickupCity', 'Ville de retrait', 'Collection city'),
+    _FieldSpec('description', 'Description du lot', 'Lot description',
+        maxLines: 3),
+    _FieldSpec('lengthCm', 'Longueur (cm)', 'Length (cm)',
         keyboard: TextInputType.number, mono: true, numeric: true),
-    _FieldSpec('widthCm', 'Largeur (cm)',
+    _FieldSpec('widthCm', 'Largeur (cm)', 'Width (cm)',
         keyboard: TextInputType.number, mono: true, numeric: true),
-    _FieldSpec('heightCm', 'Hauteur (cm)',
+    _FieldSpec('heightCm', 'Hauteur (cm)', 'Height (cm)',
         keyboard: TextInputType.number, mono: true, numeric: true),
-    _FieldSpec('weightKg', 'Poids (kg)',
+    _FieldSpec('weightKg', 'Poids (kg)', 'Weight (kg)',
         keyboard: TextInputType.number, mono: true, numeric: true),
-    _FieldSpec('deliveryAddress', 'Adresse de livraison'),
+    _FieldSpec('deliveryAddress', 'Adresse de livraison', 'Delivery address'),
     _FieldSpec('deliveryPostalCode', 'Code postal de livraison',
+        'Delivery postal code',
         keyboard: TextInputType.number, mono: true),
-    _FieldSpec('deliveryCity', 'Ville de livraison'),
+    _FieldSpec('deliveryCity', 'Ville de livraison', 'Delivery city'),
   ];
 
   @override
@@ -88,7 +92,7 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
     if (!result.success) {
       setState(() {
         _loading = false;
-        _loadError = result.message;
+        _loadErrorCode = result.code;
       });
       return;
     }
@@ -129,14 +133,29 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
 
     if (!result.success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.message ?? 'Échec de l’enregistrement')),
+        SnackBar(
+          content: Text(
+            xpdApiErrorMessage(
+              context,
+              result.code,
+              fallbackFr: 'Échec de l’enregistrement',
+              fallbackEn: 'Save failed.',
+            ),
+          ),
+        ),
       );
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Détails confirmés. Votre devis est en cours de calcul.'),
+      SnackBar(
+        content: Text(
+          xpdT(
+            context,
+            'Détails confirmés. Votre devis est en cours de calcul.',
+            'Details confirmed. Your quote is being calculated.',
+          ),
+        ),
       ),
     );
     context.safePop();
@@ -158,22 +177,29 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
 
   Widget _body(FlutterFlowTheme theme) {
     if (_loading) {
-      return const DSPageLoader(message: 'Lecture du bordereau…');
+      return DSPageLoader(
+        message: xpdT(context, 'Lecture du bordereau…', 'Reading the slip…'),
+      );
     }
 
-    if (_loadError != null) {
+    if (_loadErrorCode != null) {
       return DSEmptyState(
         icon: Icons.error_outline_rounded,
-        title: 'Devis introuvable',
-        description: _loadError,
+        title: xpdT(context, 'Devis introuvable', 'Quote not found'),
+        description: xpdApiErrorMessage(
+          context,
+          _loadErrorCode,
+          fallbackFr: 'Devis introuvable.',
+          fallbackEn: 'Quote not found.',
+        ),
         variant: DSEmptyStateVariant.page,
         action: DSButton(
-          label: 'Réessayer',
+          label: xpdT(context, 'Réessayer', 'Try again'),
           icon: Icons.refresh_rounded,
           onPressed: () {
             setState(() {
               _loading = true;
-              _loadError = null;
+              _loadErrorCode = null;
             });
             return _load();
           },
@@ -188,8 +214,12 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const DSStepper(
-              steps: ['Bordereau', 'Détails', 'Devis'],
+            DSStepper(
+              steps: [
+                xpdT(context, 'Bordereau', 'Slip'),
+                xpdT(context, 'Détails', 'Details'),
+                xpdT(context, 'Devis', 'Quote'),
+              ],
               currentStep: 1,
             ),
             _banner(theme),
@@ -197,20 +227,36 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
             for (final f in _fields) ...[
               DSTextField(
                 controller: _controllers[f.key],
-                label: f.label,
+                label: xpdT(context, f.label, f.labelEn),
                 mono: f.mono,
                 maxLines: f.maxLines,
                 keyboardType: f.keyboard,
                 helperText: _missing.contains(f.key)
-                    ? 'Non trouvé sur le bordereau — merci de compléter'
+                    ? xpdT(
+                        context,
+                        'Non trouvé sur le bordereau — merci de compléter',
+                        'Not found on the slip — please fill in',
+                      )
                     : null,
                 validator: (value) {
                   if (!f.numeric) return null;
                   final raw = (value ?? '').trim();
                   if (raw.isEmpty) return null;
                   final parsed = double.tryParse(raw.replaceAll(',', '.'));
-                  if (parsed == null) return 'Valeur numérique attendue';
-                  if (parsed <= 0) return 'Doit être supérieur à 0';
+                  if (parsed == null) {
+                    return xpdT(
+                      context,
+                      'Valeur numérique attendue',
+                      'A numeric value is expected',
+                    );
+                  }
+                  if (parsed <= 0) {
+                    return xpdT(
+                      context,
+                      'Doit être supérieur à 0',
+                      'Must be greater than 0',
+                    );
+                  }
                   return null;
                 },
               ),
@@ -218,15 +264,24 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
             ],
             const SizedBox(height: 8.0),
             DSButton(
-              label: 'Confirmer et calculer le devis',
+              label: xpdT(
+                context,
+                'Confirmer et calculer le devis',
+                'Confirm and calculate the quote',
+              ),
               icon: Icons.check_rounded,
               expand: true,
               onPressed: _submit,
             ),
             const SizedBox(height: 12.0),
             Text(
-              'Les dimensions déterminent le prix. Vérifiez-les avant de '
-              'confirmer.',
+              xpdT(
+                context,
+                'Les dimensions déterminent le prix. Vérifiez-les avant de '
+                'confirmer.',
+                'Dimensions determine the price. Check them before '
+                'confirming.',
+              ),
               textAlign: TextAlign.center,
               style: theme.labelSmall,
             ),
@@ -241,11 +296,19 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
     final missingCount = _missing.length;
     final status = missingCount == 0 ? DSStatus.success : DSStatus.warning;
     final title = missingCount == 0
-        ? 'Bordereau lu intégralement'
-        : '$missingCount champ${missingCount > 1 ? 's' : ''} à compléter';
+        ? xpdT(context, 'Bordereau lu intégralement', 'Slip read in full')
+        : xpdT(
+            context,
+            '$missingCount champ${missingCount > 1 ? 's' : ''} à compléter',
+            '$missingCount field${missingCount > 1 ? 's' : ''} to complete',
+          );
     final confidenceText = _confidence == null
         ? null
-        : 'Confiance de lecture : ${(_confidence! * 100).round()} %';
+        : xpdT(
+            context,
+            'Confiance de lecture : ${(_confidence! * 100).round()} %',
+            'Reading confidence: ${(_confidence! * 100).round()} %',
+          );
 
     return Container(
       padding: const EdgeInsets.all(DSSize.cardPadding),
@@ -282,7 +345,12 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
                 ),
                 const SizedBox(height: 2.0),
                 Text(
-                  confidenceText ?? 'Vérifiez chaque champ avant de confirmer.',
+                  confidenceText ??
+                      xpdT(
+                        context,
+                        'Vérifiez chaque champ avant de confirmer.',
+                        'Check each field before confirming.',
+                      ),
                   style: theme.labelSmall,
                 ),
               ],
@@ -297,7 +365,8 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
 class _FieldSpec {
   const _FieldSpec(
     this.key,
-    this.label, {
+    this.label,
+    this.labelEn, {
     this.keyboard,
     this.mono = false,
     this.numeric = false,
@@ -306,6 +375,7 @@ class _FieldSpec {
 
   final String key;
   final String label;
+  final String labelEn;
   final TextInputType? keyboard;
   final bool mono;
   final bool numeric;

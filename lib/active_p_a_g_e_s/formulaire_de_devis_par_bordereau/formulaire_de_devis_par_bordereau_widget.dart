@@ -3,6 +3,7 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/expedion_api/quote_repository.dart';
 import '/backend/firebase_storage/storage.dart';
 import '/backend/quote_draft.dart';
+import '/design_system/ds_l10n.dart';
 import '/flutter_flow/flutter_flow_drop_down.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -96,11 +97,12 @@ class _FormulaireDeDevisParBordereauWidgetState
                     frText: 'Connectez-vous pour envoyer votre demande.',
                     enText: 'Sign in to send your request.',
                   )
-                : (result.message ??
-                    FFLocalizations.of(context).getVariableText(
-                      frText: "L'envoi a échoué. Réessayez.",
-                      enText: 'Could not send the request. Try again.',
-                    )),
+                : xpdApiErrorMessage(
+                    context,
+                    result.code,
+                    fallbackFr: "L'envoi a échoué. Réessayez.",
+                    fallbackEn: 'Could not send the request. Try again.',
+                  ),
           ),
         ),
       );
@@ -133,18 +135,28 @@ class _FormulaireDeDevisParBordereauWidgetState
     // in the comment — the one free-text field this quote submits — instead of
     // being silently dropped ([QuoteDraft.consume] clears as it reads).
     final draft = QuoteDraft.consume();
+    // The labels below prefill the visible "Commentaire" field, so they must
+    // read in the active language just like the rest of the form — this used
+    // to be hardcoded French and would still show up under the English toggle.
+    String draftLabel(String fr, String en) =>
+        FFLocalizations.of(context).getVariableText(frText: fr, enText: en);
     final draftSummary = [
-      if ((draft?.pickup ?? '').isNotEmpty) 'Retrait : ${draft!.pickup}',
-      if ((draft?.delivery ?? '').isNotEmpty) 'Livraison : ${draft!.delivery}',
+      if ((draft?.pickup ?? '').isNotEmpty)
+        '${draftLabel('Retrait', 'Pickup')} : ${draft!.pickup}',
+      if ((draft?.delivery ?? '').isNotEmpty)
+        '${draftLabel('Livraison', 'Delivery')} : ${draft!.delivery}',
       if ((draft?.lotCount ?? '').isNotEmpty)
-        'Nombre de lots : ${draft!.lotCount}',
-      if ((draft?.lotType ?? '').isNotEmpty) 'Type de lots : ${draft!.lotType}',
+        '${draftLabel('Nombre de lots', 'Number of lots')} : ${draft!.lotCount}',
+      if ((draft?.lotType ?? '').isNotEmpty)
+        '${draftLabel('Type de lots', 'Lot type')} : ${draft!.lotType}',
       if ((draft?.hammerPrice ?? '').isNotEmpty)
-        'Montant adjugé : ${draft!.hammerPrice}',
+        '${draftLabel('Montant adjugé', 'Hammer price')} : ${draft!.hammerPrice}',
       if ((draft?.deadline ?? '').isNotEmpty)
-        'Deadline de retrait : ${draft!.deadline}',
-      if ((draft?.email ?? '').isNotEmpty) 'E-mail : ${draft!.email}',
-      if ((draft?.phone ?? '').isNotEmpty) 'Téléphone : ${draft!.phone}',
+        '${draftLabel('Deadline de retrait', 'Pickup deadline')} : ${draft!.deadline}',
+      if ((draft?.email ?? '').isNotEmpty)
+        '${draftLabel('E-mail', 'Email')} : ${draft!.email}',
+      if ((draft?.phone ?? '').isNotEmpty)
+        '${draftLabel('Téléphone', 'Phone')} : ${draft!.phone}',
     ].join('\n');
 
     _model.commentaireTextController ??=

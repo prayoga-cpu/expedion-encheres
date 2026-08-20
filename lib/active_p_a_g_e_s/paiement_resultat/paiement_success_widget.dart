@@ -1,4 +1,5 @@
 import '/backend/api_requests/api_calls.dart';
+import '/design_system/ds_l10n.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
@@ -104,16 +105,30 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
     return false;
   }
 
-  String? get _statusMessage {
+  String? _statusMessage(BuildContext context) {
     switch (_status) {
       case _UpdateStatus.updating:
-        return 'Mise à jour du statut de votre devis…';
+        return xpdT(
+          context,
+          'Mise à jour du statut de votre devis…',
+          'Updating your quote status…',
+        );
       case _UpdateStatus.done:
-        return 'Votre devis est confirmé comme payé.';
+        return xpdT(
+          context,
+          'Votre devis est confirmé comme payé.',
+          'Your quote is confirmed as paid.',
+        );
       case _UpdateStatus.error:
-        return 'Nous n\'avons pas encore pu confirmer ce paiement. '
-            'Si votre carte a été débitée, le statut se mettra à jour '
-            'automatiquement — sinon, contactez-nous.';
+        return xpdT(
+          context,
+          'Nous n\'avons pas encore pu confirmer ce paiement. '
+              'Si votre carte a été débitée, le statut se mettra à jour '
+              'automatiquement — sinon, contactez-nous.',
+          'We haven\'t been able to confirm this payment yet. '
+              'If your card was charged, the status will update '
+              'automatically — otherwise, please contact us.',
+        );
       case _UpdateStatus.none:
         return null;
     }
@@ -122,7 +137,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final statusMessage = _statusMessage;
+    final statusMessage = _statusMessage(context);
     return Scaffold(
       backgroundColor: theme.primaryBackground,
       body: SafeArea(
@@ -138,7 +153,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                       color: theme.success, size: 72.0),
                   const SizedBox(height: 24.0),
                   Text(
-                    'Paiement réussi',
+                    xpdT(context, 'Paiement réussi', 'Payment successful'),
                     textAlign: TextAlign.center,
                     style: theme.headlineSmall.override(
                       font: GoogleFonts.plusJakartaSans(),
@@ -148,7 +163,11 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                   ),
                   const SizedBox(height: 12.0),
                   Text(
-                    'Merci ! Votre paiement a bien été pris en compte.',
+                    xpdT(
+                      context,
+                      'Merci ! Votre paiement a bien été pris en compte.',
+                      'Thank you! Your payment has been received.',
+                    ),
                     textAlign: TextAlign.center,
                     style: theme.bodyMedium.override(
                       font: GoogleFonts.plusJakartaSans(),
@@ -192,7 +211,11 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                       widget.sessionId!.isNotEmpty) ...[
                     const SizedBox(height: 12.0),
                     Text(
-                      'Référence : ${widget.sessionId}',
+                      xpdT(
+                        context,
+                        'Référence : ${widget.sessionId}',
+                        'Reference: ${widget.sessionId}',
+                      ),
                       textAlign: TextAlign.center,
                       style: theme.labelSmall.override(
                         font: GoogleFonts.plusJakartaSans(),
@@ -204,7 +227,7 @@ class _PaiementSuccessWidgetState extends State<PaiementSuccessWidget> {
                   const SizedBox(height: 32.0),
                   FFButtonWidget(
                     onPressed: () => context.goNamed(MesDevisWidget.routeName),
-                    text: 'Retour à mes devis',
+                    text: xpdT(context, 'Retour à mes devis', 'Back to my quotes'),
                     options: FFButtonOptions(
                       width: double.infinity,
                       height: 48.0,

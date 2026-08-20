@@ -206,7 +206,7 @@ class _MotDePasseOublieWidgetState extends State<MotDePasseOublieWidget> {
             const SizedBox(height: 28.0),
             XpdField(
               label: _t('Adresse email', 'Email address'),
-              hint: 'vous@exemple.fr',
+              hint: _t('vous@exemple.fr', 'you@example.com'),
               controller: _model.emailRecuperationTextController!,
               keyboardType: TextInputType.emailAddress,
               onSubmitted: (_) => _send(),

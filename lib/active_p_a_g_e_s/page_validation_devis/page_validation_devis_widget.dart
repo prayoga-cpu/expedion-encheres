@@ -5,6 +5,7 @@ import '/backend/api_requests/api_calls.dart';
 import '/backend/expedion_api/expedion_quote.dart'
     show formatCents, kQuoteKindInsured;
 import '/backend/expedion_api/quote_repository.dart';
+import '/design_system/ds_l10n.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -89,9 +90,14 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
 
   void _showMissingTariff() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-            'Tarif indisponible pour ce devis. Contactez-nous avant de payer.'),
+          xpdT(
+            context,
+            'Tarif indisponible pour ce devis. Contactez-nous avant de payer.',
+            'Tariff unavailable for this quote. Contact us before paying.',
+          ),
+        ),
       ),
     );
   }
@@ -771,8 +777,11 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                             '${paiementRedirectBaseUrl()}/cancel',
                                         successUrl:
                                             '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
-                                        productName:
-                                            'Retrait/Expedition de biens',
+                                        productName: xpdT(
+                                          context,
+                                          'Retrait/Expedition de biens',
+                                          'Pickup/Shipping of goods',
+                                        ),
                                         quantity: 1,
                                         recordID: widget.quoteID ?? '',
                                       );
@@ -804,8 +813,11 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                             '${paiementRedirectBaseUrl()}/cancel',
                                         successUrl:
                                             '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
-                                        productName:
-                                            'Retrait/Expedition de biens',
+                                        productName: xpdT(
+                                          context,
+                                          'Retrait/Expedition de biens',
+                                          'Pickup/Shipping of goods',
+                                        ),
                                         quantity: 1,
                                         recordID: widget.quoteID ?? '',
                                       );
@@ -907,8 +919,14 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                             .showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              accept.message ??
-                                                  'Impossible de confirmer ce devis. Réessayez.',
+                                              xpdApiErrorMessage(
+                                                context,
+                                                accept.code,
+                                                fallbackFr:
+                                                    'Impossible de confirmer ce devis. Réessayez.',
+                                                fallbackEn:
+                                                    'Could not confirm this quote. Try again.',
+                                              ),
                                             ),
                                           ),
                                         );

@@ -4106,7 +4106,7 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
     },
     'oth21gc1': {
       'fr': 'Modification',
-      'en': 'Modification',
+      'en': 'Edit Profile',
       'es': 'Modificación',
       'it': 'Modifica',
     },

@@ -31,7 +31,7 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
   Map<String, dynamic>? _quote;
   List<dynamic> _events = const [];
   bool _loading = true;
-  String? _error;
+  String? _errorCode;
 
   @override
   void initState() {
@@ -54,10 +54,10 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
     setState(() {
       _loading = false;
       if (!quoteResult.success) {
-        _error = quoteResult.message;
+        _errorCode = quoteResult.code;
         return;
       }
-      _error = null;
+      _errorCode = null;
       _quote = quoteResult.map;
       _events = eventsResult.success ? eventsResult.list : const [];
     });
@@ -86,11 +86,16 @@ class _SuiviDeLivraisonWidgetState extends State<SuiviDeLivraisonWidget> {
       );
     }
 
-    if (_error != null) {
+    if (_errorCode != null) {
       return DSEmptyState(
         icon: Icons.error_outline_rounded,
         title: xpdT(context, 'Suivi indisponible', 'Tracking unavailable'),
-        description: _error,
+        description: xpdApiErrorMessage(
+          context,
+          _errorCode,
+          fallbackFr: 'Suivi temporairement indisponible.',
+          fallbackEn: 'Tracking temporarily unavailable.',
+        ),
         variant: DSEmptyStateVariant.page,
         action: DSButton(
           label: xpdT(context, 'Réessayer', 'Try again'),

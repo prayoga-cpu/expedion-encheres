@@ -9,6 +9,7 @@ import '/backend/firebase_storage/storage.dart';
 import '/backend/quote_draft.dart';
 import '/design_system/ds_button.dart';
 import '/design_system/ds_card.dart';
+import '/design_system/ds_l10n.dart';
 import '/design_system/ds_text_field.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -346,14 +347,16 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     setState(() => _saving = false);
 
     if (!result.succeeded) {
-      _say(
-        frText: result.needsSignIn
-            ? 'Connectez-vous pour enregistrer votre demande.'
-            : (result.message ?? "L'enregistrement a échoué. Réessayez."),
-        enText: result.needsSignIn
-            ? 'Sign in to save your request.'
-            : (result.message ?? 'Saving failed. Try again.'),
-      );
+      final message = result.needsSignIn
+          ? xpdT(context, 'Connectez-vous pour enregistrer votre demande.',
+              'Sign in to save your request.')
+          : xpdApiErrorMessage(
+              context,
+              result.code,
+              fallbackFr: "L'enregistrement a échoué. Réessayez.",
+              fallbackEn: 'Saving failed. Try again.',
+            );
+      _say(frText: message, enText: message);
       if (result.needsSignIn) {
         context.pushNamed(SeConnecterWidget.routeName);
       }

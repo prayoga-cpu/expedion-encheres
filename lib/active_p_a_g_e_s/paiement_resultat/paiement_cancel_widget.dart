@@ -1,3 +1,4 @@
+import '/design_system/ds_l10n.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
@@ -30,7 +31,7 @@ class PaiementCancelWidget extends StatelessWidget {
                   Icon(Icons.cancel_rounded, color: theme.error, size: 72.0),
                   const SizedBox(height: 24.0),
                   Text(
-                    'Paiement annulé',
+                    xpdT(context, 'Paiement annulé', 'Payment cancelled'),
                     textAlign: TextAlign.center,
                     style: theme.headlineSmall.override(
                       font: GoogleFonts.plusJakartaSans(),
@@ -40,8 +41,13 @@ class PaiementCancelWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 12.0),
                   Text(
-                    'Votre paiement n\'a pas été finalisé. '
-                    'Aucun montant n\'a été débité. Vous pouvez réessayer à tout moment.',
+                    xpdT(
+                      context,
+                      'Votre paiement n\'a pas été finalisé. '
+                          'Aucun montant n\'a été débité. Vous pouvez réessayer à tout moment.',
+                      'Your payment was not completed. '
+                          'No amount was charged. You can try again at any time.',
+                    ),
                     textAlign: TextAlign.center,
                     style: theme.bodyMedium.override(
                       font: GoogleFonts.plusJakartaSans(),
@@ -52,7 +58,7 @@ class PaiementCancelWidget extends StatelessWidget {
                   const SizedBox(height: 32.0),
                   FFButtonWidget(
                     onPressed: () => context.goNamed(MesDevisWidget.routeName),
-                    text: 'Retour à mes devis',
+                    text: xpdT(context, 'Retour à mes devis', 'Back to my quotes'),
                     options: FFButtonOptions(
                       width: double.infinity,
                       height: 48.0,

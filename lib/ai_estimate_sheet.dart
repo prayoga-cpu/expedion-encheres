@@ -179,10 +179,12 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final message = result.alreadyPriced
-        ? xpdT(context, 'Votre devis a déjà été chiffré.', 'Your quote has already been priced.')
-        : result.message ??
-            xpdT(context, 'Estimation indisponible pour le moment.', 'Estimate unavailable right now.');
+    final message = xpdApiErrorMessage(
+      context,
+      result.code,
+      fallbackFr: 'Estimation indisponible pour le moment.',
+      fallbackEn: 'Estimate unavailable right now.',
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24.0),

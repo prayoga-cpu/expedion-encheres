@@ -1,6 +1,7 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/expedion_api/expedion_quote.dart' show formatCents;
+import '/design_system/ds_l10n.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -111,7 +112,8 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                     ),
                     if (widget.quoteNum != null && widget.quoteNum!.isNotEmpty)
                       Text(
-                        'Devis #${widget.quoteNum}',
+                        xpdT(context, 'Devis #${widget.quoteNum}',
+                            'Quote #${widget.quoteNum}'),
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               font: GoogleFonts.plusJakartaSans(
                                 fontWeight: FlutterFlowTheme.of(context)
@@ -185,7 +187,8 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Valable jusqu\'au : $expiryFormatted',
+                      xpdT(context, 'Valable jusqu\'au : $expiryFormatted',
+                          'Valid until: $expiryFormatted'),
                       style: FlutterFlowTheme.of(context).labelSmall.override(
                             font: GoogleFonts.plusJakartaSans(
                               fontWeight: FlutterFlowTheme.of(context)
@@ -202,6 +205,9 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                     FFButtonWidget(
                       onPressed: () async {
                         final messenger = ScaffoldMessenger.of(context);
+                        // Read the locale before any `await` below so later
+                        // messages don't touch `context` across an async gap.
+                        final isEnglish = xpdIsEnglish(context);
 
                         // Without an authenticated user and a quote id, the
                         // Stripe metadata would be empty and the webhook could
@@ -211,9 +217,11 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         final quoteId = widget.quoteID ?? '';
                         if (currentUserUid.isEmpty || quoteId.isEmpty) {
                           messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Session ou devis introuvable. Reconnectez-vous puis réessayez.'),
+                            SnackBar(
+                              content: Text(xpdT(
+                                  context,
+                                  'Session ou devis introuvable. Reconnectez-vous puis réessayez.',
+                                  'Session or quote not found. Please sign in again and retry.')),
                             ),
                           );
                           return;
@@ -226,9 +234,11 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         );
                         if (amount == null || amount <= 0) {
                           messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Tarif indisponible pour ce devis. Contactez-nous avant de payer.'),
+                            SnackBar(
+                              content: Text(xpdT(
+                                  context,
+                                  'Tarif indisponible pour ce devis. Contactez-nous avant de payer.',
+                                  'No rate available for this quote. Please contact us before paying.')),
                             ),
                           );
                           return;
@@ -273,9 +283,10 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                               return;
                             }
                             messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Impossible d\'ouvrir le lien de paiement. Vérifiez votre connexion.'),
+                              SnackBar(
+                                content: Text(isEnglish
+                                    ? 'Unable to open the payment link. Please check your connection.'
+                                    : 'Impossible d\'ouvrir le lien de paiement. Vérifiez votre connexion.'),
                               ),
                             );
                             return;
@@ -286,9 +297,10 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         }
 
                         messenger.showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Le paiement n\'a pas pu être initié. Réessayez.'),
+                          SnackBar(
+                            content: Text(isEnglish
+                                ? 'The payment could not be started. Please try again.'
+                                : 'Le paiement n\'a pas pu être initié. Réessayez.'),
                           ),
                         );
                         if (context.mounted) {
@@ -330,23 +342,30 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                       onPressed: () async {
                         final messenger = ScaffoldMessenger.of(context);
                         final navigator = Navigator.of(context);
+                        // Read the locale before any `await` below so later
+                        // messages don't touch `context` across an async gap.
+                        final isEnglish = xpdIsEnglish(context);
                         final email = currentUserEmail;
                         final quoteId = widget.quoteID ?? '';
 
                         if (email.isEmpty) {
                           messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Aucune adresse e-mail associée à votre compte.'),
+                            SnackBar(
+                              content: Text(xpdT(
+                                  context,
+                                  'Aucune adresse e-mail associée à votre compte.',
+                                  'No e-mail address associated with your account.')),
                             ),
                           );
                           return;
                         }
                         if (quoteId.isEmpty || currentUserUid.isEmpty) {
                           messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Session ou devis introuvable. Reconnectez-vous puis réessayez.'),
+                            SnackBar(
+                              content: Text(xpdT(
+                                  context,
+                                  'Session ou devis introuvable. Reconnectez-vous puis réessayez.',
+                                  'Session or quote not found. Please sign in again and retry.')),
                             ),
                           );
                           return;
@@ -359,9 +378,11 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         );
                         if (amount == null || amount <= 0) {
                           messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Tarif indisponible pour ce devis. Contactez-nous avant de payer.'),
+                            SnackBar(
+                              content: Text(xpdT(
+                                  context,
+                                  'Tarif indisponible pour ce devis. Contactez-nous avant de payer.',
+                                  'No rate available for this quote. Please contact us before paying.')),
                             ),
                           );
                           return;
@@ -392,15 +413,20 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                         messenger.showSnackBar(
                           SnackBar(
                             content: Text(result.succeeded
-                                ? 'Facture de paiement envoyée à $email'
-                                : 'Échec de l\'envoi de l\'e-mail. Réessayez.'),
+                                ? (isEnglish
+                                    ? 'Payment invoice sent to $email'
+                                    : 'Facture de paiement envoyée à $email')
+                                : (isEnglish
+                                    ? 'Failed to send the e-mail. Please try again.'
+                                    : 'Échec de l\'envoi de l\'e-mail. Réessayez.')),
                           ),
                         );
                         if (result.succeeded) {
                           navigator.pop();
                         }
                       },
-                      text: 'Recevoir le lien par e-mail',
+                      text: xpdT(context, 'Recevoir le lien par e-mail',
+                          'Receive the link by e-mail'),
                       options: FFButtonOptions(
                         width: double.infinity,
                         height: 44.0,

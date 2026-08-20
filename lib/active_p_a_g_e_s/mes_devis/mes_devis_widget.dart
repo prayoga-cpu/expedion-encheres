@@ -9,6 +9,7 @@ import '/backend/expedion_api/quote_repository.dart';
 import '/backend/quote_draft.dart';
 import '/design_system/ds_app_shell.dart';
 import '/design_system/ds_button.dart';
+import '/design_system/ds_l10n.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_quote_card.dart';
 import '/design_system/ds_site.dart';
@@ -509,11 +510,12 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
           ),
           const SizedBox(height: 8.0),
           Text(
-            result?.message ??
-                _t(
-                  'Vos devis sont temporairement indisponibles.',
-                  'Your quotes are temporarily unavailable.',
-                ),
+            xpdApiErrorMessage(
+              context,
+              result?.code,
+              fallbackFr: 'Vos devis sont temporairement indisponibles.',
+              fallbackEn: 'Your quotes are temporarily unavailable.',
+            ),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'Geist',

@@ -257,7 +257,18 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                       .showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        'Email envoyé / Email sent',
+                                                        FFLocalizations.of(
+                                                                context)
+                                                            .getVariableText(
+                                                          frText:
+                                                              'Email envoyé',
+                                                          enText:
+                                                              'Email sent',
+                                                          esText:
+                                                              'Correo enviado',
+                                                          itText:
+                                                              'Email inviata',
+                                                        ),
                                                         style: TextStyle(
                                                           color: FlutterFlowTheme
                                                                   .of(context)
