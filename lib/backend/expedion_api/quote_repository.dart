@@ -89,6 +89,15 @@ class QuoteRepository {
     ];
   }
 
+  /// The AI price estimate for a still-pending quote.
+  static Future<AiEstimateResult> estimate(String id) async {
+    final result = await ExpedionApi.estimateQuote(id);
+    if (!result.success) {
+      return AiEstimateResult._failure(result.code, result.message);
+    }
+    return AiEstimateResult._success(AiPriceEstimate(result.map));
+  }
+
   // ========================================
   // Writing
   // ========================================
@@ -271,6 +280,28 @@ class QuoteListResult {
   /// True when the failure is "you are not signed in" rather than a fault —
   /// the UI should offer a login, not an error.
   bool get needsSignIn => code == 'UNAUTHENTICATED' || code == 'UNAUTHORIZED';
+}
+
+class AiEstimateResult {
+  const AiEstimateResult._success(this.estimate)
+      : succeeded = true,
+        code = null,
+        message = null;
+
+  const AiEstimateResult._failure(this.code, this.message)
+      : succeeded = false,
+        estimate = null;
+
+  final bool succeeded;
+  final AiPriceEstimate? estimate;
+  final String? code;
+  final String? message;
+
+  bool get needsSignIn => code == 'UNAUTHENTICATED' || code == 'UNAUTHORIZED';
+
+  /// The server refused because the quote already has a real price — stale,
+  /// not an error worth alarming over.
+  bool get alreadyPriced => code == 'QUOTE_ALREADY_PRICED';
 }
 
 class QuoteWriteResult {

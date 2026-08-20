@@ -188,5 +188,68 @@ void main() {
       expect(quote.quoteStandardCents, 12000);
       expect(quote.weightKg, 18.5);
     });
+
+    test('hasAiSuggestion reads the cached AI estimate columns', () {
+      expect(const ExpedionQuote({}).hasAiSuggestion, isFalse);
+      expect(
+        const ExpedionQuote({'aiSuggestedStandardCents': 12000})
+            .hasAiSuggestion,
+        isTrue,
+      );
+    });
+  });
+
+  group('AiPriceEstimate', () {
+    test('parses the standard fields', () {
+      const estimate = AiPriceEstimate({
+        'standardCents': 12000,
+        'insuredCents': 12500,
+        'reasoning': 'Trajet standard, rien de particulier.',
+        'estimations': <String>[],
+        'confidence': 0.8,
+        'source': 'ai',
+      });
+
+      expect(estimate.standardCents, 12000);
+      expect(estimate.insuredCents, 12500);
+      expect(estimate.reasoning, 'Trajet standard, rien de particulier.');
+      expect(estimate.estimations, isEmpty);
+      expect(estimate.confidence, 0.8);
+      expect(estimate.isEngineFallback, isFalse);
+    });
+
+    test('coerces numeric fields that arrive as int-valued doubles', () {
+      const estimate = AiPriceEstimate({
+        'standardCents': 12000.0,
+        'confidence': 1,
+      });
+      expect(estimate.standardCents, 12000);
+      expect(estimate.confidence, 1.0);
+    });
+
+    test('flags the deterministic-engine fallback', () {
+      const estimate = AiPriceEstimate({'source': 'engine'});
+      expect(estimate.isEngineFallback, isTrue);
+    });
+
+    test('estimations tolerates nulls and a missing key', () {
+      expect(const AiPriceEstimate({}).estimations, isEmpty);
+      expect(
+        const AiPriceEstimate({
+          'estimations': ['poids', null, 'distance']
+        }).estimations,
+        ['poids', 'distance'],
+      );
+    });
+
+    test('falls back to empty/null for missing fields rather than throwing',
+        () {
+      const estimate = AiPriceEstimate({});
+      expect(estimate.standardCents, isNull);
+      expect(estimate.insuredCents, isNull);
+      expect(estimate.reasoning, '');
+      expect(estimate.confidence, isNull);
+      expect(estimate.source, '');
+    });
   });
 }

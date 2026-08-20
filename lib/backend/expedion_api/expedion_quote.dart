@@ -80,6 +80,13 @@ class ExpedionQuote {
 
   int? get declaredValueCents => _int('declaredValueCents');
 
+  /// The cached AI price estimate, once one has been generated — see
+  /// [AiPriceEstimate]. `null` until the client opens the estimate sheet for
+  /// the first time.
+  int? get aiSuggestedStandardCents => _int('aiSuggestedStandardCents');
+  int? get aiSuggestedInsuredCents => _int('aiSuggestedInsuredCents');
+  bool get hasAiSuggestion => aiSuggestedStandardCents != null;
+
   String get assignedCarrierId => _string('assignedCarrierId');
   bool get hasDriver => assignedCarrierId.isNotEmpty;
 
@@ -144,6 +151,32 @@ class ExpedionQuote {
     }
     return null;
   }
+}
+
+/// `POST /api/expedion/quotes/:id/estimate`'s response shape — the same
+/// `PriceSuggestion` an admin sees in the reprice dialog
+/// (expeditoo-ship's `expedion-price-suggestion.service.ts`), not a quote.
+class AiPriceEstimate {
+  const AiPriceEstimate(this.raw);
+
+  final Map<String, dynamic> raw;
+
+  int? get standardCents => (raw['standardCents'] as num?)?.toInt();
+  int? get insuredCents => (raw['insuredCents'] as num?)?.toInt();
+  String get reasoning => raw['reasoning']?.toString() ?? '';
+
+  List<String> get estimations => [
+        for (final v in (raw['estimations'] as List?) ?? const [])
+          if (v != null) v.toString(),
+      ];
+
+  /// 0–1.
+  double? get confidence => (raw['confidence'] as num?)?.toDouble();
+
+  /// `'ai'` or `'engine'` — `'engine'` means GPT-4.1 was unavailable and this
+  /// is the deterministic pricing-engine fallback.
+  String get source => raw['source']?.toString() ?? '';
+  bool get isEngineFallback => source == 'engine';
 }
 
 /// Thousands separator: U+202F narrow no-break space, per French typography.

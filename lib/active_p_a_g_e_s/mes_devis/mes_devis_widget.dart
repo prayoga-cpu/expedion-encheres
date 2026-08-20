@@ -1,3 +1,4 @@
+import '/ai_estimate_sheet.dart';
 import '/app_shell.dart';
 import '/support_contact.dart';
 import 'package:flutter/material.dart';
@@ -360,19 +361,30 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
 
     // `pending` means it is with us: either auto-pricing could not run — it
     // needs dimensions and a geocodable address, and bails silently without
-    // them — or an operator has not published a price yet. There is nothing the
-    // client can do about either, and a card with no action and no explanation
-    // reads as an app that has forgotten about them. Offer the one thing that
-    // does help: reaching a person.
-    return DSButton(
-      label: _t('Nous contacter', 'Contact us'),
-      variant: DSButtonVariant.outline,
-      icon: Icons.support_agent_rounded,
-      expand: true,
-      onPressed: () => SupportContact.open(
-        context,
-        aboutReference: quote.reference.isEmpty ? null : quote.reference,
-      ),
+    // them — or an operator has not published a price yet. The AI estimate
+    // is the one thing the client can look at while they wait; contacting us
+    // stays available underneath for anyone who wants a person instead.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        DSButton(
+          label: _t("Voir l'estimation IA", 'View AI estimate'),
+          icon: Icons.auto_awesome_rounded,
+          expand: true,
+          onPressed: () => AiEstimateSheet.open(context, quote: quote),
+        ),
+        const SizedBox(height: 8.0),
+        DSButton(
+          label: _t('Nous contacter', 'Contact us'),
+          variant: DSButtonVariant.outline,
+          icon: Icons.support_agent_rounded,
+          expand: true,
+          onPressed: () => SupportContact.open(
+            context,
+            aboutReference: quote.reference.isEmpty ? null : quote.reference,
+          ),
+        ),
+      ],
     );
   }
 
@@ -402,6 +414,12 @@ class _MesDevisWidgetState extends State<MesDevisWidget> {
     }
     if (quote.quoteAvailable) {
       _openValidation(quote, alreadyAccepted: quote.isAccepted);
+      return;
+    }
+    // Nothing priced yet and nothing left to fill in — the one thing the
+    // client can look at is the same AI estimate an admin would see.
+    if (quote.status == 'pending') {
+      AiEstimateSheet.open(context, quote: quote);
     }
   }
 

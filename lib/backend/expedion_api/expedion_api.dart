@@ -170,6 +170,16 @@ class ExpedionApi {
         ),
       );
 
+  /// The client-facing AI price estimate for a still-pending quote. Cached
+  /// server-side after the first call — reopening the sheet is cheap.
+  static Future<ExpedionApiResult> estimateQuote(String id) => _send(
+        () => http.post(
+          _uri('/api/expedion/quotes/$id/estimate'),
+          headers: _headers,
+        ),
+        timeout: const Duration(seconds: 60),
+      );
+
   // ========================================
   // Extraction
   // ========================================
