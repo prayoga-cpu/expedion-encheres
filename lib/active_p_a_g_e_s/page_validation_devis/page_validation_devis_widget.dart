@@ -2,7 +2,8 @@ import '/app_shell.dart';
 import '/active_p_a_g_e_s/paiement/paiement_widget.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
-import '/backend/expedion_api/expedion_quote.dart' show kQuoteKindInsured;
+import '/backend/expedion_api/expedion_quote.dart'
+    show formatCents, kQuoteKindInsured;
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -78,10 +79,10 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
 
   /// Whether the tariff for the currently selected kind was actually published.
   bool get _hasPriceForSelectedKind {
-    final cents = FFAppState().TypeDeDevisValide ==
-            'Devis avec assurance AD valorem'
-        ? widget.tarifAssADV
-        : widget.tarifAssSTD;
+    final cents =
+        FFAppState().TypeDeDevisValide == 'Devis avec assurance AD valorem'
+            ? widget.tarifAssADV
+            : widget.tarifAssSTD;
     return cents != null && cents > 0;
   }
 
@@ -182,86 +183,70 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                     .fontStyle,
                               ),
                         ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Column(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      FFAppState().TypeDeDevisValide = '';
-                                      safeSetState(() {});
-                                      FFAppState().TypeDeDevisValide = 'ADV';
-                                      safeSetState(() {});
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        border: Border.all(
-                                          color:
-                                              FFAppState().TypeDeDevisValide ==
-                                                      'ADV'
-                                                  ? FlutterFlowTheme.of(context)
-                                                      .primary
-                                                  : FlutterFlowTheme.of(context)
-                                                      .alternate,
-                                          width: 2.0,
-                                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    FFAppState().TypeDeDevisValide = '';
+                                    safeSetState(() {});
+                                    FFAppState().TypeDeDevisValide = 'ADV';
+                                    safeSetState(() {});
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryBackground,
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      border: Border.all(
+                                        color: FFAppState().TypeDeDevisValide ==
+                                                'ADV'
+                                            ? FlutterFlowTheme.of(context)
+                                                .primary
+                                            : FlutterFlowTheme.of(context)
+                                                .alternate,
+                                        width: 2.0,
                                       ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(20.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        FFLocalizations.of(
-                                                                context)
-                                                            .getText(
-                                                          'ip6ahqx8' /* Devis avec assurance */,
-                                                        ),
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .titleLarge
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .plusJakartaSans(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleLarge
-                                                                    .fontStyle,
-                                                              ),
-                                                              fontSize: 20.0,
-                                                              letterSpacing:
-                                                                  0.0,
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(20.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      FFLocalizations.of(
+                                                              context)
+                                                          .getText(
+                                                        'ip6ahqx8' /* Devis avec assurance */,
+                                                      ),
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .titleLarge
+                                                          .override(
+                                                            font: GoogleFonts
+                                                                .plusJakartaSans(
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w600,
@@ -271,27 +256,53 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                       .titleLarge
                                                                       .fontStyle,
                                                             ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    4.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Text(
-                                                          FFLocalizations.of(
-                                                                  context)
-                                                              .getText(
-                                                            'hzstbv4q' /* Advalorem */,
+                                                            fontSize: 20.0,
+                                                            letterSpacing: 0.0,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleLarge
+                                                                    .fontStyle,
                                                           ),
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .titleMedium
-                                                              .override(
-                                                                font: GoogleFonts
-                                                                    .plusJakartaSans(
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  4.0,
+                                                                  0.0,
+                                                                  0.0),
+                                                      child: Text(
+                                                        FFLocalizations.of(
+                                                                context)
+                                                            .getText(
+                                                          'hzstbv4q' /* Advalorem */,
+                                                        ),
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .titleMedium
+                                                                .override(
+                                                                  font: GoogleFonts
+                                                                      .plusJakartaSans(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .titleMedium
+                                                                        .fontStyle,
+                                                                  ),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primary,
+                                                                  fontSize:
+                                                                      18.0,
+                                                                  letterSpacing:
+                                                                      0.0,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -300,124 +311,113 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                       .titleMedium
                                                                       .fontStyle,
                                                                 ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .primary,
-                                                                fontSize: 18.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                Container(
-                                                  width: 24.0,
-                                                  height: 24.0,
-                                                  decoration: BoxDecoration(
+                                              ),
+                                              Container(
+                                                width: 24.0,
+                                                height: 24.0,
+                                                decoration: BoxDecoration(
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryBackground,
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
                                                     color: FlutterFlowTheme.of(
                                                             context)
-                                                        .secondaryBackground,
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .alternate,
-                                                      width: 2.0,
-                                                    ),
-                                                  ),
-                                                  child: Visibility(
-                                                    visible: FFAppState()
-                                                            .TypeDeDevisValide ==
-                                                        'ADV',
-                                                    child: Icon(
-                                                      Icons.check_circle,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                      size: 24.0,
-                                                    ),
+                                                        .alternate,
+                                                    width: 2.0,
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                            Text(
-                                              FFLocalizations.of(context)
-                                                  .getText(
-                                                'rwfkh9cj' /* Couverture complète avec prote... */,
-                                              ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      0.0, 16.0, 0.0, 16.0),
-                                              child: Divider(
-                                                thickness: 1.0,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .alternate,
-                                              ),
-                                            ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  FFLocalizations.of(context)
-                                                      .getText(
-                                                    'uw33xcm9' /* Prix: */,
+                                                child: Visibility(
+                                                  visible: FFAppState()
+                                                          .TypeDeDevisValide ==
+                                                      'ADV',
+                                                  child: Icon(
+                                                    Icons.check_circle,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primary,
+                                                    size: 24.0,
                                                   ),
-                                                  style: FlutterFlowTheme.of(
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            FFLocalizations.of(context).getText(
+                                              'rwfkh9cj' /* Couverture complète avec prote... */,
+                                            ),
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium
+                                                .override(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
+                                                  color: FlutterFlowTheme.of(
                                                           context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
+                                                      .secondaryText,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 16.0, 0.0, 16.0),
+                                            child: Divider(
+                                              thickness: 1.0,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                FFLocalizations.of(context)
+                                                    .getText(
+                                                  'uw33xcm9' /* Prix: */,
+                                                ),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontStyle:
@@ -426,24 +426,28 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                   .bodyMedium
                                                                   .fontStyle,
                                                         ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Text(
-                                                  '€ ${widget.tarifAssADV?.toString() ?? '0'}',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .titleMedium
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
+                                              ),
+                                              Text(
+                                                formatCents(widget.tarifAssADV),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleMedium
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primary,
+                                                          fontSize: 24.0,
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -452,101 +456,72 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                   .titleMedium
                                                                   .fontStyle,
                                                         ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primary,
-                                                        fontSize: 24.0,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleMedium
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      FFAppState().TypeDeDevisValide = '';
-                                      safeSetState(() {});
-                                      FFAppState().TypeDeDevisValide = 'STD';
-                                      safeSetState(() {});
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        border: Border.all(
-                                          color:
-                                              FFAppState().TypeDeDevisValide ==
-                                                      'STD'
-                                                  ? FlutterFlowTheme.of(context)
-                                                      .primary
-                                                  : FlutterFlowTheme.of(context)
-                                                      .alternate,
-                                          width: 2.0,
-                                        ),
+                                ),
+                                InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    FFAppState().TypeDeDevisValide = '';
+                                    safeSetState(() {});
+                                    FFAppState().TypeDeDevisValide = 'STD';
+                                    safeSetState(() {});
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryBackground,
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      border: Border.all(
+                                        color: FFAppState().TypeDeDevisValide ==
+                                                'STD'
+                                            ? FlutterFlowTheme.of(context)
+                                                .primary
+                                            : FlutterFlowTheme.of(context)
+                                                .alternate,
+                                        width: 2.0,
                                       ),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(20.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        FFLocalizations.of(
-                                                                context)
-                                                            .getText(
-                                                          '0xqyb9wk' /* Devis avec assurance */,
-                                                        ),
-                                                        style: FlutterFlowTheme
-                                                                .of(context)
-                                                            .titleLarge
-                                                            .override(
-                                                              font: GoogleFonts
-                                                                  .plusJakartaSans(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleLarge
-                                                                    .fontStyle,
-                                                              ),
-                                                              fontSize: 20.0,
-                                                              letterSpacing:
-                                                                  0.0,
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(20.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      FFLocalizations.of(
+                                                              context)
+                                                          .getText(
+                                                        '0xqyb9wk' /* Devis avec assurance */,
+                                                      ),
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .titleLarge
+                                                          .override(
+                                                            font: GoogleFonts
+                                                                .plusJakartaSans(
                                                               fontWeight:
                                                                   FontWeight
                                                                       .w600,
@@ -556,27 +531,53 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                       .titleLarge
                                                                       .fontStyle,
                                                             ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(
-                                                                    0.0,
-                                                                    4.0,
-                                                                    0.0,
-                                                                    0.0),
-                                                        child: Text(
-                                                          FFLocalizations.of(
-                                                                  context)
-                                                              .getText(
-                                                            '99pols2d' /* Standard */,
+                                                            fontSize: 20.0,
+                                                            letterSpacing: 0.0,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleLarge
+                                                                    .fontStyle,
                                                           ),
-                                                          style: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .titleMedium
-                                                              .override(
-                                                                font: GoogleFonts
-                                                                    .plusJakartaSans(
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0.0,
+                                                                  4.0,
+                                                                  0.0,
+                                                                  0.0),
+                                                      child: Text(
+                                                        FFLocalizations.of(
+                                                                context)
+                                                            .getText(
+                                                          '99pols2d' /* Standard */,
+                                                        ),
+                                                        style:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .titleMedium
+                                                                .override(
+                                                                  font: GoogleFonts
+                                                                      .plusJakartaSans(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .titleMedium
+                                                                        .fontStyle,
+                                                                  ),
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .secondaryText,
+                                                                  fontSize:
+                                                                      18.0,
+                                                                  letterSpacing:
+                                                                      0.0,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -585,124 +586,113 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                       .titleMedium
                                                                       .fontStyle,
                                                                 ),
-                                                                color: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryText,
-                                                                fontSize: 18.0,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                fontStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleMedium
-                                                                    .fontStyle,
-                                                              ),
-                                                        ),
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                Container(
-                                                  width: 24.0,
-                                                  height: 24.0,
-                                                  decoration: BoxDecoration(
+                                              ),
+                                              Container(
+                                                width: 24.0,
+                                                height: 24.0,
+                                                decoration: BoxDecoration(
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryBackground,
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
                                                     color: FlutterFlowTheme.of(
                                                             context)
-                                                        .secondaryBackground,
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .alternate,
-                                                      width: 2.0,
-                                                    ),
-                                                  ),
-                                                  child: Visibility(
-                                                    visible: FFAppState()
-                                                            .TypeDeDevisValide ==
-                                                        'STD',
-                                                    child: Icon(
-                                                      Icons.check_circle,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                      size: 24.0,
-                                                    ),
+                                                        .alternate,
+                                                    width: 2.0,
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-                                            Text(
-                                              FFLocalizations.of(context)
-                                                  .getText(
-                                                'bd7vyssm' /* Protection de base avec couver... */,
-                                              ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      0.0, 16.0, 0.0, 16.0),
-                                              child: Divider(
-                                                thickness: 1.0,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .alternate,
-                                              ),
-                                            ),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  FFLocalizations.of(context)
-                                                      .getText(
-                                                    'mut8vfyk' /* Prix: */,
+                                                child: Visibility(
+                                                  visible: FFAppState()
+                                                          .TypeDeDevisValide ==
+                                                      'STD',
+                                                  child: Icon(
+                                                    Icons.check_circle,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primary,
+                                                    size: 24.0,
                                                   ),
-                                                  style: FlutterFlowTheme.of(
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            FFLocalizations.of(context).getText(
+                                              'bd7vyssm' /* Protection de base avec couver... */,
+                                            ),
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium
+                                                .override(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
+                                                  color: FlutterFlowTheme.of(
                                                           context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
+                                                      .secondaryText,
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .bodyMedium
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 16.0, 0.0, 16.0),
+                                            child: Divider(
+                                              thickness: 1.0,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                FFLocalizations.of(context)
+                                                    .getText(
+                                                  'mut8vfyk' /* Prix: */,
+                                                ),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontStyle:
@@ -711,24 +701,28 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                   .bodyMedium
                                                                   .fontStyle,
                                                         ),
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMedium
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                                Text(
-                                                  '€ ${widget.tarifAssSTD?.toString() ?? '0'}',
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .titleMedium
-                                                      .override(
-                                                        font: GoogleFonts
-                                                            .plusJakartaSans(
+                                              ),
+                                              Text(
+                                                formatCents(widget.tarifAssSTD),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleMedium
+                                                        .override(
+                                                          font: GoogleFonts
+                                                              .plusJakartaSans(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleMedium
+                                                                    .fontStyle,
+                                                          ),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondaryText,
+                                                          fontSize: 24.0,
+                                                          letterSpacing: 0.0,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontStyle:
@@ -737,141 +731,233 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                                   .titleMedium
                                                                   .fontStyle,
                                                         ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryText,
-                                                        fontSize: 24.0,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleMedium
-                                                                .fontStyle,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ].divide(SizedBox(height: 20.0)),
-                              ),
-                              Stack(
-                                children: [
-                                  FFButtonWidget(
+                                ),
+                              ].divide(SizedBox(height: 20.0)),
+                            ),
+                            Stack(
+                              children: [
+                                FFButtonWidget(
+                                  onPressed: () async {
+                                    // Refuse rather than invent a figure: the
+                                    // tariffs used to fall back to 50, which
+                                    // silently charged a made-up price when
+                                    // the server had not published one.
+                                    if (!_hasPriceForSelectedKind) {
+                                      _showMissingTariff();
+                                      return;
+                                    }
+                                    if (FFAppState().TypeDeDevisValide ==
+                                        'Devis avec assurance AD valorem') {
+                                      _model.apiResultz01ADV =
+                                          await CreatePaymentIntentCall.call(
+                                        unitAmount: widget.tarifAssADV!,
+                                        currency: 'EUR',
+                                        userID: currentUserUid,
+                                        // TODO(EXPEDITOO-TESTING): redirect
+                                        // URLs now derive from the app
+                                        // origin / APP_PUBLIC_URL define
+                                        // (was placeholder testurl.net.fr).
+                                        // Owner: set APP_PUBLIC_URL at build
+                                        // time (see vercel-build.sh).
+                                        cancelUrl:
+                                            '${paiementRedirectBaseUrl()}/cancel',
+                                        successUrl:
+                                            '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
+                                        productName:
+                                            'Retrait/Expedition de biens',
+                                        quantity: 1,
+                                        recordID: widget.quoteID ?? '',
+                                      );
+
+                                      if ((_model.apiResultz01ADV?.succeeded ??
+                                          true)) {
+                                        _model.apiResult1uqadv =
+                                            await CreatePaymentAitableCall.call(
+                                          sessionId:
+                                              CreatePaymentIntentCall.sessionID(
+                                            (_model.apiResultz01ADV?.jsonBody ??
+                                                ''),
+                                          ),
+                                          userId: currentUserUid,
+                                          orderId: widget.quoteID ?? '',
+                                          amountstripe: widget.tarifAssADV!,
+                                        );
+
+                                        await launchURL(
+                                            CreatePaymentIntentCall.sessionURL(
+                                          (_model.apiResultz01ADV?.jsonBody ??
+                                              ''),
+                                        )!);
+                                      }
+                                    } else {
+                                      _model.apiResultz01STD =
+                                          await CreatePaymentIntentCall.call(
+                                        unitAmount: widget.tarifAssSTD!,
+                                        currency: 'eur',
+                                        userID: currentUserUid,
+                                        // TODO(EXPEDITOO-TESTING): redirect
+                                        // URLs now derive from the app
+                                        // origin / APP_PUBLIC_URL define
+                                        // (was placeholder testurl.net.fr).
+                                        // Owner: set APP_PUBLIC_URL at build
+                                        // time (see vercel-build.sh).
+                                        cancelUrl:
+                                            '${paiementRedirectBaseUrl()}/cancel',
+                                        successUrl:
+                                            '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
+                                        productName:
+                                            'Retrait/Expedition de biens',
+                                        quantity: 1,
+                                        recordID: widget.quoteID ?? '',
+                                      );
+
+                                      if ((_model.apiResultz01STD?.succeeded ??
+                                          true)) {
+                                        _model.apiResult1uqstd =
+                                            await CreatePaymentAitableCall.call(
+                                          sessionId:
+                                              CreatePaymentIntentCall.sessionID(
+                                            (_model.apiResultz01STD?.jsonBody ??
+                                                ''),
+                                          ),
+                                          userId: currentUserUid,
+                                          orderId: widget.quoteID ?? '',
+                                          amountstripe: widget.tarifAssSTD!,
+                                        );
+
+                                        await launchURL(
+                                            CreatePaymentIntentCall.sessionURL(
+                                          (_model.apiResultz01STD?.jsonBody ??
+                                              ''),
+                                        )!);
+                                      }
+                                    }
+
+                                    safeSetState(() {});
+                                  },
+                                  text: FFLocalizations.of(context).getText(
+                                    '1mitwq8y' /* Payer */,
+                                  ),
+                                  options: FFButtonOptions(
+                                    width: double.infinity,
+                                    height: 52.0,
+                                    padding: EdgeInsets.all(8.0),
+                                    iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 0.0, 0.0),
+                                    color: FlutterFlowTheme.of(context)
+                                        .secondaryBackground,
+                                    textStyle: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .override(
+                                          font: GoogleFonts.plusJakartaSans(
+                                            fontWeight: FontWeight.w600,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmall
+                                                    .fontStyle,
+                                          ),
+                                          color: FlutterFlowTheme.of(context)
+                                              .primary,
+                                          fontSize: 16.0,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FontWeight.w600,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .fontStyle,
+                                        ),
+                                    elevation: 0.0,
+                                    borderSide: BorderSide(
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
+                                      width: 2.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                ),
+                                Builder(
+                                  builder: (context) => FFButtonWidget(
                                     onPressed: () async {
-                                      // Refuse rather than invent a figure: the
-                                      // tariffs used to fall back to 50, which
-                                      // silently charged a made-up price when
-                                      // the server had not published one.
-                                      if (!_hasPriceForSelectedKind) {
+                                      final insured =
+                                          FFAppState().TypeDeDevisValide ==
+                                              'ADV';
+                                      // Cents, straight from the quote. A
+                                      // missing tariff stops the flow here
+                                      // rather than opening a payment sheet
+                                      // for an amount nobody published.
+                                      final cents = insured
+                                          ? widget.tarifAssADV
+                                          : widget.tarifAssSTD;
+                                      if (cents == null || cents <= 0) {
                                         _showMissingTariff();
                                         return;
                                       }
-                                      if (FFAppState().TypeDeDevisValide ==
-                                          'Devis avec assurance AD valorem') {
-                                        _model.apiResultz01ADV =
-                                            await CreatePaymentIntentCall.call(
-                                          unitAmount: widget.tarifAssADV!,
-                                          currency: 'EUR',
-                                          userID: currentUserUid,
-                                          // TODO(EXPEDITOO-TESTING): redirect
-                                          // URLs now derive from the app
-                                          // origin / APP_PUBLIC_URL define
-                                          // (was placeholder testurl.net.fr).
-                                          // Owner: set APP_PUBLIC_URL at build
-                                          // time (see vercel-build.sh).
-                                          cancelUrl:
-                                              '${paiementRedirectBaseUrl()}/cancel',
-                                          successUrl:
-                                              '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
-                                          productName:
-                                              'Retrait/Expedition de biens',
-                                          quantity: 1,
-                                          recordID: widget.quoteID ?? '',
-                                        );
+                                      FFAppState().TypeDeDevisValide = '';
+                                      safeSetState(() {});
+                                      FFAppState().TypeDeDevisValide = insured
+                                          ? 'Devis avec assurance AD valorem'
+                                          : 'Devis avec assurance Standard';
+                                      FFAppState().SelectedPrice = cents;
+                                      safeSetState(() {});
 
-                                        if ((_model
-                                                .apiResultz01ADV?.succeeded ??
-                                            true)) {
-                                          _model.apiResult1uqadv =
-                                              await CreatePaymentAitableCall
-                                                  .call(
-                                            sessionId: CreatePaymentIntentCall
-                                                .sessionID(
-                                              (_model.apiResultz01ADV
-                                                      ?.jsonBody ??
-                                                  ''),
+                                      _model.apiResulth44 =
+                                          await UpdateDevisValiderCall.call(
+                                        typeDeDevisValide:
+                                            FFAppState().TypeDeDevisValide,
+                                        quoteID: widget.quoteID ?? '',
+                                      );
+
+                                      FFAppState().DevisValideOuPas =
+                                          'Devis Validé';
+                                      safeSetState(() {});
+                                      await showDialog(
+                                        context: context,
+                                        builder: (dialogContext) {
+                                          return Dialog(
+                                            elevation: 0,
+                                            insetPadding: EdgeInsets.zero,
+                                            backgroundColor: Colors.transparent,
+                                            alignment: AlignmentDirectional(
+                                                    0.0, 0.0)
+                                                .resolve(
+                                                    Directionality.of(context)),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                FocusScope.of(dialogContext)
+                                                    .unfocus();
+                                                FocusManager
+                                                    .instance.primaryFocus
+                                                    ?.unfocus();
+                                              },
+                                              child: Container(
+                                                height: 800.0,
+                                                width: 400.0,
+                                                child: PaiementWidget(
+                                                  tarifADV: FFAppState()
+                                                      .SelectedPrice,
+                                                  quoteID: widget.quoteID ?? '',
+                                                  tarifSTD: FFAppState()
+                                                      .SelectedPrice,
+                                                  quoteNum: FFAppState()
+                                                      .SelectedQuoteNum,
+                                                ),
+                                              ),
                                             ),
-                                            userId: currentUserUid,
-                                            orderId: widget.quoteID ?? '',
-                                            amountstripe: widget.tarifAssADV!,
                                           );
-
-                                          await launchURL(
-                                              CreatePaymentIntentCall
-                                                  .sessionURL(
-                                            (_model.apiResultz01ADV?.jsonBody ??
-                                                ''),
-                                          )!);
-                                        }
-                                      } else {
-                                        _model.apiResultz01STD =
-                                            await CreatePaymentIntentCall.call(
-                                          unitAmount: widget.tarifAssSTD!,
-                                          currency: 'eur',
-                                          userID: currentUserUid,
-                                          // TODO(EXPEDITOO-TESTING): redirect
-                                          // URLs now derive from the app
-                                          // origin / APP_PUBLIC_URL define
-                                          // (was placeholder testurl.net.fr).
-                                          // Owner: set APP_PUBLIC_URL at build
-                                          // time (see vercel-build.sh).
-                                          cancelUrl:
-                                              '${paiementRedirectBaseUrl()}/cancel',
-                                          successUrl:
-                                              '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
-                                          productName:
-                                              'Retrait/Expedition de biens',
-                                          quantity: 1,
-                                          recordID: widget.quoteID ?? '',
-                                        );
-
-                                        if ((_model
-                                                .apiResultz01STD?.succeeded ??
-                                            true)) {
-                                          _model.apiResult1uqstd =
-                                              await CreatePaymentAitableCall
-                                                  .call(
-                                            sessionId: CreatePaymentIntentCall
-                                                .sessionID(
-                                              (_model.apiResultz01STD
-                                                      ?.jsonBody ??
-                                                  ''),
-                                            ),
-                                            userId: currentUserUid,
-                                            orderId: widget.quoteID ?? '',
-                                            amountstripe: widget.tarifAssSTD!,
-                                          );
-
-                                          await launchURL(
-                                              CreatePaymentIntentCall
-                                                  .sessionURL(
-                                            (_model.apiResultz01STD?.jsonBody ??
-                                                ''),
-                                          )!);
-                                        }
-                                      }
+                                        },
+                                      );
 
                                       safeSetState(() {});
                                     },
                                     text: FFLocalizations.of(context).getText(
-                                      '1mitwq8y' /* Payer */,
+                                      'exitny41' /* Confirmer devis */,
                                     ),
                                     options: FFButtonOptions(
                                       width: double.infinity,
@@ -880,8 +966,8 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                       iconPadding:
                                           EdgeInsetsDirectional.fromSTEB(
                                               0.0, 0.0, 0.0, 0.0),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
                                       textStyle: FlutterFlowTheme.of(context)
                                           .titleSmall
                                           .override(
@@ -892,8 +978,7 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                       .titleSmall
                                                       .fontStyle,
                                             ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primary,
+                                            color: Colors.white,
                                             fontSize: 16.0,
                                             letterSpacing: 0.0,
                                             fontWeight: FontWeight.w600,
@@ -904,134 +989,15 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                           ),
                                       elevation: 0.0,
                                       borderSide: BorderSide(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        width: 2.0,
+                                        color: Colors.transparent,
                                       ),
                                       borderRadius: BorderRadius.circular(12.0),
                                     ),
                                   ),
-                                  Builder(
-                                    builder: (context) => FFButtonWidget(
-                                      onPressed: () async {
-                                        final insured =
-                                            FFAppState().TypeDeDevisValide ==
-                                                'ADV';
-                                        // Cents, straight from the quote. A
-                                        // missing tariff stops the flow here
-                                        // rather than opening a payment sheet
-                                        // for an amount nobody published.
-                                        final cents = insured
-                                            ? widget.tarifAssADV
-                                            : widget.tarifAssSTD;
-                                        if (cents == null || cents <= 0) {
-                                          _showMissingTariff();
-                                          return;
-                                        }
-                                        FFAppState().TypeDeDevisValide = '';
-                                        safeSetState(() {});
-                                        FFAppState().TypeDeDevisValide = insured
-                                            ? 'Devis avec assurance AD valorem'
-                                            : 'Devis avec assurance Standard';
-                                        FFAppState().SelectedPrice = cents;
-                                        safeSetState(() {});
-
-                                        _model.apiResulth44 =
-                                            await UpdateDevisValiderCall.call(
-                                          typeDeDevisValide:
-                                              FFAppState().TypeDeDevisValide,
-                                          quoteID: widget.quoteID ?? '',
-                                        );
-
-                                        FFAppState().DevisValideOuPas =
-                                            'Devis Validé';
-                                        safeSetState(() {});
-                                        await showDialog(
-                                          context: context,
-                                          builder: (dialogContext) {
-                                            return Dialog(
-                                              elevation: 0,
-                                              insetPadding: EdgeInsets.zero,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              alignment:
-                                                  AlignmentDirectional(0.0, 0.0)
-                                                      .resolve(
-                                                          Directionality.of(
-                                                              context)),
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  FocusScope.of(dialogContext)
-                                                      .unfocus();
-                                                  FocusManager
-                                                      .instance.primaryFocus
-                                                      ?.unfocus();
-                                                },
-                                                child: Container(
-                                                  height: 800.0,
-                                                  width: 400.0,
-                                                  child: PaiementWidget(
-                                                    tarifADV: FFAppState()
-                                                        .SelectedPrice,
-                                                    quoteID:
-                                                        widget.quoteID ?? '',
-                                                    tarifSTD: FFAppState()
-                                                        .SelectedPrice,
-                                                    quoteNum: FFAppState()
-                                                        .SelectedQuoteNum,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-
-                                        safeSetState(() {});
-                                      },
-                                      text: FFLocalizations.of(context).getText(
-                                        'exitny41' /* Confirmer devis */,
-                                      ),
-                                      options: FFButtonOptions(
-                                        width: double.infinity,
-                                        height: 52.0,
-                                        padding: EdgeInsets.all(8.0),
-                                        iconPadding:
-                                            EdgeInsetsDirectional.fromSTEB(
-                                                0.0, 0.0, 0.0, 0.0),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        textStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.w600,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmall
-                                                        .fontStyle,
-                                              ),
-                                              color: Colors.white,
-                                              fontSize: 16.0,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                        elevation: 0.0,
-                                        borderSide: BorderSide(
-                                          color: Colors.transparent,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ].divide(SizedBox(height: 16.0)),
-                          ),
+                                ),
+                              ],
+                            ),
+                          ].divide(SizedBox(height: 16.0)),
                         ),
                       ].divide(SizedBox(height: 20.0)),
                     ),
