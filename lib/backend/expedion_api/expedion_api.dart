@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -213,6 +214,15 @@ class ExpedionApi {
   // Transport
   // ========================================
 
+  /// Quick retries an outright connection failure absorbs, most commonly a
+  /// local `pnpm dev` still mid cold-compile: the first request after a
+  /// fresh `flutter run` can easily beat Next.js to a bound port. A response
+  /// that arrived and said something we didn't like is never retried here —
+  /// only "could not connect at all" is indistinguishable from "not ready
+  /// yet".
+  static const int _maxAttempts = 3;
+  static const Duration _retryDelay = Duration(milliseconds: 700);
+
   static Future<ExpedionApiResult> _send(
     Future<http.Response> Function() request, {
     Duration timeout = const Duration(seconds: 30),
@@ -225,34 +235,50 @@ class ExpedionApi {
       );
     }
 
-    try {
-      final response = await request().timeout(timeout);
-      final decoded = response.body.isEmpty
-          ? const <String, dynamic>{}
-          : jsonDecode(response.body) as Map<String, dynamic>;
+    for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
+      try {
+        final response = await request().timeout(timeout);
+        final decoded = response.body.isEmpty
+            ? const <String, dynamic>{}
+            : jsonDecode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return ExpedionApiResult(
-          success: true,
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          return ExpedionApiResult(
+            success: true,
+            statusCode: response.statusCode,
+            data: decoded['data'],
+            meta: decoded['meta'] as Map<String, dynamic>?,
+          );
+        }
+
+        final error = decoded['error'] as Map<String, dynamic>?;
+        return ExpedionApiResult.failure(
           statusCode: response.statusCode,
-          data: decoded['data'],
-          meta: decoded['meta'] as Map<String, dynamic>?,
+          code: error?['code']?.toString() ?? 'HTTP_${response.statusCode}',
+          message: error?['message']?.toString() ?? 'Une erreur est survenue.',
+        );
+      } catch (e) {
+        // `http`'s `ClientException` covers every connection-level failure on
+        // both native (it also implements `SocketException`) and web (a
+        // failed `fetch`); `TimeoutException` comes from the `.timeout()`
+        // above. Anything else — a malformed response body, for instance —
+        // is a real bug and should surface immediately, not retry.
+        final isConnectionFailure =
+            e is http.ClientException || e is TimeoutException;
+        if (isConnectionFailure && attempt < _maxAttempts) {
+          await Future.delayed(_retryDelay * attempt);
+          continue;
+        }
+        return ExpedionApiResult.failure(
+          code: 'NETWORK_ERROR',
+          message: 'Connexion impossible. Vérifiez votre réseau.',
+          cause: e,
         );
       }
-
-      final error = decoded['error'] as Map<String, dynamic>?;
-      return ExpedionApiResult.failure(
-        statusCode: response.statusCode,
-        code: error?['code']?.toString() ?? 'HTTP_${response.statusCode}',
-        message: error?['message']?.toString() ?? 'Une erreur est survenue.',
-      );
-    } catch (e) {
-      return ExpedionApiResult.failure(
-        code: 'NETWORK_ERROR',
-        message: 'Connexion impossible. Vérifiez votre réseau.',
-        cause: e,
-      );
     }
+
+    // Unreachable — the loop above always returns by its last iteration.
+    throw StateError('_send: retry loop exited without returning');
   }
 }
 
