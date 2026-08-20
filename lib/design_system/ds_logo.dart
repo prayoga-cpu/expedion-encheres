@@ -131,29 +131,52 @@ class XpdWordmark extends StatelessWidget {
 }
 
 /// Mark plus wordmark, the lockup used in the header and the footer.
+///
+/// [wordmarkSize] and the gap between mark and text used to be independent of
+/// [markSize] — every call site but the header's default resizes only the
+/// mark (`XpdLogo(markSize: 26.0)` in the app shell, `28.0` in the footer),
+/// so the wordmark silently stayed at its 16px default while the mark shrank
+/// around it, and the lockup read as a different proportion on every screen.
+///
+/// The ratios below (0.5524 for the wordmark, 0.3631 for the gap) are shared,
+/// deliberately, with the sibling lockup in the Expeditoo codebase
+/// (`expeditoo-ship/src/components/ui/brand-mark.tsx`, `BrandWordmark`). Each
+/// brand had shipped its own numbers here — 16/30 and 10/30 on this side,
+/// 0.571/0.393 on Expeditoo's — neither validated against the other, just
+/// whatever this constructor's defaults happened to be before the mark and
+/// the wordmark actually scaled together. Averaging the two gives one lockup
+/// system that has to work for both marks: this one a thin ring that reads
+/// light per pixel, Expeditoo's a solid filled square that reads heavy.
+/// Change one side, change the other the same way.
 class XpdLogo extends StatelessWidget {
   const XpdLogo({
     super.key,
     this.markSize = 30.0,
-    this.wordmarkSize = 16.0,
+    this.wordmarkSize,
     this.showWordmark = true,
     this.onTap,
   });
 
   final double markSize;
-  final double wordmarkSize;
+
+  /// Cap height of the wordmark's EXPEDION line. Derived from [markSize]
+  /// when not given explicitly — see the class doc.
+  final double? wordmarkSize;
   final bool showWordmark;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final resolvedWordmarkSize = wordmarkSize ?? markSize * 0.5524;
+    final gap = markSize * 0.3631;
+
     final lockup = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         XpdLogoMark(size: markSize),
         if (showWordmark) ...[
-          const SizedBox(width: 10.0),
-          XpdWordmark(size: wordmarkSize),
+          SizedBox(width: gap),
+          XpdWordmark(size: resolvedWordmarkSize),
         ],
       ],
     );
