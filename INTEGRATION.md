@@ -14,18 +14,19 @@ Work spans two repositories:
 
 ## 1. What shipped
 
-### Phase C — UI realignment *(complete and verified)*
+### Phase C — UI realignment *(shape/spacing complete and verified; colour + font did not converge — see §5)*
 
 | Item | Where |
 |---|---|
-| Colour tokens, light + dark | `lib/flutter_flow/flutter_flow_theme.dart` |
-| Plus Jakarta Sans + Geist Mono | same, plus `assets/fonts/GeistMono-*.ttf` |
-| Shape / spacing / motion tokens | `FFRadius`, `FFSpacing`, `FFMotion` |
+| Shape / spacing / motion tokens | `FFRadius`, `FFSpacing`, `FFMotion` — 8/6/12px radius, 16px card padding floor |
+| UI font, body | `Geist` (bundled OFL asset, not `google_fonts` — see §5) |
+| Mono font (numerals/codes) | `Geist Mono`, `assets/fonts/GeistMono-*.ttf` |
+| Colour tokens, light + dark | `XpdPalette` (`lib/design_system/ds_palette.dart`) — see §5 |
 | Material chrome derived from tokens | `FlutterFlowThemeData.toThemeData` |
 | Component parity library | `lib/design_system/` |
 | Quote card rebuilt on the parity card | `lib/active_p_a_g_e_s/mes_devis/` |
 | Lifecycle stepper re-tokenised | `lib/flutter_flow/devis_status_badge.dart` |
-| Legacy palette purged | `#4B39EF` / `#39D2C0` — zero occurrences |
+| Legacy FlutterFlow palette purged | `#4B39EF` / `#39D2C0` — zero occurrences |
 
 `flutter analyze`: **0 errors** (2944 style infos, down from 3012 at baseline).
 `flutter build web --release`: **passes**, both font weights ship.
@@ -126,10 +127,12 @@ upserted on it), non-lossy (unmapped columns are kept verbatim in
 partial import cannot be mistaken for a finished one. Only set Airtable
 read-only after it exits 0.
 
-Then schedule the escalation sweep, e.g. in `vercel.json`:
+The escalation sweep is already scheduled — not via `vercel.json` (Hobby caps
+crons at 2/project, once a day), but via `expeditoo-ship/.github/workflows/scheduled-jobs.yml`,
+which hits `/api/cron/expedion-escalate` every 10 minutes:
 
-```json
-{ "crons": [{ "path": "/api/cron/expedion-escalate", "schedule": "0 * * * *" }] }
+```yaml
+- cron: "*/10 * * * *" # expedion-escalate
 ```
 
 ---
@@ -151,7 +154,7 @@ untouched — neither was needed to build any of the above.
 
 ---
 
-## 5. Two places the roadmap and the shipped code disagree
+## 5. Four places the roadmap and the shipped code disagree
 
 **Card radius.** §7 lists "corner radius, cards: 12px". The component the
 acceptance test compares against — `ui/card.tsx`, and `home/ui/ListingCard.tsx`
@@ -164,6 +167,27 @@ today the two disagree.
 to `h-9` (36px). 44px is below neither platform's touch-target minimum and the
 roadmap is explicit, so Expedion uses 44 and exposes `DSButtonSize.sm` (36) for
 parity where a dense row needs it.
+
+**UI font.** §7 pins Plus Jakarta Sans via `google_fonts`. The shipped app uses
+`Geist` instead — a bundled OFL asset, not a `google_fonts` call —
+`flutter_flow_theme.dart`'s own comment gives the reason: Geist isn't in
+`google_fonts` 6.3.3, so bundling avoids a runtime font fetch. Unlike the two
+entries above, this one wasn't a documented trade-off at the time — it just
+never got reconciled with §7, and the acceptance test ("same font... if a
+stranger can tell which app is which from the chrome alone, it is not done")
+currently fails on this axis. Pick one: bundle Plus Jakarta Sans as a static
+asset (same avoid-runtime-fetch property Geist has) to actually hit parity, or
+update §7 to adopt Geist as Expedion's font and drop the parity requirement for
+this token specifically.
+
+**Colour tokens.** §7 specifies primary `#076BE3`, background `#FCFCFC`/`#010408`
+(Expeditoo's oklch tokens in hex). The shipped `XpdPalette`
+(`lib/design_system/ds_palette.dart`) uses primary `#0052FF`, background
+`#F4F5F8`/`#08090B` instead — its own pre-existing brand colours, correctly
+mirrored by `web/index.html`'s `theme-color` meta tags (so at least the web
+shell and the app agree with *each other*, just not with §7). Same open call as
+the font: migrate `XpdPalette` to the Expeditoo hex values, or update §7 to
+formally adopt the Xpd palette.
 
 ---
 
@@ -352,7 +376,8 @@ column keeps its name — it now means "owner", and renaming it is a migration.
 `markPaid` stamps `escalateAfter` (`EXPEDION_ESCALATE_AFTER_HOURS`, default 48).
 `findDueForEscalation` selects quotes past that stamp **with
 `assigned_carrier_id IS NULL`**, and `/api/cron/expedion-escalate` runs every 10
-minutes per `vercel.json`, turning each into an Expeditoo listing. So a paid
+minutes per `expeditoo-ship/.github/workflows/scheduled-jobs.yml` (GitHub
+Actions, not Vercel Cron), turning each into an Expeditoo listing. So a paid
 quote with no driver becomes a job automatically. None of this needed changing;
 none of it has been observed running.
 
