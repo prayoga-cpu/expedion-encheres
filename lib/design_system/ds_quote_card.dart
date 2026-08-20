@@ -104,6 +104,7 @@ extension DevisStageDisplay on DevisStage {
 class DevisSummary {
   const DevisSummary({
     required this.stage,
+    this.referenceId,
     this.numeroDevis,
     this.numeroBordereau,
     this.villeRetrait,
@@ -117,6 +118,15 @@ class DevisSummary {
   });
 
   final DevisStage stage;
+
+  /// `expedion_quotes.id` — the string both products name the row by.
+  ///
+  /// Expeditoo's operator report prints this on every row, so a client reading
+  /// their card and an operator reading the queue are talking about the same
+  /// quote. A quote number only exists once someone has priced it, which is
+  /// precisely when nobody needs to phone about it; before that the id was the
+  /// only handle either side had, and only one side could see it.
+  final String? referenceId;
   final String? numeroDevis;
   final String? numeroBordereau;
   final String? villeRetrait;
@@ -181,6 +191,7 @@ class DevisSummary {
 
     return DevisSummary(
       stage: stageFromApiStatus(str('status') ?? ''),
+      referenceId: str('id'),
       numeroDevis: str('quoteNumber'),
       numeroBordereau: str('bordereauNumber'),
       villeRetrait: str('pickupCity'),
@@ -304,6 +315,17 @@ class DSQuoteCard extends StatelessWidget {
           const SizedBox(height: 8.0),
 
           // Metadata rows — `space-y-1.5`, `text-sm text-muted-foreground`
+          if (devis.referenceId != null)
+            _MetaRow(
+              icon: Icons.tag_rounded,
+              // Selectable because the point of showing it is that the client
+              // can quote it back to us — in an email, or read down a phone.
+              child: SelectableText(
+                '${xpdT(context, 'Réf.', 'Ref.')} ${devis.referenceId}',
+                style: theme.monoSmall,
+                maxLines: 1,
+              ),
+            ),
           if (devis.numeroBordereau != null)
             _MetaRow(
               icon: Icons.receipt_long_outlined,
