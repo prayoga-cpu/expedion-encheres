@@ -32,6 +32,7 @@ export 'ds_site.dart';
 export 'ds_site_footer.dart';
 
 // The component-parity layer, ported from `expeditoo-ship/src/components/ui`.
+export 'ds_address_autocomplete.dart';
 export 'ds_badge.dart';
 export 'ds_button.dart';
 export 'ds_card.dart';

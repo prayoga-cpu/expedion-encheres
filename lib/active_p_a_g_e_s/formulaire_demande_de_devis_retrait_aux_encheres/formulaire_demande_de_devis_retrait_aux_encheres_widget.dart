@@ -6,7 +6,9 @@ import 'package:flutter/services.dart';
 
 import '/backend/expedion_api/quote_repository.dart';
 import '/backend/firebase_storage/storage.dart';
+import '/backend/geocoding/nominatim_geocoder.dart';
 import '/backend/quote_draft.dart';
+import '/design_system/ds_address_autocomplete.dart';
 import '/design_system/ds_button.dart';
 import '/design_system/ds_card.dart';
 import '/design_system/ds_l10n.dart';
@@ -53,6 +55,15 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   final _pickupPostalCode = TextEditingController();
   final _pickupCity = TextEditingController();
 
+  /// Set when the visitor picks a suggestion out of [DSAddressAutocomplete]
+  /// rather than typing free-form. Purely a client-side "this address really
+  /// does resolve to a point" confirmation — the server geocodes and trusts
+  /// its own copy of the coordinates once the address is saved
+  /// (`expedionService.geocodeMissingCoordinates`), so nothing here is sent
+  /// to the API. Cleared whenever the address text changes so a stale
+  /// confirmation can never survive an edit.
+  GeocodeSuggestion? _pickupPosition;
+
   // The lot.
   final _description = TextEditingController();
   final _length = TextEditingController();
@@ -71,6 +82,9 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   final _deliveryCity = TextEditingController();
   final _recipientName = TextEditingController();
   final _deliveryPhone = TextEditingController();
+
+  /// Same role as [_pickupPosition], for the delivery address.
+  GeocodeSuggestion? _deliveryPosition;
 
   final _comment = TextEditingController();
 
@@ -93,6 +107,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   @override
   void initState() {
     super.initState();
+    _pickupAddress.addListener(_clearPickupPositionIfEdited);
+    _deliveryAddress.addListener(_clearDeliveryPositionIfEdited);
 
     // Whatever the landing page's express/quote card collected, so the visitor
     // does not retype what they already told us. Null unless they arrived from
@@ -165,8 +181,24 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     });
   }
 
+  void _clearPickupPositionIfEdited() {
+    if (_pickupPosition != null &&
+        _pickupAddress.text != _pickupPosition!.address) {
+      setState(() => _pickupPosition = null);
+    }
+  }
+
+  void _clearDeliveryPositionIfEdited() {
+    if (_deliveryPosition != null &&
+        _deliveryAddress.text != _deliveryPosition!.address) {
+      setState(() => _deliveryPosition = null);
+    }
+  }
+
   @override
   void dispose() {
+    _pickupAddress.removeListener(_clearPickupPositionIfEdited);
+    _deliveryAddress.removeListener(_clearDeliveryPositionIfEdited);
     for (final c in [
       _auctionHouse,
       _pickupAddress,
@@ -386,6 +418,32 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       ? _t(fr: 'Champ obligatoire', en: 'Required')
       : null;
 
+  /// Exactly 5 digits once non-digits are stripped — the same shape
+  /// `normalisePostalCode` requires server-side before a quote can publish
+  /// (`expedion-escalation.service.ts`). Catching "75001 Cedex" or a 4-digit
+  /// typo here means the client hears about it immediately, instead of the
+  /// quote sitting blocked until an admin notices.
+  String? _postalCode(String? value) {
+    final missing = _required(value);
+    if (missing != null) return missing;
+    final digits = value!.replaceAll(RegExp(r'[^0-9]'), '');
+    return digits.length == 5
+        ? null
+        : _t(fr: 'Code postal à 5 chiffres', en: '5-digit postcode');
+  }
+
+  /// Weight is the one dimension `escalationBlockers` actually gates
+  /// publishing on (length/width/height are optional there) — see
+  /// `escalationBlockers` in `expedion-escalation.service.ts`.
+  String? _weightRequired(String? value) {
+    final missing = _required(value);
+    if (missing != null) return missing;
+    final parsed = _numberOrNull(value!);
+    return (parsed == null || parsed <= 0)
+        ? _t(fr: 'Poids invalide', en: 'Invalid weight')
+        : null;
+  }
+
   // ==========================================================================
   // Build
   // ==========================================================================
@@ -503,11 +561,23 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
             validator: _required,
           ),
           const SizedBox(height: 12.0),
-          DSTextField(
+          DSAddressAutocomplete(
             controller: _pickupAddress,
             label: _t(fr: 'Adresse de retrait *', en: 'Collection address *'),
-            keyboardType: TextInputType.streetAddress,
+            helperText: _t(
+              fr: 'Commencez à taper pour choisir une adresse reconnue.',
+              en: 'Start typing to pick a recognised address.',
+            ),
             validator: _required,
+            onSelected: (suggestion) => setState(() {
+              _pickupPosition = suggestion;
+              if (suggestion.postalCode.isNotEmpty) {
+                _pickupPostalCode.text = suggestion.postalCode;
+              }
+              if (suggestion.city.isNotEmpty) {
+                _pickupCity.text = suggestion.city;
+              }
+            }),
           ),
           const SizedBox(height: 12.0),
           Row(
@@ -520,7 +590,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   mono: true,
-                  validator: _required,
+                  validator: _postalCode,
                 ),
               ),
               const SizedBox(width: 12.0),
@@ -534,6 +604,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
               ),
             ],
           ),
+          const SizedBox(height: 8.0),
+          DSPositionConfirmedChip(suggestion: _pickupPosition),
         ],
       );
 
@@ -602,11 +674,12 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
               Expanded(
                 child: DSTextField(
                   controller: _weight,
-                  label: _t(fr: 'Poids (kg)', en: 'Weight (kg)'),
+                  label: _t(fr: 'Poids (kg) *', en: 'Weight (kg) *'),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
                   mono: true,
+                  validator: _weightRequired,
                 ),
               ),
               const SizedBox(width: 12.0),
@@ -780,17 +853,23 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
           en: 'Where the lot is delivered to.',
         ),
         children: [
-          DSTextField(
+          DSAddressAutocomplete(
             controller: _deliveryAddress,
             label: _t(fr: 'Adresse de livraison *', en: 'Delivery address *'),
             helperText: _t(
-              fr: "Numéro, rue, et complément d'adresse si besoin.",
-              en: 'Number, street, and any additional line.',
+              fr: 'Commencez à taper pour choisir une adresse reconnue.',
+              en: 'Start typing to pick a recognised address.',
             ),
-            keyboardType: TextInputType.streetAddress,
-            maxLines: 2,
-            minLines: 1,
             validator: _required,
+            onSelected: (suggestion) => setState(() {
+              _deliveryPosition = suggestion;
+              if (suggestion.postalCode.isNotEmpty) {
+                _deliveryPostalCode.text = suggestion.postalCode;
+              }
+              if (suggestion.city.isNotEmpty) {
+                _deliveryCity.text = suggestion.city;
+              }
+            }),
           ),
           const SizedBox(height: 12.0),
           Row(
@@ -803,7 +882,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   mono: true,
-                  validator: _required,
+                  validator: _postalCode,
                 ),
               ),
               const SizedBox(width: 12.0),
@@ -817,6 +896,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
               ),
             ],
           ),
+          const SizedBox(height: 8.0),
+          DSPositionConfirmedChip(suggestion: _deliveryPosition),
           const SizedBox(height: 12.0),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

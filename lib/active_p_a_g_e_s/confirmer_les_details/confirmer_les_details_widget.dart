@@ -2,6 +2,7 @@ import '/app_shell.dart';
 import 'package:flutter/material.dart';
 
 import '/backend/expedion_api/expedion_api.dart';
+import '/backend/geocoding/nominatim_geocoder.dart';
 import '/design_system/design_system.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -41,15 +42,39 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
   String? _loadErrorCode;
   double? _confidence;
 
+  /// Client-side confirmation that an address really does resolve to a
+  /// point, same role as on the manual devis form — never sent to the API,
+  /// the server geocodes and trusts its own copy
+  /// (`expedionService.geocodeMissingCoordinates`).
+  GeocodeSuggestion? _pickupPosition;
+  GeocodeSuggestion? _deliveryPosition;
+
+  /// The fields `escalationBlockers` (`expedion-escalation.service.ts`)
+  /// actually gates publishing on, minus the coordinates — those are
+  /// resolved server-side from the address once it is saved. Everything else
+  /// here (bordereau number, auction house, description, dimensions besides
+  /// weight) matters for pricing accuracy but is not itself a publish
+  /// blocker, so it stays optional.
+  static const _requiredKeys = {
+    'pickupAddress',
+    'pickupPostalCode',
+    'pickupCity',
+    'weightKg',
+    'deliveryAddress',
+    'deliveryPostalCode',
+    'deliveryCity',
+  };
+
   /// Field key → (label, labelEn, keyboard, mono).
   static const _fields = <_FieldSpec>[
     _FieldSpec('bordereauNumber', 'Numéro de bordereau', 'Slip number',
         mono: true),
     _FieldSpec('auctionHouseName', 'Maison de ventes', 'Auction house'),
-    _FieldSpec('pickupAddress', 'Adresse de retrait', 'Collection address'),
+    _FieldSpec('pickupAddress', 'Adresse de retrait', 'Collection address',
+        isAddress: true),
     _FieldSpec('pickupPostalCode', 'Code postal de retrait',
         'Collection postal code',
-        keyboard: TextInputType.number, mono: true),
+        keyboard: TextInputType.number, mono: true, isPostalCode: true),
     _FieldSpec('pickupCity', 'Ville de retrait', 'Collection city'),
     _FieldSpec('description', 'Description du lot', 'Lot description',
         maxLines: 3),
@@ -61,10 +86,11 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
         keyboard: TextInputType.number, mono: true, numeric: true),
     _FieldSpec('weightKg', 'Poids (kg)', 'Weight (kg)',
         keyboard: TextInputType.number, mono: true, numeric: true),
-    _FieldSpec('deliveryAddress', 'Adresse de livraison', 'Delivery address'),
+    _FieldSpec('deliveryAddress', 'Adresse de livraison', 'Delivery address',
+        isAddress: true),
     _FieldSpec('deliveryPostalCode', 'Code postal de livraison',
         'Delivery postal code',
-        keyboard: TextInputType.number, mono: true),
+        keyboard: TextInputType.number, mono: true, isPostalCode: true),
     _FieldSpec('deliveryCity', 'Ville de livraison', 'Delivery city'),
   ];
 
@@ -74,11 +100,32 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
     for (final f in _fields) {
       _controllers[f.key] = TextEditingController();
     }
+    _controllers['pickupAddress']!.addListener(_clearPickupPositionIfEdited);
+    _controllers['deliveryAddress']!
+        .addListener(_clearDeliveryPositionIfEdited);
     _load();
+  }
+
+  void _clearPickupPositionIfEdited() {
+    if (_pickupPosition != null &&
+        _controllers['pickupAddress']!.text != _pickupPosition!.address) {
+      setState(() => _pickupPosition = null);
+    }
+  }
+
+  void _clearDeliveryPositionIfEdited() {
+    if (_deliveryPosition != null &&
+        _controllers['deliveryAddress']!.text != _deliveryPosition!.address) {
+      setState(() => _deliveryPosition = null);
+    }
   }
 
   @override
   void dispose() {
+    _controllers['pickupAddress']
+        ?.removeListener(_clearPickupPositionIfEdited);
+    _controllers['deliveryAddress']
+        ?.removeListener(_clearDeliveryPositionIfEdited);
     for (final c in _controllers.values) {
       c.dispose();
     }
@@ -225,41 +272,7 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
             _banner(theme),
             const SizedBox(height: DSSize.sectionGap),
             for (final f in _fields) ...[
-              DSTextField(
-                controller: _controllers[f.key],
-                label: xpdT(context, f.label, f.labelEn),
-                mono: f.mono,
-                maxLines: f.maxLines,
-                keyboardType: f.keyboard,
-                helperText: _missing.contains(f.key)
-                    ? xpdT(
-                        context,
-                        'Non trouvé sur le bordereau — merci de compléter',
-                        'Not found on the slip — please fill in',
-                      )
-                    : null,
-                validator: (value) {
-                  if (!f.numeric) return null;
-                  final raw = (value ?? '').trim();
-                  if (raw.isEmpty) return null;
-                  final parsed = double.tryParse(raw.replaceAll(',', '.'));
-                  if (parsed == null) {
-                    return xpdT(
-                      context,
-                      'Valeur numérique attendue',
-                      'A numeric value is expected',
-                    );
-                  }
-                  if (parsed <= 0) {
-                    return xpdT(
-                      context,
-                      'Doit être supérieur à 0',
-                      'Must be greater than 0',
-                    );
-                  }
-                  return null;
-                },
-              ),
+              _fieldWidget(f, theme),
               const SizedBox(height: 16.0),
             ],
             const SizedBox(height: 8.0),
@@ -288,6 +301,99 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
           ],
         ),
       ),
+    );
+  }
+
+  /// Required-ness follows `_requiredKeys`; numeric fields (besides weight,
+  /// which is also required) must be `> 0` when given; postal codes must be
+  /// exactly 5 digits, matching `normalisePostalCode` server-side.
+  String? _validate(_FieldSpec f, String? value) {
+    final raw = (value ?? '').trim();
+
+    if (raw.isEmpty) {
+      return _requiredKeys.contains(f.key)
+          ? xpdT(context, 'Champ obligatoire', 'Required')
+          : null;
+    }
+
+    if (f.isPostalCode) {
+      final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
+      if (digits.length != 5) {
+        return xpdT(context, 'Code postal à 5 chiffres', '5-digit postcode');
+      }
+    }
+
+    if (f.numeric) {
+      final parsed = double.tryParse(raw.replaceAll(',', '.'));
+      if (parsed == null) {
+        return xpdT(
+          context,
+          'Valeur numérique attendue',
+          'A numeric value is expected',
+        );
+      }
+      if (parsed <= 0) {
+        return xpdT(context, 'Doit être supérieur à 0', 'Must be greater than 0');
+      }
+    }
+
+    return null;
+  }
+
+  /// [DSAddressAutocomplete] for the two address fields, with a
+  /// position-confirmed chip underneath; a plain [DSTextField] for
+  /// everything else.
+  Widget _fieldWidget(_FieldSpec f, FlutterFlowTheme theme) {
+    final helperText = _missing.contains(f.key)
+        ? xpdT(
+            context,
+            'Non trouvé sur le bordereau — merci de compléter',
+            'Not found on the slip — please fill in',
+          )
+        : null;
+
+    if (f.isAddress) {
+      final isPickup = f.key == 'pickupAddress';
+      final position = isPickup ? _pickupPosition : _deliveryPosition;
+      final postalKey = isPickup ? 'pickupPostalCode' : 'deliveryPostalCode';
+      final cityKey = isPickup ? 'pickupCity' : 'deliveryCity';
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DSAddressAutocomplete(
+            controller: _controllers[f.key]!,
+            label: xpdT(context, f.label, f.labelEn),
+            helperText: helperText,
+            validator: (value) => _validate(f, value),
+            onSelected: (suggestion) => setState(() {
+              if (isPickup) {
+                _pickupPosition = suggestion;
+              } else {
+                _deliveryPosition = suggestion;
+              }
+              if (suggestion.postalCode.isNotEmpty) {
+                _controllers[postalKey]!.text = suggestion.postalCode;
+              }
+              if (suggestion.city.isNotEmpty) {
+                _controllers[cityKey]!.text = suggestion.city;
+              }
+            }),
+          ),
+          const SizedBox(height: 8.0),
+          DSPositionConfirmedChip(suggestion: position),
+        ],
+      );
+    }
+
+    return DSTextField(
+      controller: _controllers[f.key],
+      label: xpdT(context, f.label, f.labelEn),
+      mono: f.mono,
+      maxLines: f.maxLines,
+      keyboardType: f.keyboard,
+      helperText: helperText,
+      validator: (value) => _validate(f, value),
     );
   }
 
@@ -371,6 +477,8 @@ class _FieldSpec {
     this.mono = false,
     this.numeric = false,
     this.maxLines = 1,
+    this.isAddress = false,
+    this.isPostalCode = false,
   });
 
   final String key;
@@ -380,4 +488,11 @@ class _FieldSpec {
   final bool mono;
   final bool numeric;
   final int maxLines;
+
+  /// Rendered as [DSAddressAutocomplete] instead of a plain [DSTextField].
+  final bool isAddress;
+
+  /// Validated as exactly 5 digits, matching `normalisePostalCode`
+  /// server-side (`expedion-escalation.service.ts`).
+  final bool isPostalCode;
 }
