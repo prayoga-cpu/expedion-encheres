@@ -409,7 +409,7 @@ references the call any more, so the credential is unused at runtime.
 
 | Variable | Status | Notes |
 |---|---|---|
-| `EXPEDION_API_BASE_URL` | **optional** | Override only. Defaults to `http://localhost:3000` in both debug and release while the Vercel deployment is stale. One line in `ExpedionConfig` flips release back. |
+| `EXPEDION_API_BASE_URL` | **optional** | Override only. Debug builds default to `http://localhost:3000`; release builds (`kReleaseMode`) default to the deployed `expeditoo-ship` instance (`ExpedionConfig._vercelDeployment`) — fixed in `6a0a43a`. Leave unset unless pointing at something other than that deployment. |
 | `EXPEDION_API_KEY` | **do not set on web** | Legacy app-level key for Firebase-era clients. Any holder can claim any UID, so it must never reach a browser bundle. Sessions replace it. |
 | `PAYMENT_SERVER_URL` | **required for payments** | Stripe server. Defaults to `http://localhost:4242`. Not part of the Expeditoo integration. |
 | `APP_PUBLIC_URL` | **optional** | Stripe Checkout return URL. Web falls back to the page's own origin. |

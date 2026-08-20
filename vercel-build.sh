@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FLUTTER_VERSION="3.44.0"
+FLUTTER_VERSION="3.47.0"
 
 if [ ! -d "_flutter" ]; then
   git clone https://github.com/flutter/flutter.git --depth 1 -b "$FLUTTER_VERSION" _flutter
@@ -17,9 +17,11 @@ flutter pub get
 # Variables; anything unset falls back to a default that fails closed rather
 # than to something that quietly half-works.
 #
-#   EXPEDION_API_BASE_URL       e.g. https://app.expeditoo.fr  (REQUIRED — with
-#                               no value the app falls back to localhost and a
-#                               deployed build cannot reach its backend at all)
+#   EXPEDION_API_BASE_URL       e.g. https://app.expeditoo.fr  (optional override
+#                               — release builds already default to the deployed
+#                               expeditoo-ship instance, ExpedionConfig._vercelDeployment,
+#                               so an unset value here is fine; a WRONG value here
+#                               silently overrides that default)
 #   AIRTABLE_PAT                Airtable Personal Access Token (quotes base)
 #   PAYMENT_SERVER_URL          deployed tools/local_payment_server.js origin;
 #                               unset means payment is refused with a message
