@@ -1,7 +1,5 @@
 import '/app_shell.dart';
 import '/active_p_a_g_e_s/paiement/paiement_widget.dart';
-import '/auth/firebase_auth/auth_util.dart';
-import '/backend/api_requests/api_calls.dart';
 import '/backend/expedion_api/expedion_quote.dart'
     show formatCents, kQuoteKindInsured;
 import '/backend/expedion_api/quote_repository.dart';
@@ -10,6 +8,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,15 +76,6 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
     final kind = widget.typeDevisChoisi;
     if (kind == null || kind.isEmpty || kind == 'null') return '';
     return kind == kQuoteKindInsured ? 'ADV' : 'STD';
-  }
-
-  /// Whether the tariff for the currently selected kind was actually published.
-  bool get _hasPriceForSelectedKind {
-    final cents =
-        FFAppState().TypeDeDevisValide == 'Devis avec assurance AD valorem'
-            ? widget.tarifAssADV
-            : widget.tarifAssSTD;
-    return cents != null && cents > 0;
   }
 
   void _showMissingTariff() {
@@ -748,274 +738,166 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                 ),
                               ].divide(SizedBox(height: 20.0)),
                             ),
-                            Stack(
-                              children: [
-                                FFButtonWidget(
-                                  onPressed: () async {
-                                    // Refuse rather than invent a figure: the
-                                    // tariffs used to fall back to 50, which
-                                    // silently charged a made-up price when
-                                    // the server had not published one.
-                                    if (!_hasPriceForSelectedKind) {
+                            Builder(
+                              builder: (context) => FFButtonWidget(
+                                onPressed: () async {
+                                  try {
+                                    final insured =
+                                        FFAppState().TypeDeDevisValide ==
+                                            'ADV';
+                                    // Cents, straight from the quote. A
+                                    // missing tariff stops the flow here
+                                    // rather than opening a payment sheet
+                                    // for an amount nobody published.
+                                    final cents = insured
+                                        ? widget.tarifAssADV
+                                        : widget.tarifAssSTD;
+                                    if (cents == null || cents <= 0) {
                                       _showMissingTariff();
                                       return;
                                     }
-                                    if (FFAppState().TypeDeDevisValide ==
-                                        'Devis avec assurance AD valorem') {
-                                      _model.apiResultz01ADV =
-                                          await CreatePaymentIntentCall.call(
-                                        unitAmount: widget.tarifAssADV!,
-                                        currency: 'EUR',
-                                        userID: currentUserUid,
-                                        // TODO(EXPEDITOO-TESTING): redirect
-                                        // URLs now derive from the app
-                                        // origin / APP_PUBLIC_URL define
-                                        // (was placeholder testurl.net.fr).
-                                        // Owner: set APP_PUBLIC_URL at build
-                                        // time (see vercel-build.sh).
-                                        cancelUrl:
-                                            '${paiementRedirectBaseUrl()}/cancel',
-                                        successUrl:
-                                            '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
-                                        productName: xpdT(
-                                          context,
-                                          'Retrait/Expedition de biens',
-                                          'Pickup/Shipping of goods',
+                                    FFAppState().TypeDeDevisValide = '';
+                                    safeSetState(() {});
+                                    FFAppState().TypeDeDevisValide = insured
+                                        ? 'Devis avec assurance AD valorem'
+                                        : 'Devis avec assurance Standard';
+                                    FFAppState().SelectedPrice = cents;
+                                    safeSetState(() {});
+
+                                    // Fixes the accepted price and kind
+                                    // server-side (`acceptedPriceCents`),
+                                    // which is what the payment server will
+                                    // trust once "Payer" is pressed — the
+                                    // client's own `cents` value above is
+                                    // display-only from this point on.
+                                    final accept =
+                                        await QuoteRepository.accept(
+                                      widget.quoteID ?? '',
+                                      insured: insured,
+                                    );
+                                    if (!accept.succeeded) {
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            xpdApiErrorMessage(
+                                              context,
+                                              accept.code,
+                                              fallbackFr:
+                                                  'Impossible de confirmer ce devis. Réessayez.',
+                                              fallbackEn:
+                                                  'Could not confirm this quote. Try again.',
+                                            ),
+                                          ),
                                         ),
-                                        quantity: 1,
-                                        recordID: widget.quoteID ?? '',
                                       );
-
-                                      if ((_model.apiResultz01ADV?.succeeded ??
-                                          true)) {
-                                        // The pending-payment record used to be
-                                        // a second write, to Airtable — dead
-                                        // since quotes moved to Postgres.
-                                        await launchURL(
-                                            CreatePaymentIntentCall.sessionURL(
-                                          (_model.apiResultz01ADV?.jsonBody ??
-                                              ''),
-                                        )!);
-                                      }
-                                    } else {
-                                      _model.apiResultz01STD =
-                                          await CreatePaymentIntentCall.call(
-                                        unitAmount: widget.tarifAssSTD!,
-                                        currency: 'eur',
-                                        userID: currentUserUid,
-                                        // TODO(EXPEDITOO-TESTING): redirect
-                                        // URLs now derive from the app
-                                        // origin / APP_PUBLIC_URL define
-                                        // (was placeholder testurl.net.fr).
-                                        // Owner: set APP_PUBLIC_URL at build
-                                        // time (see vercel-build.sh).
-                                        cancelUrl:
-                                            '${paiementRedirectBaseUrl()}/cancel',
-                                        successUrl:
-                                            '${paiementRedirectBaseUrl()}/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(widget.quoteID ?? '')}',
-                                        productName: xpdT(
-                                          context,
-                                          'Retrait/Expedition de biens',
-                                          'Pickup/Shipping of goods',
-                                        ),
-                                        quantity: 1,
-                                        recordID: widget.quoteID ?? '',
-                                      );
-
-                                      if ((_model.apiResultz01STD?.succeeded ??
-                                          true)) {
-                                        // Same: no second write, see the ADV
-                                        // branch above.
-
-                                        await launchURL(
-                                            CreatePaymentIntentCall.sessionURL(
-                                          (_model.apiResultz01STD?.jsonBody ??
-                                              ''),
-                                        )!);
-                                      }
+                                      return;
                                     }
 
+                                    FFAppState().DevisValideOuPas =
+                                        'Devis Validé';
                                     safeSetState(() {});
-                                  },
-                                  text: FFLocalizations.of(context).getText(
-                                    '1mitwq8y' /* Payer */,
-                                  ),
-                                  options: FFButtonOptions(
-                                    width: double.infinity,
-                                    height: 52.0,
-                                    padding: EdgeInsets.all(8.0),
-                                    iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 0.0, 0.0, 0.0),
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    textStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .override(
-                                          font: GoogleFonts.plusJakartaSans(
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
+                                    if (!context.mounted) return;
+                                    await showDialog(
+                                      context: context,
+                                      builder: (dialogContext) {
+                                        return Dialog(
+                                          elevation: 0,
+                                          insetPadding: EdgeInsets.zero,
+                                          backgroundColor: Colors.transparent,
+                                          alignment: AlignmentDirectional(
+                                                  0.0, 0.0)
+                                              .resolve(
+                                                  Directionality.of(context)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              FocusScope.of(dialogContext)
+                                                  .unfocus();
+                                              FocusManager
+                                                  .instance.primaryFocus
+                                                  ?.unfocus();
+                                            },
+                                            child: Container(
+                                              height: 800.0,
+                                              width: 400.0,
+                                              child: PaiementWidget(
+                                                tarifADV: FFAppState()
+                                                    .SelectedPrice,
+                                                quoteID: widget.quoteID ?? '',
+                                                tarifSTD: FFAppState()
+                                                    .SelectedPrice,
+                                                quoteNum: FFAppState()
+                                                    .SelectedQuoteNum,
+                                              ),
+                                            ),
                                           ),
-                                          color: FlutterFlowTheme.of(context)
-                                              .primary,
-                                          fontSize: 16.0,
-                                          letterSpacing: 0.0,
+                                        );
+                                      },
+                                    );
+
+                                    safeSetState(() {});
+                                  } catch (e) {
+                                    // A button that fails without telling
+                                    // anyone reads as "did nothing" — this
+                                    // page already had that bug once, with an
+                                    // Airtable write whose result was never
+                                    // checked. Whatever goes wrong here, the
+                                    // user gets a message instead of a button
+                                    // that quietly reverts to its own text.
+                                    if (kDebugMode) {
+                                      debugPrint('Confirmer devis failed: $e');
+                                    }
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          xpdT(
+                                            context,
+                                            'Impossible de confirmer ce devis. Réessayez.',
+                                            'Could not confirm this quote. Try again.',
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                text: FFLocalizations.of(context).getText(
+                                  'exitny41' /* Confirmer devis */,
+                                ),
+                                options: FFButtonOptions(
+                                  width: double.infinity,
+                                  height: 52.0,
+                                  padding: EdgeInsets.all(8.0),
+                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 0.0, 0.0, 0.0),
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  textStyle: FlutterFlowTheme.of(context)
+                                      .titleSmall
+                                      .override(
+                                        font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w600,
                                           fontStyle:
                                               FlutterFlowTheme.of(context)
                                                   .titleSmall
                                                   .fontStyle,
                                         ),
-                                    elevation: 0.0,
-                                    borderSide: BorderSide(
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12.0),
-                                  ),
-                                ),
-                                Builder(
-                                  builder: (context) => FFButtonWidget(
-                                    onPressed: () async {
-                                      final insured =
-                                          FFAppState().TypeDeDevisValide ==
-                                              'ADV';
-                                      // Cents, straight from the quote. A
-                                      // missing tariff stops the flow here
-                                      // rather than opening a payment sheet
-                                      // for an amount nobody published.
-                                      final cents = insured
-                                          ? widget.tarifAssADV
-                                          : widget.tarifAssSTD;
-                                      if (cents == null || cents <= 0) {
-                                        _showMissingTariff();
-                                        return;
-                                      }
-                                      FFAppState().TypeDeDevisValide = '';
-                                      safeSetState(() {});
-                                      FFAppState().TypeDeDevisValide = insured
-                                          ? 'Devis avec assurance AD valorem'
-                                          : 'Devis avec assurance Standard';
-                                      FFAppState().SelectedPrice = cents;
-                                      safeSetState(() {});
-
-                                      // Fixes the accepted price and kind
-                                      // server-side (`acceptedPriceCents`),
-                                      // which is what the payment server will
-                                      // trust once "Payer" is pressed — the
-                                      // client's own `cents` value above is
-                                      // display-only from this point on.
-                                      final accept =
-                                          await QuoteRepository.accept(
-                                        widget.quoteID ?? '',
-                                        insured: insured,
-                                      );
-                                      if (!accept.succeeded) {
-                                        if (!context.mounted) return;
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              xpdApiErrorMessage(
-                                                context,
-                                                accept.code,
-                                                fallbackFr:
-                                                    'Impossible de confirmer ce devis. Réessayez.',
-                                                fallbackEn:
-                                                    'Could not confirm this quote. Try again.',
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                        return;
-                                      }
-
-                                      FFAppState().DevisValideOuPas =
-                                          'Devis Validé';
-                                      safeSetState(() {});
-                                      if (!context.mounted) return;
-                                      await showDialog(
-                                        context: context,
-                                        builder: (dialogContext) {
-                                          return Dialog(
-                                            elevation: 0,
-                                            insetPadding: EdgeInsets.zero,
-                                            backgroundColor: Colors.transparent,
-                                            alignment: AlignmentDirectional(
-                                                    0.0, 0.0)
-                                                .resolve(
-                                                    Directionality.of(context)),
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                FocusScope.of(dialogContext)
-                                                    .unfocus();
-                                                FocusManager
-                                                    .instance.primaryFocus
-                                                    ?.unfocus();
-                                              },
-                                              child: Container(
-                                                height: 800.0,
-                                                width: 400.0,
-                                                child: PaiementWidget(
-                                                  tarifADV: FFAppState()
-                                                      .SelectedPrice,
-                                                  quoteID: widget.quoteID ?? '',
-                                                  tarifSTD: FFAppState()
-                                                      .SelectedPrice,
-                                                  quoteNum: FFAppState()
-                                                      .SelectedQuoteNum,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-
-                                      safeSetState(() {});
-                                    },
-                                    text: FFLocalizations.of(context).getText(
-                                      'exitny41' /* Confirmer devis */,
-                                    ),
-                                    options: FFButtonOptions(
-                                      width: double.infinity,
-                                      height: 52.0,
-                                      padding: EdgeInsets.all(8.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.plusJakartaSans(
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: Colors.white,
-                                            fontSize: 16.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderSide: BorderSide(
-                                        color: Colors.transparent,
+                                        color: Colors.white,
+                                        fontSize: 16.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.w600,
+                                        fontStyle:
+                                            FlutterFlowTheme.of(context)
+                                                .titleSmall
+                                                .fontStyle,
                                       ),
-                                      borderRadius: BorderRadius.circular(12.0),
-                                    ),
+                                  elevation: 0.0,
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
                                   ),
+                                  borderRadius: BorderRadius.circular(12.0),
                                 ),
-                              ],
+                              ),
                             ),
                           ].divide(SizedBox(height: 16.0)),
                         ),
