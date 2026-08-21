@@ -1,5 +1,6 @@
 // Export pages
 export '/active_p_a_g_e_s/mes_devis/mes_devis_widget.dart' show MesDevisWidget;
+export '/active_p_a_g_e_s/paiement/paiement_widget.dart' show PaiementWidget;
 export '/pages/form_demande_devis/form_demande_devis_widget.dart'
     show FormDemandeDevisWidget;
 export '/form_devis_paiement_directe/form_devis_paiement_directe_widget.dart'

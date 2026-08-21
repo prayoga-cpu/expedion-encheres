@@ -31,6 +31,9 @@ class PaiementWidget extends StatefulWidget {
   final int? tarifSTD;
   final String? quoteNum;
 
+  static String routeName = 'Paiement';
+  static String routePath = '/paiement';
+
   @override
   State<PaiementWidget> createState() => _PaiementWidgetState();
 }

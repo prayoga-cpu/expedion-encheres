@@ -799,62 +799,28 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                         'Devis Validé';
                                     safeSetState(() {});
                                     if (!context.mounted) return;
-                                    await showDialog(
-                                      context: context,
-                                      builder: (dialogContext) {
-                                        return Dialog(
-                                          elevation: 0,
-                                          insetPadding: EdgeInsets.zero,
-                                          backgroundColor: Colors.transparent,
-                                          alignment: AlignmentDirectional(
-                                                  0.0, 0.0)
-                                              .resolve(
-                                                  Directionality.of(context)),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              FocusScope.of(dialogContext)
-                                                  .unfocus();
-                                              FocusManager
-                                                  .instance.primaryFocus
-                                                  ?.unfocus();
-                                            },
-                                            // A fixed 800px height used to
-                                            // force this card — whose real
-                                            // content is ~350-400px — into a
-                                            // box centered on screen, so the
-                                            // actual card sat in the box's
-                                            // top portion and could render
-                                            // above the visible viewport
-                                            // entirely. Size to content
-                                            // instead, capped so it never
-                                            // overflows a short window.
-                                            child: ConstrainedBox(
-                                              constraints: BoxConstraints(
-                                                maxWidth: 400.0,
-                                                maxHeight:
-                                                    MediaQuery.of(context)
-                                                            .size
-                                                            .height *
-                                                        0.9,
-                                              ),
-                                              child: SingleChildScrollView(
-                                                child: PaiementWidget(
-                                                  tarifADV: FFAppState()
-                                                      .SelectedPrice,
-                                                  quoteID: widget.quoteID ?? '',
-                                                  tarifSTD: FFAppState()
-                                                      .SelectedPrice,
-                                                  quoteNum: FFAppState()
-                                                      .SelectedQuoteNum,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                    // A showDialog overlay here proved
+                                    // unreliable in production — the barrier
+                                    // and card both failed to render visibly
+                                    // even on a successful accept. A routed
+                                    // page is the pattern this app already
+                                    // exercises everywhere else, so it
+                                    // replaces the dialog entirely rather
+                                    // than trying to fix the overlay.
+                                    context.pushNamed(
+                                      PaiementWidget.routeName,
+                                      queryParameters: {
+                                        'tarifADV': serializeParam(
+                                            cents, ParamType.int),
+                                        'tarifSTD': serializeParam(
+                                            cents, ParamType.int),
+                                        'quoteID': serializeParam(
+                                            widget.quoteID, ParamType.String),
+                                        'quoteNum': serializeParam(
+                                            FFAppState().SelectedQuoteNum,
+                                            ParamType.String),
+                                      }.withoutNulls,
                                     );
-
-                                    safeSetState(() {});
                                   } catch (e) {
                                     // A button that fails without telling
                                     // anyone reads as "did nothing" — this

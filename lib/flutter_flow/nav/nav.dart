@@ -8,6 +8,7 @@ import '/backend/backend.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
+import '/app_shell.dart';
 import '/main.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/lat_lng.dart';
@@ -236,6 +237,38 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             devisValideOuPas: params.getParam(
               'devisValideOuPas',
               ParamType.String,
+            ),
+          ),
+        ),
+        FFRoute(
+          name: PaiementWidget.routeName,
+          path: PaiementWidget.routePath,
+          requireAuth: true,
+          // A full page, not a dialog. showDialog's overlay/barrier stack
+          // behaved unreliably here in production (see the confirm-devis
+          // flow that pushes this route) — a plain routed page is the
+          // pattern already exercised everywhere else in this app.
+          builder: (context, params) => XpdPage(
+            current: XpdDestination.none,
+            body: SafeArea(
+              top: true,
+              child: Center(
+                child: SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 400.0),
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: PaiementWidget(
+                        tarifADV: params.getParam('tarifADV', ParamType.int),
+                        quoteID: params.getParam('quoteID', ParamType.String),
+                        tarifSTD: params.getParam('tarifSTD', ParamType.int),
+                        quoteNum:
+                            params.getParam('quoteNum', ParamType.String),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
