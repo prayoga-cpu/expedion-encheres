@@ -51,6 +51,18 @@ String xpdApiErrorMessage(
         'Connectez-vous pour continuer.',
         'Sign in to continue.',
       );
+    case 'CHAT_ACCOUNT_REQUIRED':
+      return xpdT(
+        context,
+        "Le chat support demande un compte Expeditoo pour cette adresse.",
+        'Support chat needs an Expeditoo account for this address.',
+      );
+    case 'CHAT_IDENTITY_REQUIRED':
+      return xpdT(
+        context,
+        'Connectez-vous pour ouvrir le chat support.',
+        'Sign in to open the support chat.',
+      );
     case 'QUOTE_NOT_FOUND':
       return xpdT(context, 'Devis introuvable.', 'Quote not found.');
     case 'QUOTE_ALREADY_PRICED':

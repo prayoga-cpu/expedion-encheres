@@ -211,6 +211,33 @@ class ExpedionApi {
       );
 
   // ========================================
+  // Support chat
+  // ========================================
+
+  /// The signed-in visitor's support thread, oldest message first.
+  ///
+  /// Creates the thread on first call, so there is no separate "start a
+  /// conversation" step — an empty list simply means nobody has written yet.
+  /// The same conversation is what Expeditoo's operators answer from
+  /// `/admin/support`, which is the whole point: the old contact form posted
+  /// into Airtable, where a reply had to leave the product entirely.
+  static Future<ExpedionApiResult> supportThread({int limit = 50}) => _send(
+        () => http.get(
+          _uri('/api/expedion/support', {'limit': '$limit'}),
+          headers: _headers,
+        ),
+      );
+
+  /// Posts one message into that thread.
+  static Future<ExpedionApiResult> sendSupportMessage(String content) => _send(
+        () => http.post(
+          _uri('/api/expedion/support'),
+          headers: _headers,
+          body: jsonEncode({'content': content}),
+        ),
+      );
+
+  // ========================================
   // Transport
   // ========================================
 

@@ -2602,10 +2602,10 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'it': 'Contact@expedion-encheres.com',
     },
     '9nn1d2og': {
-      'fr': 'Envoyez-nous un message',
-      'en': 'Send us a message',
-      'es': 'Envíanos un mensaje',
-      'it': 'Inviaci un messaggio',
+      'fr': 'Chat support',
+      'en': 'Support chat',
+      'es': 'Chat de soporte',
+      'it': 'Chat di supporto',
     },
     'sagmmv2b': {
       'fr': 'Message',

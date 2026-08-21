@@ -19,6 +19,7 @@
 /// | `DSPageLoader`      | `page-loader.tsx`            |
 /// | `DSSkeleton`        | `skeleton.tsx`               |
 /// | `DSStepper`         | `Stepper.tsx`                |
+/// | `DSSupportChat`     | `admin/support` + `messages` |
 library;
 
 // The site layer — the marketing page's own tokens, chrome and section
@@ -47,6 +48,7 @@ export 'ds_quote_card.dart';
 export 'ds_sheet.dart';
 export 'ds_stepper.dart';
 export 'ds_storage_countdown.dart';
+export 'ds_support_chat.dart';
 export 'ds_text_field.dart';
 export 'ds_tokens.dart';
 

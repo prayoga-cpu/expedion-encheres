@@ -1,53 +1,19 @@
-import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'contact_widget.dart' show ContactWidget;
 import 'package:flutter/material.dart';
 
+/// The contact page holds no page-level state any more.
+///
+/// It used to carry five controllers, five focus nodes, a form key and the
+/// stored result of the Airtable `PostMessage` call. All of that belonged to
+/// the contact form; the support chat that replaced it keeps its own state in
+/// `SupportChatController`, which lives and dies with the widget rather than
+/// with the route. The model stays because `createModel` is what every
+/// FlutterFlow page is wired to expect.
 class ContactModel extends FlutterFlowModel<ContactWidget> {
-  ///  State fields for stateful widgets in this page.
-
-  final formKey = GlobalKey<FormState>();
-  // State field(s) for Nom widget.
-  FocusNode? nomFocusNode;
-  TextEditingController? nomTextController;
-  String? Function(BuildContext, String?)? nomTextControllerValidator;
-  // State field(s) for prenom widget.
-  FocusNode? prenomFocusNode;
-  TextEditingController? prenomTextController;
-  String? Function(BuildContext, String?)? prenomTextControllerValidator;
-  // State field(s) for Email widget.
-  FocusNode? emailFocusNode;
-  TextEditingController? emailTextController;
-  String? Function(BuildContext, String?)? emailTextControllerValidator;
-  // State field(s) for Sujet widget.
-  FocusNode? sujetFocusNode;
-  TextEditingController? sujetTextController;
-  String? Function(BuildContext, String?)? sujetTextControllerValidator;
-  // State field(s) for Message widget.
-  FocusNode? messageFocusNode;
-  TextEditingController? messageTextController;
-  String? Function(BuildContext, String?)? messageTextControllerValidator;
-  // Stores action output result for [Backend Call - API (PostMessage)] action in Button widget.
-  ApiCallResponse? apiResultp6c;
-
   @override
   void initState(BuildContext context) {}
 
   @override
-  void dispose() {
-    nomFocusNode?.dispose();
-    nomTextController?.dispose();
-
-    prenomFocusNode?.dispose();
-    prenomTextController?.dispose();
-
-    emailFocusNode?.dispose();
-    emailTextController?.dispose();
-
-    sujetFocusNode?.dispose();
-    sujetTextController?.dispose();
-
-    messageFocusNode?.dispose();
-    messageTextController?.dispose();
-  }
+  void dispose() {}
 }
