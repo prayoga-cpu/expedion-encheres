@@ -119,7 +119,10 @@ class _PaiementWidgetState extends State<PaiementWidget> {
       email: email,
       amount: amount,
       currency: 'EUR',
-      productName: 'Retrait/Expédition de biens',
+      // The line item the payer reads on Stripe's own checkout page and in
+      // the receipt, so it follows their language like everything else.
+      productName: xpdT(context, 'Retrait/Expédition de biens',
+          'Goods pickup / shipping'),
       successUrl:
           '$baseUrl/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(quoteId)}',
       cancelUrl: '$baseUrl/cancel',
@@ -464,7 +467,12 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                           // webhook/deploy required).
                           successUrl:
                               '$baseUrl/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(quoteId)}',
-                          productName: 'Retrait/Expédition de biens',
+                          // The line item the payer reads on Stripe's own
+                          // checkout page, so it follows their language.
+                          productName: xpdT(
+                              context,
+                              'Retrait/Expédition de biens',
+                              'Goods pickup / shipping'),
                           quantity: 1,
                           recordID: quoteId,
                           orderID: quoteId,

@@ -96,8 +96,10 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
           'Sign-in is unavailable right now.',
         );
       default:
-        return result.message ??
-            _t('La connexion a échoué.', 'Sign-in failed.');
+        // Not `result.message`: that carries whichever language the failure
+        // spoke (hardcoded French from the data layer, or the server's), so
+        // it showed French under the EN toggle.
+        return _t('La connexion a échoué.', 'Sign-in failed.');
     }
   }
 
@@ -281,7 +283,7 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
               const SizedBox(height: 28.0),
               XpdField(
                 label: _t('Adresse email', 'Email address'),
-                hint: 'vous@exemple.fr',
+                hint: _t('vous@exemple.fr', 'you@example.com'),
                 controller: _model.emailTextController!,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {

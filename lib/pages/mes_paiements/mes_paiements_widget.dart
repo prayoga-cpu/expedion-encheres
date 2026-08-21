@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '/backend/expedion_api/expedion_quote.dart';
 import '/backend/expedion_api/quote_repository.dart';
 import '/design_system/ds_app_shell.dart';
+import '/design_system/ds_l10n.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_site.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -133,11 +134,19 @@ class _MesPaiementsWidgetState extends State<MesPaiementsWidget> {
                       title: (result?.needsSignIn ?? false)
                           ? _t('Connectez-vous', 'Sign in')
                           : _t('Chargement impossible', 'Could not load'),
-                      body: result?.message ??
-                          _t(
+                      // `result.message` is whatever language the failure
+                      // happened to speak — hardcoded French from the data
+                      // layer, or the server's own words — and it is non-null
+                      // on every failure, so it always won over the translated
+                      // fallback below. Localize the code instead.
+                      body: xpdApiErrorMessage(
+                        context,
+                        result?.code,
+                        fallbackFr:
                             'Vos paiements sont temporairement indisponibles.',
+                        fallbackEn:
                             'Your payments are temporarily unavailable.',
-                          ),
+                      ),
                     ),
                   )
                 else if (paid.isEmpty)

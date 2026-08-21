@@ -131,9 +131,10 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
           'Account creation is unavailable right now.',
         );
       default:
-        return result?.message ??
-            _t('La création du compte a échoué.',
-                'Could not create the account.');
+        // Not `result.message` — see the same guard in se_connecter: that
+        // string's language is whatever the failure spoke, not the reader's.
+        return _t('La création du compte a échoué.',
+            'Could not create the account.');
     }
   }
 
@@ -459,7 +460,7 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
               const SizedBox(height: 18.0),
               XpdField(
                 label: _t('Adresse email', 'Email address'),
-                hint: 'vous@exemple.fr',
+                hint: _t('vous@exemple.fr', 'you@example.com'),
                 controller: _model.emailTextController!,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {

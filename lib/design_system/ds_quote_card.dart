@@ -353,7 +353,8 @@ class DSQuoteCard extends StatelessWidget {
             _MetaRow(
               icon: Icons.event_outlined,
               child: Text(
-                'Vente du ${devis.dateDeVente}',
+                xpdT(context, 'Vente du ${devis.dateDeVente}',
+                    'Sale on ${devis.dateDeVente}'),
                 style: theme.labelMedium,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

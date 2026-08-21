@@ -868,8 +868,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTap: _openExpeditoo,
-                  child: const XpdTag(
-                    label: 'OUVRIR EXPEDITOO →',
+                  child: XpdTag(
+                    label: _t('OUVRIR EXPEDITOO →', 'OPEN EXPEDITOO →'),
                     color: Colors.white,
                     background: XpdPalette.blue,
                     filled: true,
@@ -1246,7 +1246,7 @@ class _AccueilWidgetState extends State<AccueilWidget> {
           pair(
             XpdField(
               label: 'Email',
-              hint: 'vous@exemple.fr',
+              hint: _t('vous@exemple.fr', 'you@example.com'),
               controller: _email,
               keyboardType: TextInputType.emailAddress,
             ),
@@ -1752,7 +1752,9 @@ class _AccueilWidgetState extends State<AccueilWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const XpdStripePlate(height: 430.0, label: 'CARTE DE COUVERTURE'),
+          XpdStripePlate(
+              height: 430.0,
+              label: _t('CARTE DE COUVERTURE', 'COVERAGE MAP')),
           const SizedBox(height: 12.0),
           Padding(
             padding: const EdgeInsets.fromLTRB(6.0, 0.0, 6.0, 4.0),
@@ -1938,7 +1940,7 @@ class _AccueilWidgetState extends State<AccueilWidget> {
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Text(
-                  'CAPTURE APP MOBILE',
+                  _t('CAPTURE APP MOBILE', 'MOBILE APP SCREENSHOT'),
                   style: TextStyle(
                     fontFamily: 'Geist Mono',
                     fontSize: 11.0,
@@ -2575,7 +2577,7 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             links: [
               // No legal pages exist yet; these render as plain text rather
               // than links that go nowhere.
-              const XpdFooterLink(label: 'CGV'),
+              XpdFooterLink(label: _t('CGV', 'Terms & Conditions')),
               XpdFooterLink(label: _t('Mentions légales', 'Legal notice')),
               XpdFooterLink(
                 label: _t('Politique de confidentialité', 'Privacy policy'),
