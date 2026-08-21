@@ -17,22 +17,27 @@ const https = require('https');
 const http = require('http');
 const { URLSearchParams } = require('url');
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+// Env values go into HTTP headers (Authorization, Bearer keys) and URLs, where
+// a stray trailing newline or space — easy to introduce when piping a secret
+// into `vercel env add` — is an illegal header character that throws
+// ERR_INVALID_CHAR at request time. Trim every one at the boundary so the rest
+// of the file can treat them as clean.
+const env = (name, fallback = '') => (process.env[name] || fallback).trim();
+
+const STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY');
 
 // This server has to ask Expedion what a quote is actually worth rather than
 // trust whatever `unitAmount` the client sends — a client-supplied amount is
 // exactly the "edit the URL, change what you pay" hole the Stripe call on the
 // validation page used to have.
-const EXPEDION_API_BASE_URL =
-  process.env.EXPEDION_API_BASE_URL || 'http://localhost:3000';
-const EXPEDION_ADMIN_API_KEY = process.env.EXPEDION_ADMIN_API_KEY;
+const EXPEDION_API_BASE_URL = env('EXPEDION_API_BASE_URL', 'http://localhost:3000');
+const EXPEDION_ADMIN_API_KEY = env('EXPEDION_ADMIN_API_KEY');
 
 // Resend (https://resend.com) sends the payment-link e-mail. Without a key the
 // link is still returned but not delivered. `onboarding@resend.dev` can send to
 // your own account address without domain verification (great for testing).
-const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const RESEND_FROM =
-  process.env.RESEND_FROM || 'Expedion Enchères <onboarding@resend.dev>';
+const RESEND_API_KEY = env('RESEND_API_KEY');
+const RESEND_FROM = env('RESEND_FROM', 'Expedion Enchères <onboarding@resend.dev>');
 
 function request(opts, payload) {
   return new Promise((resolve, reject) => {
