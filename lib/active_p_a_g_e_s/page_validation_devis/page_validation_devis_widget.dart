@@ -818,17 +818,35 @@ class _PageValidationDevisWidgetState extends State<PageValidationDevisWidget> {
                                                   .instance.primaryFocus
                                                   ?.unfocus();
                                             },
-                                            child: Container(
-                                              height: 800.0,
-                                              width: 400.0,
-                                              child: PaiementWidget(
-                                                tarifADV: FFAppState()
-                                                    .SelectedPrice,
-                                                quoteID: widget.quoteID ?? '',
-                                                tarifSTD: FFAppState()
-                                                    .SelectedPrice,
-                                                quoteNum: FFAppState()
-                                                    .SelectedQuoteNum,
+                                            // A fixed 800px height used to
+                                            // force this card — whose real
+                                            // content is ~350-400px — into a
+                                            // box centered on screen, so the
+                                            // actual card sat in the box's
+                                            // top portion and could render
+                                            // above the visible viewport
+                                            // entirely. Size to content
+                                            // instead, capped so it never
+                                            // overflows a short window.
+                                            child: ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxWidth: 400.0,
+                                                maxHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.9,
+                                              ),
+                                              child: SingleChildScrollView(
+                                                child: PaiementWidget(
+                                                  tarifADV: FFAppState()
+                                                      .SelectedPrice,
+                                                  quoteID: widget.quoteID ?? '',
+                                                  tarifSTD: FFAppState()
+                                                      .SelectedPrice,
+                                                  quoteNum: FFAppState()
+                                                      .SelectedQuoteNum,
+                                                ),
                                               ),
                                             ),
                                           ),
