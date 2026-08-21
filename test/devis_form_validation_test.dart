@@ -117,12 +117,25 @@ void main() {
       expect(QuoteFormRules.euroToCents('1.234.567'), 123456700);
       expect(QuoteFormRules.euroToCents('4.200,50'), 420050);
       expect(QuoteFormRules.euroToCents('4,200.50'), 420050);
-      // A comma with three digits behind it is still a decimal: French writes
-      // four-and-a-fifth as "4,2", and "4,200" is that with trailing zeros.
-      expect(QuoteFormRules.euroToCents('4,200'), 420);
+      // "4,200" is genuinely ambiguous — French reads four-and-a-fifth,
+      // English four thousand two hundred. This field sizes the insurance, so
+      // the tie goes to the reading that cannot under-insure; nobody declares
+      // a €4.20 lot at auction.
+      expect(QuoteFormRules.euroToCents('4,200'), 420000);
+      // One or two digits behind it is unambiguously a decimal.
+      expect(QuoteFormRules.euroToCents('4,2'), 420);
+      expect(QuoteFormRules.euroToCents('4,20'), 420);
       // And the cap still catches the extra zero it is there for.
       expect(QuoteFormRules.isDeclaredValue('4.200'), isTrue);
       expect(QuoteFormRules.isDeclaredValue('9.000.000'), isFalse);
+    });
+
+    test('an absurd entry is refused rather than wrapped', () {
+      // `whole * 100` wraps at 64 bits, and a wrapped value can land back
+      // under the cap — insuring a lot for a few centimes on the strength of
+      // a number nobody meant.
+      expect(QuoteFormRules.isDeclaredValue('99999999999999999999'), isFalse);
+      expect(QuoteFormRules.isDeclaredValue('184467440737095516'), isFalse);
     });
   });
 
@@ -143,6 +156,10 @@ void main() {
       expect(QuoteFormRules.isPhone('+33 6 12 34 56 78'), isTrue);
       expect(QuoteFormRules.isPhone('0033612345678'), isTrue);
       expect(QuoteFormRules.isPhone('01.23.45.67.89'), isTrue);
+      // Printed on half the letterheads in France: the international prefix
+      // and the trunk zero the international form drops.
+      expect(QuoteFormRules.isPhone('+33 (0)6 12 34 56 78'), isTrue);
+      expect(QuoteFormRules.isPhone('0033 (0)6 12 34 56 78'), isTrue);
       expect(QuoteFormRules.isPhone('0612345'), isFalse);
       expect(QuoteFormRules.isPhone('00 12 34 56 78'), isFalse);
       expect(QuoteFormRules.isPhone('+44 20 7946 0000'), isFalse);
@@ -367,6 +384,59 @@ void main() {
       expect(value.city.text, 'Le Bouscat');
       expect(value.postalCode.text, isEmpty);
       expect(value.gaps, contains(DSAddressGap.postalCode));
+    });
+
+    test('an unverified pin comes back from a draft still unverified', () {
+      final value = DSAddressValue(forwardGeocode: _forwardHanging());
+      addTearDown(value.dispose);
+
+      // What `pin()` stores when reverse geocoding finds nothing addressable:
+      // real coordinates *and* the accepted flag. Regression: reading the
+      // point alone brought it back as "Position confirmée", dropping the one
+      // warning an operator still has to act on.
+      value.restore(
+        address: 'Chemin des Vignes',
+        postalCode: '77300',
+        city: 'Fontainebleau',
+        lat: 48.4045,
+        lng: 2.7016,
+        accepted: true,
+      );
+
+      expect(value.status, DSAddressStatus.accepted);
+      expect(value.point, isNotNull);
+      expect(value.isLocated, isTrue);
+    });
+
+    test('nudging the pin inside the same town keeps the typed postcode',
+        () async {
+      final value = DSAddressValue(
+        forwardGeocode: _forwardHanging(),
+        reverseGeocode: (lat, lng) async => _hit(
+          address: '11 rue Drouot',
+          city: 'Paris',
+          postalCode: '',
+          lat: lat,
+          lng: lng,
+        ),
+      );
+      addTearDown(value.dispose);
+
+      value.restore(
+        address: '9 rue Drouot',
+        postalCode: '75009',
+        city: 'Paris',
+        lat: 48.8721,
+        lng: 2.3390,
+      );
+      await value.pin(const LatLng(48.8722, 2.3391));
+
+      // Regression: forcing the town in unconditionally blanked a postcode
+      // the visitor had typed correctly, just because the reverse hit did not
+      // carry one — and then blocked Submit on the gap it had just created.
+      expect(value.city.text, 'Paris');
+      expect(value.postalCode.text, '75009');
+      expect(value.gaps, isEmpty);
     });
 
     test('a pin takes the town it landed in, and leaves the street typed',
@@ -681,6 +751,48 @@ void mapTests() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(reported, isNull);
+  });
+
+  testWidgets('a vertical drag on the pin moves the pin, not the page',
+      (tester) async {
+    LatLng? reported;
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          FFLocalizationsDelegate(),
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('fr'), Locale('en')],
+        home: Scaffold(
+          body: ListView(
+            children: [
+              const SizedBox(height: 300.0),
+              SizedBox(
+                height: 200.0,
+                child: DSLocationMap(
+                  point: const LatLng(46.6, 2.35),
+                  onPinned: (point) => reported = point,
+                ),
+              ),
+              const SizedBox(height: 900.0),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // The form is a ListView, so the pin's pan recogniser competes with the
+    // page's vertical drag. The pin has to win, or the one gesture the map
+    // exists for does nothing on a phone.
+    await tester.drag(find.byIcon(Icons.location_on), const Offset(0.0, 40.0));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(reported, isNotNull,
+        reason: 'the enclosing scrollable stole the pin drag');
   });
 
   testWidgets('the address block puts three fields and a map in one column',

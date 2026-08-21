@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -324,11 +325,20 @@ class DSAddressValue extends ChangeNotifier {
       // The street is a suggestion: an empty one leaves whatever the visitor
       // typed alone, because a bordereau's spelling often beats the map's.
       _write(address: hit.address);
-      // The town and postcode are not a suggestion — they say which commune
-      // this point is in. Forced, blanks included: keeping the previous
-      // town's postcode next to a pin two departments away is how a
-      // self-contradicting address reaches the carrier.
-      _write(postalCode: hit.postalCode, city: hit.city, force: true);
+
+      // The town and postcode travel together. Forcing them — blanks included
+      // — is right only when the pin has actually moved to a different
+      // commune, which is the case where keeping the old postcode produces
+      // "75009 Fontainebleau". Nudging the pin within the same town must not
+      // blank a postcode the visitor typed correctly, so that case falls back
+      // to the blank-skip.
+      final movedTown = hit.city.trim().isNotEmpty &&
+          hit.city.trim().toLowerCase() != city.text.trim().toLowerCase();
+      _write(
+        postalCode: hit.postalCode,
+        city: hit.city,
+        force: movedTown,
+      );
       _status = DSAddressStatus.confirmed;
     }
     notifyListeners();
@@ -356,9 +366,15 @@ class DSAddressValue extends ChangeNotifier {
     _generation++;
     _write(address: address, postalCode: postalCode, city: city, force: true);
     _point = (lat == null || lng == null) ? null : LatLng(lat, lng);
-    _status = _point != null
-        ? DSAddressStatus.confirmed
-        : (accepted ? DSAddressStatus.accepted : _statusForText());
+    // `accepted` first: a pin whose reverse lookup found nothing is saved with
+    // *both* a point and the flag, and reading the point alone would bring it
+    // back claiming "Position confirmée" for a position nothing ever
+    // confirmed — dropping the one warning an operator still has to act on.
+    _status = accepted
+        ? DSAddressStatus.accepted
+        : (_point != null
+            ? DSAddressStatus.confirmed
+            : _statusForText());
     // A draft saved before its address resolved comes back with three full
     // lines and no point, which `_statusForText` reads as `checking`. Nothing
     // else would ever schedule that lookup — `_write` above ran under
@@ -823,52 +839,34 @@ class _DSLocationMapState extends State<DSLocationMap> {
   }
 
   Widget _draggablePin(FlutterFlowTheme theme) {
-    return Builder(
+    return _DraggablePin(
       // A context below FlutterMap, so `MapCamera.of` can convert the drag's
       // pixels into degrees.
-      builder: (mapContext) => MouseRegion(
-        cursor: SystemMouseCursors.grab,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          // Absorbed, deliberately. The marker sits *above* its point
-          // (`Alignment.topCenter`), so a tap on the pin that fell through to
-          // the map would be read as a tap roughly one icon-height north of
-          // where the pin already is, and re-drop it there — the visitor
-          // touches the pin and watches it walk up the street.
-          onTap: () {},
-          onPanStart: (_) => _dragging = true,
-          onPanUpdate: (details) {
-            final anchor = _shownPoint;
-            if (anchor == null) return;
-            final camera = MapCamera.of(mapContext);
-            final moved = camera.latLngToScreenOffset(anchor) + details.delta;
-            // Held a margin inside the viewport, in pixels rather than in
-            // degrees: `MarkerLayer` culls a marker whose pixel bounds have
-            // left the camera, which would take this gesture detector out of
-            // the tree mid-drag — `onPanEnd` would never arrive, `_dragPoint`
-            // would never clear, and the pin would be stuck off-screen with
-            // the map ignoring every later update. Clamping to the exact
-            // edge is not enough: the edge *is* the cull threshold.
-            final size = camera.size;
-            setState(() => _dragPoint = camera.screenOffsetToLatLng(Offset(
-                  _inside(moved.dx, size.width),
-                  _inside(moved.dy, size.height),
-                )));
-          },
-          onPanEnd: (_) => _commitDrag(),
-          // A cancelled drag has still moved the pin on screen; committing is
-          // less surprising than snapping it back, and it guarantees
-          // `_dragPoint` is never left holding a position nothing will clear.
-          onPanCancel: _commitDrag,
-          child: Icon(
-            Icons.location_on,
-            size: 40.0,
-            color: theme.primary,
-            shadows: const [
-              Shadow(color: Color(0x66000000), blurRadius: 6.0),
-            ],
-          ),
-        ),
+      onDragUpdate: (mapContext, delta) {
+        final anchor = _shownPoint;
+        if (anchor == null) return;
+        final camera = MapCamera.of(mapContext);
+        final moved = camera.latLngToScreenOffset(anchor) + delta;
+        // Held a margin inside the viewport, in pixels rather than in
+        // degrees: `MarkerLayer` culls a marker whose pixel bounds have left
+        // the camera, which would take this gesture detector out of the tree
+        // mid-drag. Clamping to the exact edge is not enough: the edge *is*
+        // the cull threshold.
+        final size = camera.size;
+        setState(() => _dragPoint = camera.screenOffsetToLatLng(Offset(
+              _inside(moved.dx, size.width),
+              _inside(moved.dy, size.height),
+            )));
+      },
+      onDragStart: () => _dragging = true,
+      onDragEnd: _commitDrag,
+      child: Icon(
+        Icons.location_on,
+        size: 40.0,
+        color: theme.primary,
+        shadows: const [
+          Shadow(color: Color(0x66000000), blurRadius: 6.0),
+        ],
       ),
     );
   }
@@ -993,4 +991,115 @@ class _DSLocationMapState extends State<DSLocationMap> {
       ),
     );
   }
+}
+
+/// The pin, as its own widget so that losing it ends the drag.
+///
+/// The clamp in [_DSLocationMapState] keeps a *dragged* pin inside the
+/// viewport, but the camera can move underneath it — a second finger panning
+/// the map is enough — and `MarkerLayer` then culls the marker, unmounts this
+/// widget and disposes its recogniser without ever calling `onPanEnd` or
+/// `onPanCancel`. Ending the drag from [dispose] is the only notification that
+/// survives that, and without it the drag state latches: the map would ignore
+/// every later update for the life of the page.
+class _DraggablePin extends StatefulWidget {
+  const _DraggablePin({
+    required this.child,
+    required this.onDragStart,
+    required this.onDragUpdate,
+    required this.onDragEnd,
+  });
+
+  final Widget child;
+  final VoidCallback onDragStart;
+  final void Function(BuildContext mapContext, Offset delta) onDragUpdate;
+  final VoidCallback onDragEnd;
+
+  @override
+  State<_DraggablePin> createState() => _DraggablePinState();
+}
+
+class _DraggablePinState extends State<_DraggablePin> {
+  bool _dragging = false;
+
+  void _start() {
+    _dragging = true;
+    widget.onDragStart();
+  }
+
+  void _end() {
+    if (!_dragging) return;
+    _dragging = false;
+    widget.onDragEnd();
+  }
+
+  @override
+  void dispose() {
+    // Culled mid-drag: commit what the visitor had, rather than leaving the
+    // map holding a drag that can never finish.
+    _end();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.grab,
+      child: RawGestureDetector(
+        behavior: HitTestBehavior.opaque,
+        gestures: <Type, GestureRecognizerFactory>{
+          _PinPanGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<_PinPanGestureRecognizer>(
+            () => _PinPanGestureRecognizer(debugOwner: this),
+            (instance) {
+              instance.onStart = (_) => _start();
+              instance.onUpdate =
+                  (details) => widget.onDragUpdate(context, details.delta);
+              instance.onEnd = (_) => _end();
+              // A cancelled drag has still moved the pin on screen;
+              // committing is less surprising than snapping it back.
+              instance.onCancel = _end;
+            },
+          ),
+          TapGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+            () => TapGestureRecognizer(debugOwner: this),
+            // Absorbed, deliberately. The marker sits *above* its point
+            // (`Alignment.topCenter`), so a tap on the pin that fell through
+            // to the map would be read as a tap roughly one icon-height north
+            // of where the pin already is, and re-drop it there — the visitor
+            // touches the pin and watches it walk up the street.
+            (instance) {
+              instance.onTap = () {};
+            },
+          ),
+        },
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// A pan that competes with a scrolling ancestor on equal terms.
+///
+/// A [PanGestureRecognizer] waits for [kPanSlop] (36 logical pixels) before it
+/// will claim the pointer, while the [Scrollable] this map sits inside claims
+/// at [kTouchSlop] (18). The page therefore won every mostly-vertical pin drag
+/// 18 pixels before this recogniser was allowed an opinion, and dragging the
+/// pin down a phone screen simply scrolled the form — the one gesture the map
+/// exists for did nothing on the platform it matters most on.
+///
+/// Matching the page's threshold lets the deeper recogniser resolve first, as
+/// a finger placed on the pin plainly intends. Dragging anywhere else on the
+/// map still scrolls the page.
+class _PinPanGestureRecognizer extends PanGestureRecognizer {
+  _PinPanGestureRecognizer({super.debugOwner});
+
+  @override
+  bool hasSufficientGlobalDistanceToAccept(
+    PointerDeviceKind pointerDeviceKind,
+    double? deviceTouchSlop,
+  ) =>
+      globalDistanceMoved.abs() >
+      computeHitSlop(pointerDeviceKind, gestureSettings);
 }

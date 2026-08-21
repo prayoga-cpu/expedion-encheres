@@ -70,8 +70,12 @@ class QuoteFormRules {
       final position = lastComma >= 0 ? lastComma : lastDot;
       final occurrences = separator.allMatches(cleaned).length;
       final digitsAfter = cleaned.length - position - 1;
-      final grouping =
-          occurrences > 1 || (separator == '.' && digitsAfter == 3);
+      // Three digits behind a lone separator is grouping whichever separator
+      // it is. "4,200" is ambiguous — French reads it as four-and-a-fifth,
+      // English as four thousand two hundred — and this field sizes the ad
+      // valorem cover, so the tie goes to the reading that cannot
+      // under-insure. Nobody declares a €4.20 lot at auction.
+      final grouping = occurrences > 1 || digitsAfter == 3;
       decimalAt = grouping ? -1 : position;
     } else {
       decimalAt = -1;
@@ -86,6 +90,10 @@ class QuoteFormRules {
 
     final whole = int.tryParse(wholeText.isEmpty ? '0' : wholeText);
     if (whole == null) return null;
+    // Past this, `whole * 100` would wrap on 64 bits and a twenty-digit entry
+    // would come back as a few centimes — under the cap, and insured for
+    // nothing. Anything this large is out of range whatever the exact value.
+    if (whole > maxDeclaredValueCents) return maxDeclaredValueCents + 1;
     // Anything past the centime is not money the insurer will price.
     final cents = int.tryParse(fractionText.padRight(2, '0').substring(0, 2));
     return cents == null ? null : whole * 100 + cents;
@@ -145,8 +153,19 @@ class QuoteFormRules {
   static bool isPhone(String raw) {
     if (raw.trim().isEmpty) return true;
     var digits = raw.replaceAll(RegExp(r'[^0-9+]'), '');
-    if (digits.startsWith('+33')) digits = '0${digits.substring(3)}';
-    if (digits.startsWith('0033')) digits = '0${digits.substring(4)}';
+
+    // International prefix, then the trunk zero that "+33 (0)6 12 34 56 78"
+    // writes out and the international form drops. Printed that way on half
+    // the letterheads in France, so refusing it would block Submit on an
+    // optional field for a number that is perfectly good.
+    for (final prefix in ['+33', '0033']) {
+      if (digits.startsWith(prefix)) {
+        var rest = digits.substring(prefix.length);
+        if (rest.startsWith('0')) rest = rest.substring(1);
+        digits = '0$rest';
+        break;
+      }
+    }
     return RegExp(r'^0[1-9]\d{8}$').hasMatch(digits);
   }
 }

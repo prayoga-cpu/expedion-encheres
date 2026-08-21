@@ -64,6 +64,25 @@ class _DSAddressAutocompleteState extends State<DSAddressAutocomplete> {
   /// Retires a search whose keystroke has been superseded.
   int _searchToken = 0;
 
+  /// The text the last search was started for, and what it found.
+  ///
+  /// `RawAutocomplete` rebuilds its options from *every* controller
+  /// notification, and a controller notifies on selection and composing
+  /// changes too — a caret move, a focus gain on a prefilled field, an IME
+  /// composing update. Those are not new queries: searching again would put
+  /// unthrottled traffic against Nominatim's rate limit, and retiring the
+  /// pending search would blank the dropdown the visitor was reading.
+  String? _lastQuery;
+  List<GeocodeSuggestion> _lastResults = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    // A field arriving with an address already in it — a restored draft, a
+    // pin — has nothing to search for until somebody edits it.
+    _lastQuery = widget.controller.text.trim();
+  }
+
   @override
   void dispose() {
     // Retires any search still in flight, so its result cannot be applied to
@@ -91,7 +110,16 @@ class _DSAddressAutocompleteState extends State<DSAddressAutocomplete> {
     }
 
     final query = value.text.trim();
-    if (query.length < 3) return const <GeocodeSuggestion>[];
+    if (query.length < 3) {
+      _lastQuery = query;
+      _lastResults = const [];
+      return const <GeocodeSuggestion>[];
+    }
+
+    // Same text as last time: hand back what that search found rather than
+    // starting — and retiring — another one.
+    if (query == _lastQuery) return _lastResults;
+    _lastQuery = query;
 
     final token = ++_searchToken;
     // Nominatim's usage policy caps unauthenticated callers at about one
@@ -101,6 +129,7 @@ class _DSAddressAutocompleteState extends State<DSAddressAutocomplete> {
 
     final results = await NominatimGeocoder.search(query);
     if (!mounted || token != _searchToken) return const <GeocodeSuggestion>[];
+    _lastResults = results;
     return results;
   }
 

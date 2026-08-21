@@ -169,6 +169,13 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   QuoteFormDraft? _storedDraft;
   bool _draftHandled = false;
 
+  /// The account slot this page read its draft from — the signed-in one, or
+  /// the shared `anon` slot when the visitor was not signed in. Submitting
+  /// clears exactly this slot and no other: deleting a draft the person in
+  /// front of us was never shown would be throwing away somebody else's
+  /// afternoon.
+  String _draftSlot = currentUserUid;
+
   @override
   void initState() {
     super.initState();
@@ -215,9 +222,23 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   void _bumpRevision() => _revision.value++;
 
   Future<void> _loadStoredDraft() async {
-    final stored = await QuoteFormDraft.load(currentUserUid);
+    var slot = currentUserUid;
+    var stored = await QuoteFormDraft.load(slot);
+
+    // Falling back to `anon` is what makes the sign-in detour survivable: a
+    // draft saved before signing in was written there, and by the time the
+    // visitor lands back here they have an account and would otherwise be
+    // shown an empty form.
+    if (stored == null && slot.isNotEmpty) {
+      stored = await QuoteFormDraft.load('');
+      if (stored != null) slot = '';
+    }
+
     if (!mounted || stored == null) return;
-    setState(() => _storedDraft = stored);
+    setState(() {
+      _draftSlot = slot;
+      _storedDraft = stored;
+    });
   }
 
   /// Carries a bordereau attached on the landing page in as though it had been
@@ -560,6 +581,7 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     setState(() {
       _savingDraft = false;
       if (stored) {
+        _draftSlot = currentUserUid;
         _storedDraft =
             QuoteFormDraft(values: snapshot, savedAt: DateTime.now());
         _draftHandled = true;
@@ -716,18 +738,32 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
               fallbackFr: "L'enregistrement a échoué. Réessayez.",
               fallbackEn: 'Saving failed. Try again.',
             );
-      _say(frText: message, enText: message);
       if (result.needsSignIn) {
+        // Signing in leaves this page, and everything typed on it goes with
+        // it. Park it first — under the identity we have now, which for a
+        // signed-out visitor is the `anon` slot that `_loadStoredDraft` falls
+        // back to when they return with an account.
+        final parked = await QuoteFormDraft.save(currentUserUid, _snapshot());
+        if (!mounted) return;
+        _say(
+          frText: parked
+              ? '\$message Votre demande est gardée en brouillon.'
+              : message,
+          enText: parked ? '\$message Your request is kept as a draft.' : message,
+        );
         context.pushNamed(SeConnecterWidget.routeName);
+        return;
       }
+
+      _say(frText: message, enText: message);
       return;
     }
 
-    // The quote is filed; the local copy has nothing left to protect. The
-    // `anon` slot goes too: a draft saved before signing in stays there, and
-    // it is shared with everyone else who uses this browser signed out.
+    // The quote is filed; the local copy has nothing left to protect. Both
+    // slots this form touched go — the one it saves into and, if different,
+    // the one it read from — and no others.
     await QuoteFormDraft.clear(currentUserUid);
-    if (currentUserUid.isNotEmpty) await QuoteFormDraft.clear('');
+    if (_draftSlot != currentUserUid) await QuoteFormDraft.clear(_draftSlot);
     if (!mounted) return;
 
     _say(
