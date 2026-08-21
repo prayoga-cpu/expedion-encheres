@@ -1,5 +1,6 @@
 import '/app_shell.dart';
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/bordereau_check.dart';
 import '/backend/expedion_api/quote_repository.dart';
 import '/backend/firebase_storage/storage.dart';
 import '/backend/quote_draft.dart';
@@ -16,6 +17,7 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'bordereau_review.dart';
 import 'formulaire_de_devis_par_bordereau_model.dart';
 export 'formulaire_de_devis_par_bordereau_model.dart';
 
@@ -49,6 +51,57 @@ class _FormulaireDeDevisParBordereauWidgetState
   /// and file two identical devis.
   bool _submitting = false;
 
+  /// The verdict on the attached bordereau.
+  ///
+  /// "Envoyer" is gated on it: this form's whole input is one document, and a
+  /// document that is not a bordereau produces a devis nobody can price. The
+  /// check runs at pick time so the objection lands while the client still has
+  /// the right file to hand — see [BordereauCheck].
+  BordereauCheck _check = const BordereauCheck.idle();
+
+  /// The attached file, kept so "Réessayer la lecture" does not have to send
+  /// the client back through the picker for a document they already chose.
+  Uint8List? _slipBytes;
+  String _slipFilename = '';
+
+  /// Guards against an out-of-order read: picking a second file while the
+  /// first is still in the model must not let the first one's verdict land on
+  /// the second one's document.
+  int _checkGeneration = 0;
+
+  Future<void> _runBordereauCheck(Uint8List bytes, String filename) async {
+    final generation = ++_checkGeneration;
+    safeSetState(() {
+      _slipBytes = bytes;
+      _slipFilename = filename;
+      _check = const BordereauCheck.checking();
+    });
+
+    final check = await BordereauCheck.run(bytes: bytes, filename: filename);
+    if (!mounted || generation != _checkGeneration) return;
+    safeSetState(() => _check = check);
+  }
+
+  /// Drops the verdict along with the file it belonged to. Bumping the
+  /// generation also orphans a read still in flight.
+  void _clearBordereauCheck() {
+    _checkGeneration++;
+    _slipBytes = null;
+    _slipFilename = '';
+    _check = const BordereauCheck.idle();
+  }
+
+  /// Whether the devis can be filed.
+  ///
+  /// Three conditions, and the first two are new: the bordereau has to have
+  /// reached storage (the asterisk on "Insérez un bordereau" was decoration —
+  /// an empty form submitted happily), and the check must not be objecting.
+  bool get _canSubmit =>
+      _model.uploadedFileUrl_uploadDataBordereau.isNotEmpty &&
+      !_model.isDataUploading_uploadDataBordereau &&
+      !_check.blocksSubmit &&
+      !_submitting;
+
   /// Files the devis with Expeditoo.
   ///
   /// This used to POST to Airtable and navigate away without looking at the
@@ -73,17 +126,31 @@ class _FormulaireDeDevisParBordereauWidgetState
         'Assurance ad valorem : ${_model.assuranceADVValue}',
     ].where((line) => line.isNotEmpty).join('\n');
 
-    final result = await QuoteRepository.create({
-      'bordereauDocUrl': bordereauUrl,
-      if (photoUrl.isNotEmpty && Uri.tryParse(photoUrl)?.hasScheme == true)
-        'photoUrls': [photoUrl],
-      'firstName': valueOrDefault(currentUserDocument?.prenom, ''),
-      'lastName': valueOrDefault(currentUserDocument?.nom, ''),
-      'email': currentUserEmail,
-      'phone': currentPhoneNumber,
-      'valueBracket': _model.trancheValue,
-      'comment': comment,
-    });
+    // What the bordereau said, with what the account knows laid over it. The
+    // signed-in client's own name, e-mail and phone are authoritative — the
+    // slip's "buyer" may be an agent, or simply out of date — but everything
+    // the slip alone can give (the auction house, the collection address, the
+    // lot and its value) now travels with the devis instead of waiting for
+    // someone to open the PDF by hand.
+    final payload = <String, dynamic>{..._check.quotePatch};
+    void fill(String key, Object? value) {
+      if (value == null) return;
+      if (value is String && value.trim().isEmpty) return;
+      payload[key] = value;
+    }
+
+    fill('bordereauDocUrl', bordereauUrl);
+    if (photoUrl.isNotEmpty && Uri.tryParse(photoUrl)?.hasScheme == true) {
+      fill('photoUrls', [photoUrl]);
+    }
+    fill('firstName', valueOrDefault(currentUserDocument?.prenom, ''));
+    fill('lastName', valueOrDefault(currentUserDocument?.nom, ''));
+    fill('email', currentUserEmail);
+    fill('phone', currentPhoneNumber);
+    fill('valueBracket', _model.trancheValue);
+    fill('comment', comment);
+
+    final result = await QuoteRepository.create(payload);
 
     if (!mounted) return;
     safeSetState(() => _submitting = false);
@@ -174,6 +241,16 @@ class _FormulaireDeDevisParBordereauWidgetState
         originalFilename: draftBordereau.originalFilename,
       );
       _model.uploadedLocalFile_uploadDataBordereau = stagedLocalFile;
+      // A slip that arrived from the landing page has to clear the same bar as
+      // one picked here — the gate is on the document, not on which screen
+      // chose it. Deferred with the upload below because `run` reads
+      // `ExpedionApi`'s credentials, and this is still `initState`.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => unawaited(_runBordereauCheck(
+          draftBordereau.bytes,
+          draftBordereau.originalFilename,
+        )),
+      );
       // TODO(EXPEDITOO-TESTING): best-effort upload of the express-card
       // bordereau. If Firebase Storage rejects the stored path (e.g. the file
       // was picked while signed out), uploadedFileUrl stays empty and the
@@ -1078,10 +1155,21 @@ class _FormulaireDeDevisParBordereauWidgetState
                                               onTap: () async {
                                                 final selectedFiles =
                                                     await selectFiles(
-                                                  allowedExtensions: ['pdf'],
+                                                  allowedExtensions:
+                                                      kBordereauExtensions,
                                                   multiFile: false,
                                                 );
                                                 if (selectedFiles != null) {
+                                                  // Read the slip and store it
+                                                  // at the same time: vision
+                                                  // over a PDF takes far longer
+                                                  // than the upload does, and
+                                                  // neither waits on the other.
+                                                  unawaited(_runBordereauCheck(
+                                                    selectedFiles.first.bytes,
+                                                    selectedFiles.first
+                                                        .originalFilename,
+                                                  ));
                                                   safeSetState(() => _model
                                                           .isDataUploading_uploadDataBordereau =
                                                       true);
@@ -1171,10 +1259,16 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                       MainAxisAlignment.center,
                                                   children: [
                                                     Text(
-                                                      FFLocalizations.of(
-                                                              context)
-                                                          .getText(
-                                                        'k52ooucw' /* Inserez un Bordereau (PDF) * */,
+                                                      // Not the generated
+                                                      // `k52ooucw` string any
+                                                      // more: that one promises
+                                                      // PDF, and the picker now
+                                                      // takes a photo of the
+                                                      // slip too.
+                                                      xpdT(
+                                                        context,
+                                                        'Insérez un bordereau (PDF ou photo) *',
+                                                        'Add your slip (PDF or photo) *',
                                                       ),
                                                       style:
                                                           FlutterFlowTheme.of(
@@ -1288,6 +1382,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                     '');
                                                         _model.uploadedFileUrl_uploadDataBordereau =
                                                             '';
+                                                        _clearBordereauCheck();
                                                       });
 
                                                       FFAppState()
@@ -1372,6 +1467,7 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 '');
                                                     _model.uploadedFileUrl_uploadDataBordereau =
                                                         '';
+                                                    _clearBordereauCheck();
                                                   });
 
                                                   FFAppState()
@@ -1721,6 +1817,34 @@ class _FormulaireDeDevisParBordereauWidgetState
                                               ),
                                             ].divide(SizedBox(width: 10.0)),
                                           ),
+                                        // The bordereau gate. Until a slip
+                                        // is attached this says so; once one
+                                        // is, it shows what we read off it or
+                                        // why it will not do. "Envoyer" stays
+                                        // disabled the whole time it objects.
+                                        if (_model.uploadedFileUrl_uploadDataBordereau
+                                                .isEmpty &&
+                                            !_model
+                                                .isDataUploading_uploadDataBordereau)
+                                          BordereauMissingHint(
+                                            uploadFailed: _model
+                                                    .uploadedLocalFile_uploadDataBordereau
+                                                    .bytes
+                                                    ?.isNotEmpty ??
+                                                false,
+                                          )
+                                        else
+                                          BordereauReviewPanel(
+                                            check: _check,
+                                            onRetry: _slipBytes == null
+                                                ? null
+                                                : () => unawaited(
+                                                      _runBordereauCheck(
+                                                        _slipBytes!,
+                                                        _slipFilename,
+                                                      ),
+                                                    ),
+                                          ),
                                         Padding(
                                           padding:
                                               EdgeInsetsDirectional.fromSTEB(
@@ -1845,14 +1969,14 @@ class _FormulaireDeDevisParBordereauWidgetState
                                               EdgeInsetsDirectional.fromSTEB(
                                                   0.0, 0.0, 0.0, 50.0),
                                           child: FFButtonWidget(
-                                            // Disabled while a bordereau is
-                                            // uploading — the same guard the
-                                            // file picker relies on — so the
-                                            // quote can't be sent without its
-                                            // attachment.
-                                            onPressed:
-                                                _model.isDataUploading_uploadDataBordereau ||
-                                                        _submitting
+                                            // Disabled until there is a
+                                            // bordereau in storage that the
+                                            // check did not reject — see
+                                            // [_canSubmit]. The panel above
+                                            // says which of those is missing,
+                                            // so a dead button is never
+                                            // unexplained.
+                                            onPressed: !_canSubmit
                                                     ? null
                                                     : () async {
                                                         // The express-card bordereau

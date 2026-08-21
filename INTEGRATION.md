@@ -205,7 +205,10 @@ unverified:
 - **No extraction has been performed.** The GPT-4.1 prompt and JSON schema are
   untested against a real bordereau. The dimension-unit heuristic
   (`normaliseDimensions`) in particular is a guess about a failure mode, not an
-  observed one.
+  observed one. `POST /api/expedion/extract` now has a caller (§11) and its
+  thresholds are unit-tested, but no request has reached a live model, so the
+  *rate* at which real slips clear the gate is unknown — see §11 before
+  tightening it.
 - **No SMS has been sent**, and the E.164 normaliser has not seen real Airtable
   phone data.
 - **No escalation has run**, so the generated listing has never been validated
@@ -464,3 +467,69 @@ no foreign key was ever added to a populated table. **The seven orphaned tables
 were left untouched**; dropping them is a data decision, not a schema one.
 `pnpm db:migrate` still cannot run, because drizzle's journal has no record of
 the baseline.
+
+---
+
+## 11. The bordereau gate on *Formulaire de devis par bordereau* *(added)*
+
+`ExpedionApi.extractBordereau` was written in Phase B and never called: the
+upload form took any PDF, filed the devis, and left "is this actually a
+bordereau?" to whoever opened the attachment days later. The asterisk on
+"Insérez un bordereau" was decoration — an empty form submitted happily too.
+
+### The flow
+
+| Step | What happens |
+|---|---|
+| No file | `BordereauMissingHint` — "Envoyer" disabled, with the standard one tap away |
+| File picked | `POST /api/expedion/extract` fires alongside the Firebase upload, not after it |
+| Reading | Panel shows progress; "Envoyer" stays disabled |
+| Read, complete | Field preview grouped as sale / collection / lot / buyer; "Envoyer" enabled |
+| Read, incomplete | Refusal naming the missing fields; "Envoyer" stays disabled |
+| Could not read | Warning, and **"Envoyer" is enabled** — see below |
+
+New files: `lib/backend/bordereau_check.dart` (the rule and the field
+standard), `.../formulaire_de_devis_par_bordereau/bordereau_review.dart` (the
+four panels and the guide dialog), plus `test/bordereau_check_test.dart` and
+`test/bordereau_review_test.dart`.
+
+### The rule, and where to change it
+
+Required — `kBordereauRequiredFields` in `bordereau_check.dart`, which is also
+what the guide dialog prints, so the two cannot drift:
+
+`bordereauNumber`, `auctionHouseName`, a collection locality (street **or**
+postcode **or** town), `lotDescription`, `declaredValueEur`; plus
+`confidence >= kBordereauMinConfidence` (0.35).
+
+Dimensions and weight are deliberately **not** required. French slips rarely
+print them and *Confirmer les détails* exists to collect them; requiring them
+would refuse most real bordereaux. `findMissing` on the server flags them for
+that screen, which is a different job from this gate.
+
+### Decision: an unreadable document is not a rejected one
+
+`BordereauCheck.blocksSubmit` is false for `unavailable`. One unset
+`OPENAI_API_KEY`, one 503, one signed-out visitor would otherwise take the
+whole quote funnel down — every client would meet a dead button. Those uploads
+go through with a visible "we could not verify this" notice and are checked by
+hand. Flip `blocksSubmit` to include `isUnavailable` if that trade ever stops
+being the right one.
+
+### Two limits worth knowing
+
+- **3 MB** (`kBordereauMaxBytes`). The extraction route is a Vercel function
+  and those refuse a body over 4.5 MB; base64 costs a third on top. Caught
+  client-side, or it surfaces as an opaque network error.
+- **HEIC is not accepted.** OpenAI rejects it outright, so the picker does not
+  offer it — the failure would only move somewhere slower and less explicable.
+  The type is sniffed from the leading bytes, not trusted from the extension.
+
+### Side effect: the devis arrives filled in
+
+`BordereauCheck.quotePatch` maps the extraction onto
+`createExpedionQuoteSchema`'s columns, and the submit merges the account's own
+name/e-mail/phone over the top. A quote that used to reach the database as a
+bare `bordereauDocUrl` now carries the auction house, the collection address,
+the lot and its declared value. No second vision call: the extraction the gate
+already ran is reused.
