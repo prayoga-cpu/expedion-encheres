@@ -41,10 +41,215 @@ class PaiementWidget extends StatefulWidget {
 class _PaiementWidgetState extends State<PaiementWidget> {
   late PaiementModel _model;
 
+  /// After the payment link is e-mailed, the page swaps its two action buttons
+  /// for an in-place confirmation + "waiting for payment" status + resend,
+  /// rather than popping to a blank route (this is now a full page, not a
+  /// dialog, so there may be nothing to pop to).
+  bool _emailSent = false;
+  String _sentToEmail = '';
+  bool _resending = false;
+
   @override
   void setState(VoidCallback callback) {
     super.setState(callback);
     _model.onUpdate();
+  }
+
+  /// The quote-kind label in the reader's language. `TypeDeDevisValide` holds a
+  /// French sentinel used for logic ('Devis avec assurance AD valorem' /
+  /// '...Standard'); showing it raw leaked French under the EN toggle.
+  String _localizedKind(BuildContext context) {
+    final kind = FFAppState().TypeDeDevisValide;
+    final insured = kind == 'Devis avec assurance AD valorem';
+    return xpdT(
+      context,
+      insured ? 'Devis avec assurance Ad Valorem' : 'Devis avec assurance Standard',
+      insured ? 'Quote with Ad Valorem insurance' : 'Quote with Standard insurance',
+    );
+  }
+
+  /// Creates a Checkout session server-side and e-mails the link, in the
+  /// reader's language. On success the page switches to its "sent" state
+  /// (confirmation + waiting-for-payment status + resend) instead of leaving
+  /// the user on a dead-end. Shared by the button and the resend link.
+  Future<void> _sendEmailLink(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final isEnglish = xpdIsEnglish(context);
+    final email = currentUserEmail;
+    final quoteId = widget.quoteID ?? '';
+
+    if (email.isEmpty) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(xpdT(
+            context,
+            'Aucune adresse e-mail associée à votre compte.',
+            'No e-mail address associated with your account.')),
+      ));
+      return;
+    }
+    if (quoteId.isEmpty || currentUserUid.isEmpty) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(xpdT(
+            context,
+            'Session ou devis introuvable. Reconnectez-vous puis réessayez.',
+            'Session or quote not found. Please sign in again and retry.')),
+      ));
+      return;
+    }
+    final amount = computePaiementAmountCents(
+      typeDevisValide: FFAppState().TypeDeDevisValide,
+      tarifAdvCents: widget.tarifADV,
+      tarifStdCents: widget.tarifSTD,
+    );
+    if (amount == null || amount <= 0) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(xpdT(
+            context,
+            'Tarif indisponible pour ce devis. Contactez-nous avant de payer.',
+            'No rate available for this quote. Please contact us before paying.')),
+      ));
+      return;
+    }
+
+    if (mounted) safeSetState(() => _resending = true);
+    final baseUrl = paiementRedirectBaseUrl();
+    // Paying the emailed link redirects to /success and updates the quote,
+    // exactly like "Payer".
+    final result = await SendPaymentLinkEmailCall.call(
+      email: email,
+      amount: amount,
+      currency: 'EUR',
+      productName: 'Retrait/Expédition de biens',
+      successUrl:
+          '$baseUrl/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(quoteId)}',
+      cancelUrl: '$baseUrl/cancel',
+      userID: currentUserUid,
+      orderID: quoteId,
+      recordID: quoteId,
+      quoteNum: widget.quoteNum,
+      // Detect the user's language so the e-mail matches the FR/EN toggle.
+      lang: isEnglish ? 'en' : 'fr',
+    );
+    if (!result.succeeded && kDebugMode) {
+      debugPrint(
+          'email-link failed: status=${result.statusCode} body=${result.jsonBody}');
+    }
+    if (!mounted) return;
+    if (result.succeeded) {
+      safeSetState(() {
+        _emailSent = true;
+        _sentToEmail = email;
+        _resending = false;
+      });
+    } else {
+      safeSetState(() => _resending = false);
+      messenger.showSnackBar(SnackBar(
+        content: Text(xpdT(context, 'Échec de l\'envoi de l\'e-mail. Réessayez.',
+            'Failed to send the e-mail. Please try again.')),
+      ));
+    }
+  }
+
+  /// The page's "link sent" state: a confirmation, a waiting-for-payment
+  /// status line, and a resend action — replaces the two action buttons once
+  /// the e-mail has gone out.
+  Widget _sentConfirmation(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: theme.success.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12.0),
+            border: Border.all(color: theme.success.withValues(alpha: 0.4)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.mark_email_read_rounded,
+                      color: theme.success, size: 22.0),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: Text(
+                      xpdT(context, 'Lien de paiement envoyé',
+                          'Payment link sent'),
+                      style: theme.titleSmall.override(
+                        font: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700),
+                        letterSpacing: 0.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6.0),
+              Text(
+                xpdT(
+                  context,
+                  'Nous avons envoyé le lien de paiement à $_sentToEmail. Ouvrez-le pour régler ce devis en toute sécurité.',
+                  'We sent the payment link to $_sentToEmail. Open it to pay this quote securely.',
+                ),
+                style: theme.bodySmall.override(
+                  font: GoogleFonts.plusJakartaSans(),
+                  color: theme.secondaryText,
+                  letterSpacing: 0.0,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12.0),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 12.0,
+              height: 12.0,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2.0, color: theme.primary),
+            ),
+            const SizedBox(width: 8.0),
+            Text(
+              xpdT(context, 'En attente du paiement…', 'Waiting for payment…'),
+              style: theme.bodySmall.override(
+                font: GoogleFonts.plusJakartaSans(),
+                color: theme.secondaryText,
+                letterSpacing: 0.0,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12.0),
+        FFButtonWidget(
+          onPressed: _resending ? null : () => _sendEmailLink(context),
+          text: _resending
+              ? xpdT(context, 'Envoi…', 'Sending…')
+              : xpdT(context, 'Renvoyer le lien', 'Resend the link'),
+          options: FFButtonOptions(
+            width: double.infinity,
+            height: 44.0,
+            padding: const EdgeInsets.all(8.0),
+            color: theme.secondaryBackground,
+            textStyle: theme.titleSmall.override(
+              font: GoogleFonts.plusJakartaSans(),
+              color: theme.primary,
+              letterSpacing: 0.0,
+            ),
+            elevation: 0.0,
+            borderSide: BorderSide(color: theme.primary, width: 1.0),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -98,7 +303,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      FFAppState().TypeDeDevisValide,
+                      _localizedKind(context),
                       style:
                           FlutterFlowTheme.of(context).headlineSmall.override(
                                 font: GoogleFonts.plusJakartaSans(
@@ -185,7 +390,7 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                   ].divide(const SizedBox(height: 12.0)),
                 ),
 
-                // ── Validity + Pay Button ──
+                // ── Validity + actions (or the "link sent" state) ──
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -205,7 +410,8 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                             letterSpacing: 0.0,
                           ),
                     ),
-                    FFButtonWidget(
+                    if (_emailSent) _sentConfirmation(context),
+                    if (!_emailSent) FFButtonWidget(
                       onPressed: () async {
                         final messenger = ScaffoldMessenger.of(context);
                         // Read the locale before any `await` below so later
@@ -341,93 +547,8 @@ class _PaiementWidgetState extends State<PaiementWidget> {
                       ),
                     ),
                     // ── Alternative: receive the Stripe link by e-mail ──
-                    FFButtonWidget(
-                      onPressed: () async {
-                        final messenger = ScaffoldMessenger.of(context);
-                        final navigator = Navigator.of(context);
-                        // Read the locale before any `await` below so later
-                        // messages don't touch `context` across an async gap.
-                        final isEnglish = xpdIsEnglish(context);
-                        final email = currentUserEmail;
-                        final quoteId = widget.quoteID ?? '';
-
-                        if (email.isEmpty) {
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text(xpdT(
-                                  context,
-                                  'Aucune adresse e-mail associée à votre compte.',
-                                  'No e-mail address associated with your account.')),
-                            ),
-                          );
-                          return;
-                        }
-                        if (quoteId.isEmpty || currentUserUid.isEmpty) {
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text(xpdT(
-                                  context,
-                                  'Session ou devis introuvable. Reconnectez-vous puis réessayez.',
-                                  'Session or quote not found. Please sign in again and retry.')),
-                            ),
-                          );
-                          return;
-                        }
-
-                        final amount = computePaiementAmountCents(
-                          typeDevisValide: FFAppState().TypeDeDevisValide,
-                          tarifAdvCents: widget.tarifADV,
-                          tarifStdCents: widget.tarifSTD,
-                        );
-                        if (amount == null || amount <= 0) {
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text(xpdT(
-                                  context,
-                                  'Tarif indisponible pour ce devis. Contactez-nous avant de payer.',
-                                  'No rate available for this quote. Please contact us before paying.')),
-                            ),
-                          );
-                          return;
-                        }
-                        final baseUrl = paiementRedirectBaseUrl();
-
-                        // The payment server creates a Checkout session and
-                        // e-mails the link. Paying it redirects to /success and
-                        // updates the quote, exactly like "Payer".
-                        final result = await SendPaymentLinkEmailCall.call(
-                          email: email,
-                          amount: amount,
-                          currency: 'EUR',
-                          productName: 'Retrait/Expédition de biens',
-                          successUrl:
-                              '$baseUrl/success?session_id={CHECKOUT_SESSION_ID}&recordId=${Uri.encodeQueryComponent(quoteId)}',
-                          cancelUrl: '$baseUrl/cancel',
-                          userID: currentUserUid,
-                          orderID: quoteId,
-                          recordID: quoteId,
-                          quoteNum: widget.quoteNum,
-                        );
-                        if (!result.succeeded && kDebugMode) {
-                          debugPrint(
-                              'email-link failed: status=${result.statusCode} body=${result.jsonBody}');
-                        }
-
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(result.succeeded
-                                ? (isEnglish
-                                    ? 'Payment invoice sent to $email'
-                                    : 'Facture de paiement envoyée à $email')
-                                : (isEnglish
-                                    ? 'Failed to send the e-mail. Please try again.'
-                                    : 'Échec de l\'envoi de l\'e-mail. Réessayez.')),
-                          ),
-                        );
-                        if (result.succeeded) {
-                          navigator.pop();
-                        }
-                      },
+                    if (!_emailSent) FFButtonWidget(
+                      onPressed: () => _sendEmailLink(context),
                       text: xpdT(context, 'Recevoir le lien par e-mail',
                           'Receive the link by e-mail'),
                       options: FFButtonOptions(

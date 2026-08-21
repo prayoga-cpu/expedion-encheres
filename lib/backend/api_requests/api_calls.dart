@@ -686,6 +686,7 @@ class SendPaymentLinkEmailCall {
     String? orderID = '',
     String? recordID = '',
     String? quoteNum = '',
+    String? lang = 'fr',
   }) async {
     final ffApiRequestBody = '''
 {
@@ -698,7 +699,8 @@ class SendPaymentLinkEmailCall {
   "orderID": "${escapeStringForJson(orderID)}",
   "recordID": "${escapeStringForJson(recordID)}",
   "quoteNum": "${escapeStringForJson(quoteNum)}",
-  "customerEmail": "${escapeStringForJson(email)}"
+  "customerEmail": "${escapeStringForJson(email)}",
+  "lang": "${escapeStringForJson(lang)}"
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'SendPaymentLinkEmail',

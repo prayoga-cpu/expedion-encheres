@@ -194,6 +194,64 @@ async function createCheckoutSession(b) {
   return { status: r.status, payload: r.body }; // pass Stripe's {id,url,...} through
 }
 
+// The payment-link e-mail, in the reader's language, on Expedion's palette.
+// `lang` comes from the client (the FR/EN toggle); anything but 'en' is French,
+// which is also the product's default. Colours are the design-system tokens
+// (XpdPalette): brand blue #0052FF, amber ring #FFA91F, light card on #F4F5F8.
+// Kept to table layout + inline styles so it renders in every mail client.
+function paymentEmailContent({ lang, euros, quoteNum, url }) {
+  const en = lang === 'en';
+  const label = quoteNum ? (en ? ` #${quoteNum}` : ` n°${quoteNum}`) : '';
+  const t = en
+    ? {
+        subject: `Your payment link${label} — Expedion Enchères`,
+        preview: `Your secure payment link for ${euros} €`,
+        hi: 'Hello,',
+        body: `Here is your secure payment link for quote${label}, for the amount of`,
+        cta: 'Pay online via Stripe',
+        safe: 'This link is secure and processed by Stripe. If you did not request it, you can ignore this e-mail.',
+        thanks: 'Thank you for your trust,',
+      }
+    : {
+        subject: `Votre lien de paiement${label} — Expedion Enchères`,
+        preview: `Votre lien de paiement sécurisé pour ${euros} €`,
+        hi: 'Bonjour,',
+        body: `Voici votre lien de paiement sécurisé pour le devis${label}, d'un montant de`,
+        cta: 'Payer en ligne via Stripe',
+        safe: "Ce lien est sécurisé et traité par Stripe. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.",
+        thanks: 'Merci de votre confiance,',
+      };
+  const html = `<!doctype html><html lang="${en ? 'en' : 'fr'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#F4F5F8;">
+<span style="display:none;max-height:0;overflow:hidden;opacity:0;">${t.preview}</span>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F4F5F8;padding:32px 16px;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#FFFFFF;border:1px solid #1A0C121C;border-radius:16px;overflow:hidden;">
+<tr><td style="padding:28px 32px 8px;">
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td style="vertical-align:middle;padding-right:10px;">
+<div style="width:26px;height:26px;border:3px solid #FFA91F;border-radius:50%;position:relative;box-sizing:border-box;">
+<div style="width:9px;height:9px;background:#0052FF;border-radius:50%;position:absolute;top:5px;left:5px;"></div></div></td>
+<td style="vertical-align:middle;">
+<span style="font-size:17px;font-weight:800;letter-spacing:.5px;color:#111419;">EXPEDION</span>
+<span style="font-size:11px;font-weight:600;letter-spacing:2px;color:#FFA91F;display:block;line-height:1;">ENCHÈRES</span></td>
+</tr></table></td></tr>
+<tr><td style="padding:16px 32px 0;">
+<p style="margin:0 0 12px;font-size:15px;color:#111419;">${t.hi}</p>
+<p style="margin:0 0 8px;font-size:15px;line-height:1.5;color:#3B4450;">${t.body}</p>
+<p style="margin:0 0 24px;font-size:28px;font-weight:800;color:#111419;">${euros} €</p>
+</td></tr>
+<tr><td align="center" style="padding:0 32px 8px;">
+<a href="${url}" style="display:block;padding:15px 24px;background:#0052FF;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:16px;font-weight:700;text-align:center;">${t.cta}</a>
+</td></tr>
+<tr><td style="padding:16px 32px 28px;">
+<p style="margin:0 0 20px;font-size:12px;line-height:1.5;color:#69737F;">${t.safe}</p>
+<p style="margin:0;font-size:14px;color:#3B4450;">${t.thanks}<br><b style="color:#111419;">Expedion Enchères</b></p>
+</td></tr>
+</table></td></tr></table></body></html>`;
+  return { subject: t.subject, html };
+}
+
 async function sendPaymentEmail(b) {
   if (!b.recordID || !b.customerEmail) {
     return {
@@ -228,17 +286,13 @@ async function sendPaymentEmail(b) {
     };
   }
   const euros = (price.cents / 100).toFixed(2);
-  const label = b.quoteNum ? ` n°${b.quoteNum}` : '';
-  const html =
-    `<p>Bonjour,</p>` +
-    `<p>Voici votre lien de paiement sécurisé pour le devis${label} d'un montant de <b>${euros} €</b>.</p>` +
-    `<p><a href="${session.url}" style="display:inline-block;padding:10px 20px;background:#007BFF;color:#fff;text-decoration:none;border-radius:5px;">Payer en ligne via Stripe</a></p>` +
-    `<p>Merci de votre confiance,<br/>Expedion Enchères</p>`;
-  const mail = await resendSend(
-    b.customerEmail,
-    `Votre lien de paiement${label} - Expedion Enchères`,
-    html,
-  );
+  const { subject, html } = paymentEmailContent({
+    lang: b.lang === 'en' ? 'en' : 'fr',
+    euros,
+    quoteNum: b.quoteNum,
+    url: session.url,
+  });
+  const mail = await resendSend(b.customerEmail, subject, html);
   const emailed = mail.status >= 200 && mail.status < 300;
   console.log(
     `[send-email] to=${b.customerEmail} record=${b.recordID} charged=${price.cents} resend=${mail.status} emailed=${emailed}`,
