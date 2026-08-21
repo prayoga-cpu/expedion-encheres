@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 
 import '/flutter_flow/flutter_flow_util.dart';
 import 'api_manager.dart';
@@ -8,17 +8,30 @@ export 'api_manager.dart' show ApiCallResponse;
 /// Base URL of the payment server that creates Stripe Checkout sessions with
 /// the SECRET key (which can't live in the client) and e-mails payment links.
 ///
-/// Defaults to the local dev server (tools/local_payment_server.js) so the flow
-/// works WITHOUT deploying / fixing the Firebase Cloud Function. For production,
-/// host that same server (or a corrected Cloud Function) and point this here.
-// TODO(EXPEDITOO-TESTING): localhost fallback — deploy the payment server
-// (tools/local_payment_server.js, or a fixed Cloud Function) and set
-// PAYMENT_SERVER_URL in the Vercel build env (wired through vercel-build.sh)
-// so deployed builds stop pointing at localhost:4242.
-const _kPaymentServerBaseUrl = String.fromEnvironment(
-  'PAYMENT_SERVER_URL',
-  defaultValue: 'http://localhost:4242',
-);
+/// The endpoints are deployed as Vercel functions in this repo's own `api/`
+/// directory, so a release web build calls its OWN origin — no configuration
+/// and no CORS. `PAYMENT_SERVER_URL` remains as an override for pointing a
+/// build somewhere else; local dev falls back to
+/// `tools/local_payment_server.js` on :4242, which serves the same handlers.
+///
+/// The empty-define trap the old constant had: `vercel-build.sh` always
+/// passes `--dart-define=PAYMENT_SERVER_URL=` and a defined-but-empty value
+/// suppresses `defaultValue`, so the deployed build silently called
+/// `https:///...` (empty host) and every payment failed with a generic
+/// "réessayez". Resolving through a function that treats empty as unset —
+/// the pattern `ExpedionConfig.baseUrl` already uses — closes that hole.
+const _kPaymentServerUrlDefine = String.fromEnvironment('PAYMENT_SERVER_URL');
+
+String paymentServerBaseUrl() {
+  final configured = _kPaymentServerUrlDefine.trim();
+  if (configured.isNotEmpty) {
+    return configured.endsWith('/')
+        ? configured.substring(0, configured.length - 1)
+        : configured;
+  }
+  if (kIsWeb && kReleaseMode) return Uri.base.origin;
+  return 'http://localhost:4242';
+}
 
 /// Airtable Personal Access Token, supplied at build time via
 /// `--dart-define=AIRTABLE_PAT=...` rather than committed to source.
@@ -509,7 +522,7 @@ class CreatePaymentIntentCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'CreatePaymentIntent',
-      apiUrl: '$_kPaymentServerBaseUrl/create-checkout-session',
+      apiUrl: '${paymentServerBaseUrl()}/api/create-checkout-session',
       callType: ApiCallType.POST,
       headers: {'Content-Type': 'application/json'},
       params: {},
@@ -640,7 +653,7 @@ class ConfirmPaymentCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'ConfirmPayment',
-      apiUrl: '$_kPaymentServerBaseUrl/confirm-payment',
+      apiUrl: '${paymentServerBaseUrl()}/api/confirm-payment',
       callType: ApiCallType.POST,
       headers: {'Content-Type': 'application/json'},
       params: {},
@@ -689,7 +702,7 @@ class SendPaymentLinkEmailCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'SendPaymentLinkEmail',
-      apiUrl: '$_kPaymentServerBaseUrl/send-payment-email',
+      apiUrl: '${paymentServerBaseUrl()}/api/send-payment-email',
       callType: ApiCallType.POST,
       headers: {
         'Content-Type': 'application/json',

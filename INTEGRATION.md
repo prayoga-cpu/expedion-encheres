@@ -411,7 +411,7 @@ references the call any more, so the credential is unused at runtime.
 |---|---|---|
 | `EXPEDION_API_BASE_URL` | **optional** | Override only. Debug builds default to `http://localhost:3000`; release builds (`kReleaseMode`) default to the deployed `expeditoo-ship` instance (`ExpedionConfig._vercelDeployment`) — fixed in `6a0a43a`. Leave unset unless pointing at something other than that deployment. |
 | `EXPEDION_API_KEY` | **do not set on web** | Legacy app-level key for Firebase-era clients. Any holder can claim any UID, so it must never reach a browser bundle. Sessions replace it. |
-| `PAYMENT_SERVER_URL` | **required for payments** | Stripe server. Defaults to `http://localhost:4242`. Not part of the Expeditoo integration. |
+| `PAYMENT_SERVER_URL` | **optional** | Override only. A release web build calls its own origin — the Stripe endpoints ship with this repo as Vercel functions (`api/create-checkout-session`, `send-payment-email`, `confirm-payment`, shared core in `api/_payment_core.js`; `tools/local_payment_server.js` runs the same handlers on :4242 for dev, which stays the non-release default). The functions read `STRIPE_SECRET_KEY`, `EXPEDION_API_BASE_URL`, `EXPEDION_ADMIN_API_KEY`, and optionally `RESEND_API_KEY`/`RESEND_FROM` from the **expedion-encheres** Vercel project's runtime env. |
 | `APP_PUBLIC_URL` | **optional** | Stripe Checkout return URL. Web falls back to the page's own origin. |
 | `AIRTABLE_PAT` | **still required** | Six screens below still read Airtable. Drop it once they are repointed. |
 | `AIRTABLE_PAT_TRANSPORTEURS` | **dead — remove** | Its only consumer is `NewTransporteurCall`, which no screen calls. |

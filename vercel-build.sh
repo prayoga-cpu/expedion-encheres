@@ -23,9 +23,14 @@ flutter pub get
 #                               so an unset value here is fine; a WRONG value here
 #                               silently overrides that default)
 #   AIRTABLE_PAT                Airtable Personal Access Token (quotes base)
-#   PAYMENT_SERVER_URL          deployed tools/local_payment_server.js origin;
-#                               unset means payment is refused with a message
-#                               rather than sent to a loopback address
+#   PAYMENT_SERVER_URL          optional override. Unset, a release web build
+#                               calls its own origin — the payment endpoints
+#                               deploy with this project as Vercel functions
+#                               (api/create-checkout-session and siblings).
+#                               Those functions need STRIPE_SECRET_KEY,
+#                               EXPEDION_API_BASE_URL, EXPEDION_ADMIN_API_KEY
+#                               (+ RESEND_API_KEY for the e-mail link) in this
+#                               project's Vercel env — runtime env, not build.
 #   APP_PUBLIC_URL              origin Stripe must redirect back to; leave
 #                               unset to use whatever origin serves the build
 #
