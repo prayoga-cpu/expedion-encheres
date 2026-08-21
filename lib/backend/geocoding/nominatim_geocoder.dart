@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// A single Nominatim search result, trimmed to what an address form needs.
@@ -80,7 +81,7 @@ class NominatimGeocoder {
 
       return decoded
           .whereType<Map<String, dynamic>>()
-          .map(_fromJson)
+          .map(parseHit)
           .whereType<GeocodeSuggestion>()
           .toList();
     } catch (_) {
@@ -104,7 +105,59 @@ class NominatimGeocoder {
     return results.isEmpty ? null : results.first;
   }
 
-  static GeocodeSuggestion? _fromJson(Map<String, dynamic> json) {
+  /// Reverse search: the address at a point, for the map picker's pin.
+  ///
+  /// The counterpart of `reverseGeocode` in
+  /// `expeditoo-ship/src/lib/geocoding.ts`, which the admin's own map picker
+  /// calls on every pin drop and drag. Returns `null` when the point has no
+  /// address Nominatim knows, or is outside France — the caller keeps the
+  /// coordinates and leaves the typed address alone rather than blanking it.
+  static Future<GeocodeSuggestion?> reverse(double lat, double lng) async {
+    final uri = Uri.parse('$_baseUrl/reverse').replace(queryParameters: {
+      'lat': '$lat',
+      'lon': '$lng',
+      'format': 'jsonv2',
+      'addressdetails': '1',
+      'zoom': '18',
+    });
+
+    try {
+      final response = await http
+          .get(uri, headers: _headers)
+          .timeout(const Duration(seconds: 8));
+      if (response.statusCode != 200) return null;
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) return null;
+      if (decoded['error'] != null) return null;
+
+      // `streetFallback: false` is the one difference from a forward hit.
+      // A search result with no road is still worth showing as its full
+      // display name — that is what the visitor picked. A *pin* with no road
+      // is not: the caller writes `address` straight into the street field,
+      // and "Parc Monceau, 8e Arrondissement, Paris, Île-de-France, 75008,
+      // France" is not a street. Returning it empty lets the caller keep
+      // whatever the visitor typed, which is what the component this is
+      // ported from does (`result.street || value.address` in
+      // `location-picker-field.tsx`).
+      return parseHit(decoded, streetFallback: false);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Splits one Nominatim hit — forward or reverse — into the fields an
+  /// address form needs.
+  ///
+  /// [streetFallback] decides what happens when the hit has no house number
+  /// and no road: a forward search falls back to the full display name (it is
+  /// the only label the visitor has to recognise the place by), a reverse hit
+  /// returns an empty street rather than pretending a place name is one.
+  @visibleForTesting
+  static GeocodeSuggestion? parseHit(
+    Map<String, dynamic> json, {
+    bool streetFallback = true,
+  }) {
     final lat = double.tryParse('${json['lat']}');
     final lng = double.tryParse('${json['lon']}');
     if (lat == null || lng == null) return null;
@@ -121,8 +174,7 @@ class NominatimGeocoder {
 
     final houseNumber = (address['house_number'] as String?)?.trim() ?? '';
     final road = (address['road'] as String?)?.trim() ?? '';
-    final streetLine =
-        [houseNumber, road].where((s) => s.isNotEmpty).join(' ');
+    final streetLine = [houseNumber, road].where((s) => s.isNotEmpty).join(' ');
 
     final city = (address['city'] ??
             address['town'] ??
@@ -136,7 +188,9 @@ class NominatimGeocoder {
 
     return GeocodeSuggestion(
       label: displayName.isNotEmpty ? displayName : streetLine,
-      address: streetLine.isNotEmpty ? streetLine : displayName,
+      address: streetLine.isNotEmpty
+          ? streetLine
+          : (streetFallback ? displayName : ''),
       city: city,
       postalCode: postalCode,
       lat: lat,

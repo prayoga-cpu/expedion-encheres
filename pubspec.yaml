@@ -63,6 +63,7 @@ dependencies:
   firebase_storage_web: 3.10.14
   flutter_animate: 4.5.0
   flutter_cache_manager: 3.4.1
+  flutter_map: 8.1.1
   flutter_plugin_android_lifecycle: 2.0.28
   flutter_stripe: 11.5.0
   flutter_stripe_web: 6.5.1
@@ -87,6 +88,7 @@ dependencies:
   image_picker_windows: 0.2.1+1
   intl: 0.20.3
   json_path: 0.7.2
+  latlong2: 0.9.1
   mime_type: 1.0.0
   page_transition: 2.2.2
   path_provider: 2.1.4

@@ -13,6 +13,7 @@
 /// | `DSBadge`           | `badge.tsx`                  |
 /// | `DSButton`          | `button.tsx`                 |
 /// | `DSTextField`       | `input.tsx` + `label.tsx`    |
+/// | `DSAddressPicker`   | `location-picker-field.tsx`  |
 /// | `showDSSheet`       | `sheet.tsx`                  |
 /// | `DSEmptyState`      | `centered-empty-state.tsx`   |
 /// | `DSPageLoader`      | `page-loader.tsx`            |
@@ -38,6 +39,7 @@ export 'ds_button.dart';
 export 'ds_card.dart';
 export 'ds_empty_state.dart';
 export 'ds_loader.dart';
+export 'ds_location_picker.dart';
 // `DSNavItem`, `DSSearchBar`, `DSSegmentedControl`, `DSNotificationBadge` —
 // interior-page controls the site layer has no counterpart for yet.
 export 'ds_navigation.dart';

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '/backend/geocoding/nominatim_geocoder.dart';
@@ -35,6 +33,7 @@ class DSAddressAutocomplete extends StatefulWidget {
     this.helperText,
     this.validator,
     this.focusNode,
+    this.isProgrammaticEdit,
   });
 
   final TextEditingController controller;
@@ -45,46 +44,64 @@ class DSAddressAutocomplete extends StatefulWidget {
   final String? Function(String?)? validator;
   final FocusNode? focusNode;
 
+  /// Whether the edit arriving right now came from the owner rather than the
+  /// keyboard — a pin dropped on the map, a restored draft.
+  ///
+  /// Without it every programmatic write reads as typing: a second Nominatim
+  /// search fires for text nobody typed, and the suggestions overlay reopens
+  /// over the address the map just filled in, offering stale alternatives that
+  /// silently replace the pin if one is tapped.
+  final bool Function()? isProgrammaticEdit;
+
   @override
   State<DSAddressAutocomplete> createState() => _DSAddressAutocompleteState();
 }
 
 class _DSAddressAutocompleteState extends State<DSAddressAutocomplete> {
-  Timer? _debounce;
-  List<GeocodeSuggestion> _options = const [];
   late final FocusNode _focusNode = widget.focusNode ?? FocusNode();
   bool get _ownsFocusNode => widget.focusNode == null;
 
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(_onTextChanged);
-  }
+  /// Retires a search whose keystroke has been superseded.
+  int _searchToken = 0;
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onTextChanged);
-    _debounce?.cancel();
+    // Retires any search still in flight, so its result cannot be applied to
+    // a disposed state.
+    _searchToken++;
     if (_ownsFocusNode) _focusNode.dispose();
     super.dispose();
   }
 
-  void _onTextChanged() {
-    final query = widget.controller.text;
-    _debounce?.cancel();
-
-    if (query.trim().length < 3) {
-      if (_options.isNotEmpty) setState(() => _options = const []);
-      return;
+  /// Nominatim, debounced, as [RawAutocomplete]'s own options builder.
+  ///
+  /// It has to be the builder rather than a listener writing into a field:
+  /// `RawAutocomplete` recomputes its options only when the field changes, so
+  /// results that arrived *after* the last keystroke — which is every result,
+  /// once a debounce is involved — never reached the overlay. The dropdown
+  /// showed the previous query's hits, and showed nothing at all when the
+  /// visitor stopped typing and waited, which is exactly when they were
+  /// looking at it. `RawAutocomplete` already discards superseded async
+  /// answers by call id; the token here also stops a disposed state from
+  /// being touched.
+  Future<Iterable<GeocodeSuggestion>> _search(TextEditingValue value) async {
+    // A pin drop or a restored draft writes this field; neither is a search.
+    if (widget.isProgrammaticEdit?.call() ?? false) {
+      return const <GeocodeSuggestion>[];
     }
 
-    // Nominatim's usage policy caps unauthenticated callers at ~1 req/s;
-    // debouncing keystrokes is what keeps a fast typist under that.
-    _debounce = Timer(const Duration(milliseconds: 350), () async {
-      final results = await NominatimGeocoder.search(query);
-      if (!mounted || widget.controller.text != query) return;
-      setState(() => _options = results);
-    });
+    final query = value.text.trim();
+    if (query.length < 3) return const <GeocodeSuggestion>[];
+
+    final token = ++_searchToken;
+    // Nominatim's usage policy caps unauthenticated callers at about one
+    // request a second; this is what keeps a fast typist under that.
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (!mounted || token != _searchToken) return const <GeocodeSuggestion>[];
+
+    final results = await NominatimGeocoder.search(query);
+    if (!mounted || token != _searchToken) return const <GeocodeSuggestion>[];
+    return results;
   }
 
   @override
@@ -94,7 +111,7 @@ class _DSAddressAutocompleteState extends State<DSAddressAutocomplete> {
     return RawAutocomplete<GeocodeSuggestion>(
       textEditingController: widget.controller,
       focusNode: _focusNode,
-      optionsBuilder: (_) => _options,
+      optionsBuilder: _search,
       displayStringForOption: (option) => option.address,
       fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
         return DSTextField(
@@ -109,8 +126,9 @@ class _DSAddressAutocompleteState extends State<DSAddressAutocomplete> {
         );
       },
       onSelected: (option) {
-        _debounce?.cancel();
-        setState(() => _options = const []);
+        // Retires the search this selection raced, so a late answer cannot
+        // reopen the overlay over the address just chosen.
+        _searchToken++;
         widget.onSelected(option);
       },
       optionsViewBuilder: (context, onSelected, options) {

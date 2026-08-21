@@ -10,6 +10,12 @@ import 'ds_tokens.dart';
 ///
 /// The focus ring is Tailwind's `focus-visible:ring-[3px]` rendered as a 3px
 /// `primary/50` halo plus a `primary` border, which is how the web build reads.
+///
+/// Validation renders *below* the ring rather than inside the input's own
+/// decoration, so the halo stays wrapped around the box and does not stretch
+/// to enclose the message. That is why the input is a [TextField] inside a
+/// [FormField] rather than a [TextFormField]: the form field owns the error
+/// state and this widget decides where to draw it.
 class DSTextField extends StatefulWidget {
   const DSTextField({
     super.key,
@@ -25,6 +31,7 @@ class DSTextField extends StatefulWidget {
     this.readOnly = false,
     this.maxLines = 1,
     this.minLines,
+    this.maxLength,
     this.keyboardType,
     this.textInputAction,
     this.inputFormatters,
@@ -34,6 +41,7 @@ class DSTextField extends StatefulWidget {
     this.onSubmitted,
     this.onTap,
     this.validator,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
 
     /// Render the value in Geist Mono — bordereau numbers, prices, codes.
     this.mono = false,
@@ -43,6 +51,10 @@ class DSTextField extends StatefulWidget {
   final String? label;
   final String? hintText;
   final String? helperText;
+
+  /// A failure the [validator] cannot see — a server refusal, a cross-field
+  /// rule the owning form checks itself. Takes precedence over the validator's
+  /// own message.
   final String? errorText;
   final IconData? prefixIcon;
   final Widget? suffixIcon;
@@ -51,6 +63,10 @@ class DSTextField extends StatefulWidget {
   final bool readOnly;
   final int? maxLines;
   final int? minLines;
+
+  /// Hard cap on what can be typed. Enforced by the field itself rather than
+  /// by a validator, so an over-long paste is trimmed instead of refused.
+  final int? maxLength;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
@@ -60,6 +76,11 @@ class DSTextField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onTap;
   final String? Function(String?)? validator;
+
+  /// Defaults to [AutovalidateMode.onUserInteraction]: a field says what is
+  /// wrong with it as soon as the visitor has typed in *that* field, and stays
+  /// quiet until then. `Form.validate()` still forces every field to speak.
+  final AutovalidateMode autovalidateMode;
   final bool mono;
 
   @override
@@ -71,12 +92,19 @@ class _DSTextFieldState extends State<DSTextField> {
   bool _ownsFocusNode = false;
   bool _focused = false;
 
+  /// The live form field, so a programmatic edit — an address suggestion
+  /// filling the city, a restored draft — can re-run validation the same way
+  /// typing does. Without this a "required" message could outlive the value
+  /// that fixed it.
+  FormFieldState<String>? _field;
+
   @override
   void initState() {
     super.initState();
     _ownsFocusNode = widget.focusNode == null;
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_onFocusChange);
+    widget.controller?.addListener(_syncFieldValue);
   }
 
   @override
@@ -89,6 +117,10 @@ class _DSTextFieldState extends State<DSTextField> {
       _focusNode = widget.focusNode ?? FocusNode();
       _focusNode.addListener(_onFocusChange);
     }
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller?.removeListener(_syncFieldValue);
+      widget.controller?.addListener(_syncFieldValue);
+    }
   }
 
   void _onFocusChange() {
@@ -96,8 +128,23 @@ class _DSTextFieldState extends State<DSTextField> {
     setState(() => _focused = _focusNode.hasFocus);
   }
 
+  /// Post-frame because a controller listener can fire mid-build (a parent
+  /// rebuilding with new text), and [FormFieldState.didChange] calls setState.
+  void _syncFieldValue() {
+    final text = widget.controller?.text ?? '';
+    if (_field == null || _field!.value == text) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final field = _field;
+      final current = widget.controller?.text ?? '';
+      if (field == null || field.value == current) return;
+      field.didChange(current);
+    });
+  }
+
   @override
   void dispose() {
+    widget.controller?.removeListener(_syncFieldValue);
     _focusNode.removeListener(_onFocusChange);
     if (_ownsFocusNode) _focusNode.dispose();
     super.dispose();
@@ -105,8 +152,29 @@ class _DSTextFieldState extends State<DSTextField> {
 
   @override
   Widget build(BuildContext context) {
+    return FormField<String>(
+      initialValue: widget.controller?.text ?? '',
+      enabled: widget.enabled,
+      autovalidateMode: widget.autovalidateMode,
+      // Validate what the controller holds, not the form field's own copy:
+      // the two only agree while the visitor is the one typing.
+      validator: widget.validator == null
+          ? null
+          : (_) => widget.validator!(widget.controller?.text ?? ''),
+      builder: (field) {
+        _field = field;
+        return _input(context, field);
+      },
+    );
+  }
+
+  Widget _input(BuildContext context, FormFieldState<String> field) {
     final theme = FlutterFlowTheme.of(context);
-    final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
+
+    final errorText = (widget.errorText?.isNotEmpty ?? false)
+        ? widget.errorText
+        : field.errorText;
+    final hasError = errorText != null && errorText.isNotEmpty;
     final ringColor = hasError ? theme.error : theme.primary;
 
     final textStyle = (widget.mono ? theme.monoMedium : theme.bodyMedium)
@@ -142,7 +210,7 @@ class _DSTextFieldState extends State<DSTextField> {
                   ]
                 : const <BoxShadow>[],
           ),
-          child: TextFormField(
+          child: TextField(
             controller: widget.controller,
             focusNode: _focusNode,
             enabled: widget.enabled,
@@ -150,14 +218,17 @@ class _DSTextFieldState extends State<DSTextField> {
             obscureText: widget.obscureText,
             maxLines: widget.obscureText ? 1 : widget.maxLines,
             minLines: widget.minLines,
+            maxLength: widget.maxLength,
             keyboardType: widget.keyboardType,
             textInputAction: widget.textInputAction,
             inputFormatters: widget.inputFormatters,
             autofillHints: widget.autofillHints,
-            onChanged: widget.onChanged,
-            onFieldSubmitted: widget.onSubmitted,
+            onChanged: (value) {
+              field.didChange(value);
+              widget.onChanged?.call(value);
+            },
+            onSubmitted: widget.onSubmitted,
             onTap: widget.onTap,
-            validator: widget.validator,
             style: textStyle,
             cursorColor: theme.primary,
             decoration: InputDecoration(
@@ -166,6 +237,9 @@ class _DSTextFieldState extends State<DSTextField> {
               fillColor: widget.enabled ? theme.accent1 : theme.secondary,
               hintText: widget.hintText,
               hintStyle: theme.labelMedium,
+              // The counter would sit inside the ring; the caller shows the
+              // remaining length in `helperText` when it wants one.
+              counterText: '',
               prefixIcon: widget.prefixIcon == null
                   ? null
                   : Icon(
@@ -184,19 +258,28 @@ class _DSTextFieldState extends State<DSTextField> {
               ),
               enabledBorder: _border(hasError ? theme.error : theme.alternate),
               focusedBorder: _border(ringColor),
-              errorBorder: _border(theme.error),
-              focusedErrorBorder: _border(theme.error),
               disabledBorder: _border(theme.alternate),
-              // The message renders below, outside the ring.
-              errorStyle: const TextStyle(height: 0.0, fontSize: 0.0),
             ),
           ),
         ),
         if (hasError) ...[
           const SizedBox(height: 6.0),
-          Text(
-            widget.errorText!,
-            style: theme.labelSmall.copyWith(color: theme.error),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                size: 14.0,
+                color: theme.error,
+              ),
+              const SizedBox(width: 4.0),
+              Expanded(
+                child: Text(
+                  errorText,
+                  style: theme.labelSmall.copyWith(color: theme.error),
+                ),
+              ),
+            ],
           ),
         ] else if (widget.helperText != null) ...[
           const SizedBox(height: 6.0),
