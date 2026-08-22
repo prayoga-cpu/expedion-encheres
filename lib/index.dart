@@ -47,3 +47,7 @@ export '/active_p_a_g_e_s/confirmer_les_details/confirmer_les_details_widget.dar
     show ConfirmerLesDetailsWidget;
 export '/active_p_a_g_e_s/suivi_de_livraison/suivi_de_livraison_widget.dart'
     show SuiviDeLivraisonWidget;
+export '/legal/cgv_widget.dart' show CgvWidget;
+export '/legal/mentions_legales_widget.dart' show MentionsLegalesWidget;
+export '/legal/confidentialite_widget.dart' show ConfidentialiteWidget;
+export '/legal/cookies_widget.dart' show CookiesWidget;

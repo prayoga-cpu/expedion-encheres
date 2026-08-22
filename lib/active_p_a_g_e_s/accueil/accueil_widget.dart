@@ -9,11 +9,11 @@ import '/backend/quote_draft.dart';
 import '/design_system/ds_logo.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_site.dart';
-import '/design_system/ds_site_footer.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import '/index.dart';
 import '/main.dart';
+import '/site_footer.dart';
 import 'accueil_model.dart';
 export 'accueil_model.dart';
 
@@ -31,10 +31,18 @@ export 'accueil_model.dart';
 /// swapping `data-en` attributes, so the rest of the app follows the choice
 /// made here.
 class AccueilWidget extends StatefulWidget {
-  const AccueilWidget({super.key});
+  const AccueilWidget({super.key, this.section});
 
   static const String routeName = 'Accueil';
   static const String routePath = '/accueil';
+
+  /// The section to open on, from `/accueil?section=tarifs`.
+  ///
+  /// The footer's Service column scrolls in place when it is already on this
+  /// page; from the legal pages — which carry the same footer — there is
+  /// nothing to scroll, so the link routes here and names where it meant to
+  /// land. Unknown or absent values simply open the top of the page.
+  final String? section;
 
   @override
   State<AccueilWidget> createState() => _AccueilWidgetState();
@@ -109,6 +117,13 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => AccueilModel());
+
+    final section = XpdSiteSection.fromSlug(widget.section);
+    if (section != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _openSectionFromRoute(section),
+      );
+    }
   }
 
   @override
@@ -157,6 +172,9 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   }
 
   Future<void> _scrollTo(GlobalKey key) async {
+    // A section that is not laid out has no context to aim at — see
+    // [_materialise], which is why this used to be a no-op from the footer.
+    await _materialise(key);
     final target = key.currentContext;
     if (target == null) return;
     await Scrollable.ensureVisible(
@@ -168,6 +186,69 @@ class _AccueilWidgetState extends State<AccueilWidget> {
       alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
     );
   }
+
+  /// Scrolls until [key]'s section is built, so something can be aimed at.
+  ///
+  /// A [CustomScrollView] lays out only the slivers at or near the viewport.
+  /// Anything a screen or two away has been disposed, its [GlobalKey] holds no
+  /// `BuildContext`, and [Scrollable.ensureVisible] silently does nothing —
+  /// which is exactly what the footer's "Couverture" link did: by the time you
+  /// had scrolled far enough to read the footer, the coverage section it points
+  /// at no longer existed to scroll back to.
+  ///
+  /// Walking a screen at a time builds the sections in between until the target
+  /// appears. Up first, because a link is usually read below what it points at;
+  /// then down, for the ones that point forward. Returns as soon as the target
+  /// exists, so a section already on screen costs nothing.
+  Future<void> _materialise(GlobalKey key) async {
+    for (final direction in const [-1.0, 1.0]) {
+      for (var step = 0; step < 40; step++) {
+        if (!mounted || !_scrollController.hasClients) return;
+        if (key.currentContext != null) return;
+        final position = _scrollController.position;
+        final next = (position.pixels + direction * position.viewportDimension)
+            .clamp(0.0, position.maxScrollExtent);
+        // Reached an end without finding it: try the other direction.
+        if (next == position.pixels) break;
+        position.jumpTo(next);
+        await WidgetsBinding.instance.endOfFrame;
+      }
+    }
+  }
+
+  /// The anchor a footer or header link names, as this page's own key.
+  GlobalKey _keyFor(XpdSiteSection section) => switch (section) {
+        XpdSiteSection.flow => _flowKey,
+        XpdSiteSection.devis => _devisKey,
+        XpdSiteSection.tarifs => _tarifsKey,
+        XpdSiteSection.couverture => _couvertureKey,
+        XpdSiteSection.app => _appKey,
+        XpdSiteSection.faq => _faqKey,
+        XpdSiteSection.contact => _contactKey,
+      };
+
+  /// What the footer calls when it is already on this page.
+  Future<void> _scrollToSection(XpdSiteSection section) =>
+      _scrollTo(_keyFor(section));
+
+  /// Lands on the section named in `/accueil?section=…`.
+  ///
+  /// Instant rather than animated: this is an arrival, the way a browser lands
+  /// on `#anchor`, not a glide down from the top of the document.
+  Future<void> _openSectionFromRoute(XpdSiteSection section) async {
+    final key = _keyFor(section);
+    await _materialise(key);
+    if (!mounted) return;
+    final target = key.currentContext;
+    if (target == null) return;
+    await Scrollable.ensureVisible(
+      target,
+      alignment: 0.0,
+      duration: Duration.zero,
+      alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+    );
+  }
+
 
   Future<void> _openExpeditoo() => _open(_expeditooUrl);
   Future<void> _mailContact() => _open('mailto:$_contactEmail');
@@ -2521,72 +2602,9 @@ class _AccueilWidgetState extends State<AccueilWidget> {
     );
   }
 
-  Widget _footer() => XpdFooter(
-        tagline: _t(
-          'Expéditions des ventes aux enchères. Enlèvement, emballage et livraison de vos lots partout en France métropolitaine.',
-          'Auction shipping. Pickup, packing and delivery of your lots across mainland France.',
-        ),
-        domain: 'EXPEDION-ENCHERES.COM',
-        copyright: '© ${DateTime.now().year} Expedion — '
-            '${_t('Expéditions des ventes aux enchères', 'Auction shipping')}',
-        groupNote: _t(
-          'Expedion et Expeditoo appartiennent au même groupe',
-          'Expedion and Expeditoo are part of the same company',
-        ),
-        columns: [
-          XpdFooterColumn(
-            title: 'Service',
-            links: [
-              XpdFooterLink(
-                label: _t('Demander un devis', 'Request a quote'),
-                onTap: () => _scrollTo(_devisKey),
-              ),
-              XpdFooterLink(
-                label: _t('Tarifs', 'Pricing'),
-                onTap: () => _scrollTo(_tarifsKey),
-              ),
-              XpdFooterLink(
-                label: _t('Couverture', 'Coverage'),
-                onTap: () => _scrollTo(_couvertureKey),
-              ),
-              XpdFooterLink(
-                label: _t('Application mobile', 'Mobile app'),
-                onTap: () => _scrollTo(_appKey),
-              ),
-            ],
-          ),
-          XpdFooterColumn(
-            title: _t('Groupe', 'Group'),
-            links: [
-              XpdFooterLink(
-                label: _t('Expeditoo — transporteurs', 'Expeditoo — carriers'),
-                onTap: _openExpeditoo,
-              ),
-              XpdFooterLink(
-                label: _t('Devenir transporteur', 'Become a carrier'),
-                onTap: _openExpeditoo,
-              ),
-              XpdFooterLink(
-                label: _t('Maisons de ventes', 'Auction houses'),
-                onTap: () => context.pushNamed(ContactWidget.routeName),
-              ),
-            ],
-          ),
-          XpdFooterColumn(
-            title: _t('Légal', 'Legal'),
-            links: [
-              // No legal pages exist yet; these render as plain text rather
-              // than links that go nowhere.
-              XpdFooterLink(label: _t('CGV', 'Terms & Conditions')),
-              XpdFooterLink(label: _t('Mentions légales', 'Legal notice')),
-              XpdFooterLink(
-                label: _t('Politique de confidentialité', 'Privacy policy'),
-              ),
-              const XpdFooterLink(label: 'Cookies'),
-            ],
-          ),
-        ],
-      );
+  /// The site footer, shared with the legal pages so a link that scrolls here
+  /// and the same link read from `/cgv` cannot drift apart.
+  Widget _footer() => XpdSiteFooter(onSection: _scrollToSection);
 }
 
 /// Keeps [XpdHeader] pinned once the announcement strip has scrolled past.

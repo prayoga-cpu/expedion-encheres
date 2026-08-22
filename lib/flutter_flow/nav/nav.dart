@@ -148,7 +148,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: AccueilWidget.routeName,
           path: AccueilWidget.routePath,
-          builder: (context, params) => AccueilWidget(),
+          // `/accueil?section=tarifs` — the marketing page's `#anchor`s, for
+          // links that arrive from another page and cannot scroll in place.
+          builder: (context, params) => AccueilWidget(
+            section: params.getParam('section', ParamType.String),
+          ),
         ),
         FFRoute(
           name: WEBFormDDpayDirectWidget.routeName,
@@ -202,6 +206,28 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: FaqWidget.routeName,
           path: FaqWidget.routePath,
           builder: (context, params) => FaqWidget(),
+        ),
+        // The footer's Legal column. Public: a visitor has to be able to read
+        // the terms before signing up to anything.
+        FFRoute(
+          name: CgvWidget.routeName,
+          path: CgvWidget.routePath,
+          builder: (context, params) => CgvWidget(),
+        ),
+        FFRoute(
+          name: MentionsLegalesWidget.routeName,
+          path: MentionsLegalesWidget.routePath,
+          builder: (context, params) => MentionsLegalesWidget(),
+        ),
+        FFRoute(
+          name: ConfidentialiteWidget.routeName,
+          path: ConfidentialiteWidget.routePath,
+          builder: (context, params) => ConfidentialiteWidget(),
+        ),
+        FFRoute(
+          name: CookiesWidget.routeName,
+          path: CookiesWidget.routePath,
+          builder: (context, params) => CookiesWidget(),
         ),
         FFRoute(
           name: PageContactDevisWidget.routeName,

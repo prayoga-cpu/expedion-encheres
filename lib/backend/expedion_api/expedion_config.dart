@@ -65,6 +65,15 @@ class ExpedionConfig {
   /// the app reads a local database would show them a different world.
   static String get expeditooWebUrl => baseUrl;
 
+  /// Where "Devenir transporteur" lands.
+  ///
+  /// It used to open [expeditooWebUrl] — the same page as the link directly
+  /// above it in the footer — so the two links promised different things and
+  /// did the same one. `/carrier/application` is the actual sign-up: signed
+  /// out it redirects to `/signin?callbackUrl=/carrier/application`, so the
+  /// link still resolves for a visitor who has no account yet.
+  static String get carrierApplicationUrl => '$baseUrl/carrier/application';
+
   /// The operator dashboard, served by Expeditoo's Next.js app.
   ///
   /// It is a different origin from the Flutter app, which is the whole reason
