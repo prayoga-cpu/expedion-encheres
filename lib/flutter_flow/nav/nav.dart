@@ -167,7 +167,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: ContactWidget.routeName,
           path: ContactWidget.routePath,
-          builder: (context, params) => ContactWidget(),
+          builder: (context, params) => ContactWidget(
+            numDevis: params.getParam(
+              'numDevis',
+              ParamType.String,
+            ),
+          ),
         ),
         FFRoute(
           name: WEBHomepageLogedinWidget.routeName,

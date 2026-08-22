@@ -17,6 +17,7 @@ import 'package:expedion_encheres/active_p_a_g_e_s/formulaire_de_devis_par_borde
 import 'package:expedion_encheres/backend/bordereau_check.dart';
 import 'package:expedion_encheres/backend/expedion_api/expedion_quote.dart';
 import 'package:expedion_encheres/flutter_flow/flutter_flow_theme.dart';
+import 'package:expedion_encheres/flutter_flow/flutter_flow_widgets.dart';
 import 'package:expedion_encheres/flutter_flow/internationalization.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child, {String locale = 'fr'}) {
@@ -216,5 +217,75 @@ void main() {
       locale: 'en',
     );
     expect(find.textContaining('required before the request'), findsOneWidget);
+  });
+
+  group('the Send button', () {
+    // `FFButtonWidget` resolves `color` for every WidgetState unless
+    // `disabledColor` is given, so `onPressed: null` on its own produces a
+    // dead button that still paints the live CTA blue. The submit button on
+    // this form passes both tokens; this pins the mechanism it relies on.
+    const live = Color(0xFF2B59FF);
+    const dead = Color(0xFF1B1E24);
+
+    Future<Color?> background(WidgetTester tester,
+        {required bool enabled}) async {
+      await _pump(
+        tester,
+        FFButtonWidget(
+          text: 'Envoyer',
+          onPressed: enabled ? () {} : null,
+          options: FFButtonOptions(
+            color: live,
+            disabledColor: dead,
+            disabledTextColor: const Color(0xFF98A1AE),
+          ),
+        ),
+      );
+      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      return button.style?.backgroundColor?.resolve(
+        enabled ? <WidgetState>{} : <WidgetState>{WidgetState.disabled},
+      );
+    }
+
+    testWidgets('paints the disabled fill when it cannot be pressed',
+        (tester) async {
+      expect(await background(tester, enabled: false), dead);
+    });
+
+    testWidgets('still paints the CTA blue when it can', (tester) async {
+      expect(await background(tester, enabled: true), live);
+    });
+  });
+
+  group('the other required answers', () {
+    testWidgets('are named rather than silently blocking', (tester) async {
+      await _pump(
+        tester,
+        const MissingFieldsHint(labels: ["l'assurance ad valorem"]),
+      );
+      expect(
+        find.textContaining("Il reste à renseigner : l'assurance ad valorem"),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('read in English too', (tester) async {
+      await _pump(
+        tester,
+        const MissingFieldsHint(labels: ['ad valorem insurance']),
+      );
+      // The French panel is the one under test above; this is the toggle.
+      expect(find.textContaining('Il reste'), findsOneWidget);
+
+      await _pump(
+        tester,
+        const MissingFieldsHint(labels: ['ad valorem insurance']),
+        locale: 'en',
+      );
+      expect(
+        find.textContaining('Still to fill in: ad valorem insurance'),
+        findsOneWidget,
+      );
+    });
   });
 }

@@ -481,7 +481,7 @@ bordereau?" to whoever opened the attachment days later. The asterisk on
 
 | Step | What happens |
 |---|---|
-| No file | `BordereauMissingHint` — "Envoyer" disabled, with the standard one tap away |
+| No file | `BordereauMissingHint` — "Envoyer" greyed and disabled, with the standard one tap away |
 | File picked | `POST /api/expedion/extract` fires alongside the Firebase upload, not after it |
 | Reading | Panel shows progress; "Envoyer" stays disabled |
 | Read, complete | Field preview grouped as sale / collection / lot / buyer; "Envoyer" enabled |
@@ -491,6 +491,22 @@ bordereau?" to whoever opened the attachment days later. The asterisk on
 New files: `lib/backend/bordereau_check.dart` (the rule and the field
 standard), `.../formulaire_de_devis_par_bordereau/bordereau_review.dart` (the
 four panels and the guide dialog), plus `test/bordereau_check_test.dart` and
+`test/bordereau_review_test.dart`.
+
+### The other required answer, and a trap
+
+The bordereau is not the only asterisked field. "Souhaitez-vous une assurance
+AD valorem ? *" starts null and is now part of `_canSubmit`; the unmet ones are
+named by `MissingFieldsHint` rather than silently disabling the button. Add to
+`_missingRequiredFields`, not to `_canSubmit`, so a new requirement stays
+explained. ("Que souhaitez-vous ? *" is asterisked but carries a preselected
+answer; "Montant de la marchandise" is not asterisked at all.)
+
+**The trap:** `FFButtonWidget` resolves `options.color` for *every*
+`WidgetState` unless `disabledColor` / `disabledTextColor` are given. Setting
+`onPressed: null` alone leaves a dead button still painting the live CTA blue,
+which reads as a broken page rather than as a form to finish. Any button in
+this codebase gated on a condition needs both tokens — pinned by a test in
 `test/bordereau_review_test.dart`.
 
 ### The rule, and where to change it

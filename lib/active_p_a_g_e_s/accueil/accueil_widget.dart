@@ -6,6 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/expedion_api/expedion_config.dart';
 import '/backend/quote_draft.dart';
+import '/backend/quote_form_rules.dart';
+import '/design_system/ds_form_feedback.dart';
 import '/design_system/ds_logo.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_site.dart';
@@ -13,6 +15,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/upload_data.dart';
 import '/index.dart';
 import '/main.dart';
+import '/quote_resume.dart';
 import '/site_footer.dart';
 import 'accueil_model.dart';
 export 'accueil_model.dart';
@@ -66,7 +69,11 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   // Hero "Devis express" card.
   final _expressPickup = TextEditingController();
   final _expressDelivery = TextEditingController();
+  final _expressPickupFocus = FocusNode();
+  final _expressDeliveryFocus = FocusNode();
   SelectedFile? _expressFile;
+  final _expressFormKey = GlobalKey<FormState>();
+  final _expressSubmit = _Submission();
 
   // The full "Demander un devis" form.
   final _pickup = TextEditingController();
@@ -76,7 +83,17 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   final _deadline = TextEditingController();
   final _email = TextEditingController();
   final _phone = TextEditingController();
+  final _pickupFocus = FocusNode();
+  final _deliveryFocus = FocusNode();
+  final _lotCountFocus = FocusNode();
+  final _hammerPriceFocus = FocusNode();
+  final _deadlineFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _phoneFocus = FocusNode();
   SelectedFile? _bordereau;
+  final _fullFormKey = GlobalKey<FormState>();
+  final _fullSubmit = _Submission();
+
 
   /// Which lot type is chosen, held as an index rather than a label.
   ///
@@ -142,6 +159,19 @@ class _AccueilWidgetState extends State<AccueilWidget> {
       _phone,
     ]) {
       controller.dispose();
+    }
+    for (final node in [
+      _expressPickupFocus,
+      _expressDeliveryFocus,
+      _pickupFocus,
+      _deliveryFocus,
+      _lotCountFocus,
+      _hammerPriceFocus,
+      _deadlineFocus,
+      _emailFocus,
+      _phoneFocus,
+    ]) {
+      node.dispose();
     }
     super.dispose();
   }
@@ -249,7 +279,6 @@ class _AccueilWidgetState extends State<AccueilWidget> {
     );
   }
 
-
   Future<void> _openExpeditoo() => _open(_expeditooUrl);
   Future<void> _mailContact() => _open('mailto:$_contactEmail');
 
@@ -263,44 +292,299 @@ class _AccueilWidgetState extends State<AccueilWidget> {
     }
   }
 
-  Future<void> _pickFile(void Function(SelectedFile) onPicked) async {
+  Future<void> _pickFile(
+    _Submission submission,
+    void Function(SelectedFile?) onPicked,
+  ) async {
     final file = await selectFile(
       allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
     );
     if (file == null || !mounted) return;
-    setState(() => onPicked(file));
+
+    if (file.bytes.length > QuoteFormRules.maxUploadBytes) {
+      // Dropped rather than kept-and-flagged: keeping it would leave a named
+      // file sitting in the drop zone that the submit refuses to send, which
+      // reads as a bug rather than as a rejection.
+      setState(() {
+        onPicked(null);
+        submission.fileError = _t(
+          'Ce fichier dépasse 10 Mo. Envoyez une version allégée du bordereau.',
+          'That file is over 10 MB. Send a lighter copy of the bordereau.',
+        );
+      });
+      return;
+    }
+
+    setState(() {
+      onPicked(file);
+      submission.fileError = null;
+    });
   }
 
-  /// Signed-out visitors log in first, which is what the page did before.
-  void _goToQuoteFlow() => context.pushNamed(
-        loggedIn ? ChoixDevisWidget.routeName : SeConnecterWidget.routeName,
+  /// Where a visitor carrying a draft picks it up again.
+  ///
+  /// Signed out, that is the login screen, which resumes into the same place
+  /// once they are through. Signed in, it is the matching form directly: the
+  /// fork asks whether they have the slip, and a staged draft has already
+  /// answered that.
+  void _goToQuoteFlow() {
+    if (!loggedIn) {
+      context.pushNamed(SeConnecterWidget.routeName);
+      return;
+    }
+    context.pushNamed(quoteDraftResumeRoute(QuoteDraft.peek()));
+  }
+
+  // ========================================
+  // Validation
+  // ========================================
+  //
+  // Every rule below earns its place by protecting something downstream: the
+  // devis cannot be priced without a pickup house, `QuoteDraft.deliveryParts`
+  // cannot split a delivery line with no postcode in it, and the quote comes
+  // back by email. Everything else is checked for shape only when it is filled
+  // in, so an optional field never blocks a submit by being empty.
+
+  String? _pickupError(String? value) {
+    final text = (value ?? '').trim();
+    if (text.isEmpty) {
+      return _t(
+        'Indiquez la maison de ventes : sans elle, aucun créneau à réserver.',
+        'Name the auction house: without it there is no slot to book.',
       );
+    }
+    return QuoteFormRules.isPickupLine(text)
+        ? null
+        : _t(
+            'Donnez au moins le nom de la maison de ventes.',
+            'Give at least the name of the auction house.',
+          );
+  }
+
+  String? _deliveryError(String? value) {
+    final text = (value ?? '').trim();
+    if (text.isEmpty) {
+      return _t(
+        'Indiquez la ville de livraison et son code postal.',
+        'Give the delivery city and its postcode.',
+      );
+    }
+    return QuoteFormRules.isDeliveryLine(text)
+        ? null
+        : _t(
+            'Ajoutez le code postal à 5 chiffres — par exemple 33000 Bordeaux.',
+            'Add the 5-digit postcode — for example 33000 Bordeaux.',
+          );
+  }
+
+  String? _emailError(String? value) {
+    final text = (value ?? '').trim();
+    if (text.isEmpty) {
+      return _t(
+        'Le devis arrive par email — nous avons besoin de la vôtre.',
+        'The quote arrives by email — we need yours.',
+      );
+    }
+    return QuoteFormRules.isEmail(text)
+        ? null
+        : _t(
+            'Cette adresse email semble incomplète.',
+            'That email address looks incomplete.',
+          );
+  }
+
+  String? _phoneError(String? value) => QuoteFormRules.isPhone(value ?? '')
+      ? null
+      : _t(
+          'Ce numéro semble incomplet — 06 12 34 56 78.',
+          'That number looks incomplete — 06 12 34 56 78.',
+        );
+
+  String? _lotCountError(String? value) => QuoteFormRules.isLotCount(value ?? '')
+      ? null
+      : _t(
+          'Un nombre de lots, entre 1 et ${QuoteFormRules.maxLotCount}.',
+          'A number of lots, between 1 and ${QuoteFormRules.maxLotCount}.',
+        );
+
+  String? _hammerPriceError(String? value) =>
+      QuoteFormRules.isHammerPrice(value ?? '')
+          ? null
+          : _t(
+              "Un montant en euros — par exemple 4 200 €.",
+              'An amount in euros — for example 4 200 €.',
+            );
+
+  String? _deadlineError(String? value) =>
+      QuoteFormRules.isPickupDeadline(value ?? '')
+          ? null
+          : _t(
+              'Une date au format JJ / MM / AAAA.',
+              'A date as DD / MM / YYYY.',
+            );
+
+  // ========================================
+  // Submission
+  // ========================================
+
+  /// Refuses a submit out loud: the panel shakes, the validators go live so
+  /// the messages stay as the fields are corrected, and the cursor lands in
+  /// the first field at fault.
+  ///
+  /// [checks] is walked in the order the fields are read on screen, so the
+  /// focus goes to the topmost problem rather than the last one found.
+  bool _accepts(
+    GlobalKey<FormState> formKey,
+    _Submission submission,
+    List<(String? Function(), FocusNode)> checks,
+  ) {
+    FocusNode? firstBad;
+    for (final (check, node) in checks) {
+      if (check() != null) {
+        firstBad = node;
+        break;
+      }
+    }
+    // A rejected upload is deliberately not part of this: it leaves nothing
+    // attached, and the bordereau is optional. Gating on it meant a visitor
+    // who picked a file over 10 MB was locked out of both forms for good —
+    // `fileError` is only ever cleared by a *successful* pick, so without a
+    // smaller copy of the slip there was no way back. The message stays under
+    // the drop zone to explain why nothing is attached, and goes once the
+    // answers are on their way.
+    final passes = firstBad == null;
+
+    setState(() {
+      // Only ever switched on, and only by a failed submit: validating as the
+      // visitor types before they have submitted anything marks a form red
+      // for fields they simply have not reached yet.
+      submission.autovalidate = AutovalidateMode.onUserInteraction;
+      if (passes) {
+        submission.fileError = null;
+      } else {
+        submission.shakes++;
+      }
+    });
+    // Draws the messages the mode above will keep refreshing.
+    formKey.currentState?.validate();
+
+    // Not null-aware any more: `passes` is now exactly `firstBad == null`, so
+    // inside this branch the analyser promotes it to non-null.
+    if (!passes) firstBad.requestFocus();
+    return passes;
+  }
+
+  /// Parks [draft], shows the form's success state long enough to be read,
+  /// then hands over to [_goToQuoteFlow].
+  Future<void> _stageAndContinue(
+    _Submission submission,
+    QuoteDraft draft,
+  ) async {
+    setState(() => submission.busy = true);
+    QuoteDraft.stage(draft);
+
+    // The pause is the point: the button has to be seen resolving into a tick
+    // before the route changes, or the submit reads as a page that jumped.
+    await Future<void>.delayed(const Duration(milliseconds: 240));
+    if (!mounted) return;
+    setState(() {
+      submission.busy = false;
+      submission.accepted = true;
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 1150));
+    // `mounted` is this State's, not a Builder's: the landing page is still in
+    // the stack after the push, but the delay above outlives a visitor who
+    // navigates away in the meantime.
+    if (!mounted) return;
+    _goToQuoteFlow();
+  }
 
   /// The hero card carries the two fields it has; the form below carries all
   /// of them. Either way the values are parked for the devis form to seed from.
-  void _submitExpress() {
-    QuoteDraft.stage(QuoteDraft(
-      pickup: _expressPickup.text.trim(),
-      delivery: _expressDelivery.text.trim(),
-      bordereau: _expressFile,
-    ));
-    _goToQuoteFlow();
+  Future<void> _submitExpress() async {
+    if (_expressSubmit.locked) return;
+    if (!_accepts(_expressFormKey, _expressSubmit, [
+      (() => _pickupError(_expressPickup.text), _expressPickupFocus),
+      (() => _deliveryError(_expressDelivery.text), _expressDeliveryFocus),
+    ])) {
+      return;
+    }
+
+    await _stageAndContinue(
+      _expressSubmit,
+      QuoteDraft(
+        pickup: _expressPickup.text.trim(),
+        delivery: _expressDelivery.text.trim(),
+        bordereau: _expressFile,
+      ),
+    );
   }
 
-  void _submitFull() {
-    QuoteDraft.stage(QuoteDraft(
-      pickup: _pickup.text.trim(),
-      delivery: _delivery.text.trim(),
-      lotCount: _lotCount.text.trim(),
-      lotType: _lotType,
-      hammerPrice: _hammerPrice.text.trim(),
-      deadline: _deadline.text.trim(),
-      email: _email.text.trim(),
-      phone: _phone.text.trim(),
-      bordereau: _bordereau,
-    ));
-    _goToQuoteFlow();
+  Future<void> _submitFull() async {
+    if (_fullSubmit.locked) return;
+    if (!_accepts(_fullFormKey, _fullSubmit, [
+      (() => _pickupError(_pickup.text), _pickupFocus),
+      (() => _deliveryError(_delivery.text), _deliveryFocus),
+      (() => _lotCountError(_lotCount.text), _lotCountFocus),
+      (() => _hammerPriceError(_hammerPrice.text), _hammerPriceFocus),
+      (() => _deadlineError(_deadline.text), _deadlineFocus),
+      (() => _emailError(_email.text), _emailFocus),
+      (() => _phoneError(_phone.text), _phoneFocus),
+    ])) {
+      return;
+    }
+
+    await _stageAndContinue(
+      _fullSubmit,
+      QuoteDraft(
+        pickup: _pickup.text.trim(),
+        delivery: _delivery.text.trim(),
+        lotCount: _lotCount.text.trim(),
+        lotType: _lotType,
+        hammerPrice: _hammerPrice.text.trim(),
+        deadline: _deadline.text.trim(),
+        email: _email.text.trim(),
+        phone: _phone.text.trim(),
+        bordereau: _bordereau,
+      ),
+    );
   }
+
+  /// What the success panel says once a form is accepted. Signed out, the
+  /// answers are held and the next step is the sign-in; signed in, there is
+  /// nothing left to hold and the form is simply on its way.
+  ({String title, String message, String footnote}) get _successCopy => loggedIn
+      ? (
+          title: _t('On continue.', 'Carrying on.'),
+          // Not "all that is left is to send it": the devis form asks for the
+          // hammer price again and insists on it (QuoteFormRules.isHammerPrice
+          // is optional here, isDeclaredValue is not there), so a visitor who
+          // left it blank arrives at a form that will not send yet. Promising
+          // one tap and delivering a required field is how a handover starts
+          // feeling broken.
+          message: _t(
+            'Votre formulaire de devis est déjà prérempli avec ces réponses — '
+                'vérifiez-les et envoyez.',
+            'Your quote form is already prefilled with these answers — check '
+                'them over and send.',
+          ),
+          footnote: _t(
+            'Réponse sous 48 heures, par email.',
+            'Answer within 48 hours, by email.',
+          ),
+        )
+      : (
+          title: _t('Demande enregistrée.', 'Request saved.'),
+          message: _t(
+            'Nous gardons vos réponses. Connectez-vous pour l\'envoyer : le formulaire arrive déjà rempli.',
+            'We have kept your answers. Sign in to send it: the form arrives already filled in.',
+          ),
+          footnote: _t(
+            'Rien n\'est envoyé tant que vous n\'avez pas validé le formulaire.',
+            'Nothing is sent until you submit the form yourself.',
+          ),
+        );
 
   // ========================================
   // Page
@@ -650,43 +934,23 @@ class _AccueilWidgetState extends State<AccueilWidget> {
 
   Widget _expressCard() {
     final palette = XpdPalette.of(context);
-    return XpdPanel(
-      padding: const EdgeInsets.all(24.0),
-      elevated: true,
+
+    final fields = Form(
+      key: _expressFormKey,
+      autovalidateMode: _expressSubmit.autovalidate,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _t('Devis express', 'Express quote'),
-                  style: TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.18,
-                    color: palette.text,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12.0),
-              XpdTag(
-                label: _t('RÉPONSE 48 H', 'REPLY IN 48 H'),
-                color: palette.amberText,
-                background: palette.amberTint(0.12),
-                borderColor: palette.amberTint(0.30),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16.0),
           XpdField(
             label:
                 _t('Enlèvement — maison de ventes', 'Pickup — auction house'),
             hint: 'Drouot, Paris 9e',
             controller: _expressPickup,
+            focusNode: _expressPickupFocus,
+            validator: _pickupError,
             verticalPadding: 12.0,
+            onSubmitted: (_) => _expressDeliveryFocus.requestFocus(),
           ),
           const SizedBox(height: 16.0),
           XpdField(
@@ -696,7 +960,10 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             ),
             hint: '33000 Bordeaux',
             controller: _expressDelivery,
+            focusNode: _expressDeliveryFocus,
+            validator: _deliveryError,
             verticalPadding: 12.0,
+            onSubmitted: (_) => _submitExpress(),
           ),
           const SizedBox(height: 16.0),
           XpdFileDrop(
@@ -709,13 +976,15 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             chipSize: 34.0,
             padding:
                 const EdgeInsets.symmetric(horizontal: 14.0, vertical: 13.0),
-            onTap: () => _pickFile((f) => _expressFile = f),
+            onTap: () => _pickFile(_expressSubmit, (f) => _expressFile = f),
           ),
+          XpdInlineError(message: _expressSubmit.fileError),
           const SizedBox(height: 16.0),
           XpdButton(
             label: _t('Obtenir un prix fixe', 'Get a fixed price'),
             fontSize: 15.5,
             expand: true,
+            busy: _expressSubmit.busy,
             padding:
                 const EdgeInsets.symmetric(horizontal: 18.0, vertical: 14.0),
             onPressed: _submitExpress,
@@ -735,6 +1004,88 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             ),
           ),
         ],
+      ),
+    );
+
+    return XpdShake(
+      trigger: _expressSubmit.shakes,
+      child: XpdPanel(
+        padding: const EdgeInsets.all(24.0),
+        elevated: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _t('Devis express', 'Express quote'),
+                    style: TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.18,
+                      color: palette.text,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12.0),
+                XpdTag(
+                  label: _t('RÉPONSE 48 H', 'REPLY IN 48 H'),
+                  color: palette.amberText,
+                  background: palette.amberTint(0.12),
+                  borderColor: palette.amberTint(0.30),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16.0),
+            _swapOnSuccess(_expressSubmit, fields, compact: true),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// The fields, or — once they have been accepted — the success panel in
+  /// their place, cross-fading between the two.
+  ///
+  /// It replaces rather than covers: the answers are parked and the next step
+  /// is on another screen, so leaving the fields live would invite the same
+  /// request being sent twice.
+  Widget _swapOnSuccess(
+    _Submission submission,
+    Widget fields, {
+    bool compact = false,
+  }) {
+    final copy = _successCopy;
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.topCenter,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 320),
+        child: submission.accepted
+            ? XpdFormSuccess(
+                key: const ValueKey('accepted'),
+                compact: compact,
+                title: copy.title,
+                message: copy.message,
+                footnote: copy.footnote,
+                editLabel: _t(
+                  'Corriger ma demande',
+                  'Change my answers',
+                ),
+                // The way back for someone who spots a typo in the second
+                // before the redirect — and, after it, for someone who comes
+                // back to the landing page and wants to file another lot.
+                onEdit: () => setState(() => submission.accepted = false),
+              )
+            : KeyedSubtree(
+                key: const ValueKey('fields'),
+                child: fields,
+              ),
       ),
     );
   }
@@ -1227,42 +1578,21 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             ],
           );
 
-    final form = XpdPanel(
-      padding: const EdgeInsets.all(34.0),
-      radius: 22.0,
+    final fields = Form(
+      key: _fullFormKey,
+      autovalidateMode: _fullSubmit.autovalidate,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            _t('Demander un devis', 'Request a quote'),
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 28.0,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 28.0 * -0.025,
-              color: palette.text,
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          Text(
-            _t(
-              'Deux minutes. Joignez le bordereau, nous faisons la lecture.',
-              'Two minutes. Attach the bordereau and we do the reading.',
-            ),
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 15.0,
-              color: palette.muted,
-            ),
-          ),
-          const SizedBox(height: 26.0),
           pair(
             XpdField(
               label:
                   _t('Enlèvement — maison de ventes', 'Pickup — auction house'),
               hint: 'Drouot, Paris 9e',
               controller: _pickup,
+              focusNode: _pickupFocus,
+              validator: _pickupError,
             ),
             XpdField(
               label: _t(
@@ -1271,6 +1601,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
               ),
               hint: '33000 Bordeaux',
               controller: _delivery,
+              focusNode: _deliveryFocus,
+              validator: _deliveryError,
             ),
           ),
           const SizedBox(height: 18.0),
@@ -1279,6 +1611,8 @@ class _AccueilWidgetState extends State<AccueilWidget> {
               label: _t('Nombre de lots', 'Number of lots'),
               hint: '2',
               controller: _lotCount,
+              focusNode: _lotCountFocus,
+              validator: _lotCountError,
               keyboardType: TextInputType.number,
             ),
             XpdSelect(
@@ -1300,12 +1634,16 @@ class _AccueilWidgetState extends State<AccueilWidget> {
               ),
               hint: '4 200 €',
               controller: _hammerPrice,
+              focusNode: _hammerPriceFocus,
+              validator: _hammerPriceError,
               keyboardType: TextInputType.number,
             ),
             XpdField(
               label: _t("Date limite d'enlèvement", 'Pickup deadline'),
               hint: '22 / 08 / 2026',
               controller: _deadline,
+              focusNode: _deadlineFocus,
+              validator: _deadlineError,
             ),
           ),
           const SizedBox(height: 26.0),
@@ -1321,21 +1659,27 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             fileName: _bordereau?.originalFilename,
             trailingLabel:
                 narrow ? null : _t('Choisir un fichier', 'Choose a file'),
-            onTap: () => _pickFile((f) => _bordereau = f),
+            onTap: () => _pickFile(_fullSubmit, (f) => _bordereau = f),
           ),
+          XpdInlineError(message: _fullSubmit.fileError),
           const SizedBox(height: 26.0),
           pair(
             XpdField(
               label: 'Email',
               hint: _t('vous@exemple.fr', 'you@example.com'),
               controller: _email,
+              focusNode: _emailFocus,
+              validator: _emailError,
               keyboardType: TextInputType.emailAddress,
             ),
             XpdField(
               label: _t('Téléphone', 'Phone'),
               hint: '06 12 34 56 78',
               controller: _phone,
+              focusNode: _phoneFocus,
+              validator: _phoneError,
               keyboardType: TextInputType.phone,
+              onSubmitted: (_) => _submitFull(),
             ),
           ),
           const SizedBox(height: 26.0),
@@ -1346,6 +1690,7 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             children: [
               XpdButton(
                 label: _t('Recevoir mon devis', 'Get my quote'),
+                busy: _fullSubmit.busy,
                 onPressed: _submitFull,
               ),
               ConstrainedBox(
@@ -1365,6 +1710,44 @@ class _AccueilWidgetState extends State<AccueilWidget> {
             ],
           ),
         ],
+      ),
+    );
+
+    final form = XpdShake(
+      trigger: _fullSubmit.shakes,
+      child: XpdPanel(
+        padding: const EdgeInsets.all(34.0),
+        radius: 22.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _t('Demander un devis', 'Request a quote'),
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 28.0,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 28.0 * -0.025,
+                color: palette.text,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Text(
+              _t(
+                'Deux minutes. Joignez le bordereau, nous faisons la lecture.',
+                'Two minutes. Attach the bordereau and we do the reading.',
+              ),
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 15.0,
+                color: palette.muted,
+              ),
+            ),
+            const SizedBox(height: 26.0),
+            _swapOnSuccess(_fullSubmit, fields),
+          ],
+        ),
       ),
     );
 
@@ -2605,6 +2988,33 @@ class _AccueilWidgetState extends State<AccueilWidget> {
   /// The site footer, shared with the legal pages so a link that scrolls here
   /// and the same link read from `/cgv` cannot drift apart.
   Widget _footer() => XpdSiteFooter(onSection: _scrollToSection);
+}
+
+/// The submit-time state of one landing-page quote form.
+///
+/// Both forms carry the same five things, and both would otherwise spell them
+/// out as five fields apiece on a State that already has twenty. Mutable and
+/// deliberately not a widget: the page owns it and calls `setState` around the
+/// changes, exactly as it would for the loose fields this replaces.
+class _Submission {
+  /// Off until a submit has been refused — see `_accepts`.
+  AutovalidateMode autovalidate = AutovalidateMode.disabled;
+
+  /// Counts refusals rather than recording one, because two bad submits in a
+  /// row must shake twice. [XpdShake] moves on the change, not on the value.
+  int shakes = 0;
+
+  bool busy = false;
+
+  /// Set once the answers are parked; the form is replaced by its success
+  /// panel until the visitor asks to edit them again.
+  bool accepted = false;
+
+  /// A rejected upload, which has no [TextFormField] to carry its message.
+  String? fileError;
+
+  /// Nothing to do while the submit is in flight or already through.
+  bool get locked => busy || accepted;
 }
 
 /// Keeps [XpdHeader] pinned once the announcement strip has scrolled past.

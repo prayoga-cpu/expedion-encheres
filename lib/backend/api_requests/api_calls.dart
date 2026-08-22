@@ -591,48 +591,15 @@ class CreatePaymentAitableCall {
   }
 }
 
-class PostMessageCall {
-  static Future<ApiCallResponse> call({
-    String? nom = '',
-    String? prenom = '',
-    String? email = '',
-    String? sujet = '',
-    String? message = '',
-    String? uid = '',
-    String? numDevis = '',
-  }) async {
-    final ffApiRequestBody = '''
-{
-  "fields": {
-    "Nom": "${escapeStringForJson(nom)}",
-    "Prénom": "${escapeStringForJson(prenom)}",
-    "Email": "${escapeStringForJson(email)}",
-    "Sujet": "${escapeStringForJson(sujet)}",
-    "Message": "${escapeStringForJson(message)}",
-    "UID": "${escapeStringForJson(uid)}",
-    "N° Devis":"${escapeStringForJson(numDevis)}"
-  }
-}''';
-    return ApiManager.instance.makeApiCall(
-      callName: 'PostMessage',
-      apiUrl: 'https://api.airtable.com/v0/appu3jamyzCJRuOjr/MESSAGERIE',
-      callType: ApiCallType.POST,
-      headers: {
-        'Authorization': 'Bearer $_kAirtablePat',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      body: ffApiRequestBody,
-      bodyType: BodyType.JSON,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-}
+/// `PostMessageCall` stood here: a POST into the Airtable `MESSAGERIE` table,
+/// behind the contact forms on `/contact` and `/pageContactDevis`.
+///
+/// Both are gone — `/contact` is a live support thread against Expeditoo's
+/// inbox, `/pageContactDevis` forwards to it — so nothing wrote to that table
+/// any more. Removed rather than left dead: a working Airtable POST helper
+/// sitting in this file is an invitation to wire a form back up to a mailbox
+/// nobody watches. `MESSAGERIE` now receives nothing; its history is still
+/// there if anyone needs to read it.
 
 /// Asks the payment server to VERIFY a Checkout session is actually paid, then
 /// (server-side) record the settlement.

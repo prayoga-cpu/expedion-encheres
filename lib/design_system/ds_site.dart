@@ -857,6 +857,7 @@ class XpdField extends StatefulWidget {
     this.verticalPadding = 13.0,
     this.validator,
     this.onSubmitted,
+    this.focusNode,
   });
 
   final String label;
@@ -869,20 +870,43 @@ class XpdField extends StatefulWidget {
   final String? Function(String?)? validator;
   final ValueChanged<String>? onSubmitted;
 
+  /// Supplied when the form needs to reach the field from the outside — to put
+  /// the cursor in the first one a failed submit complained about. Left null,
+  /// the field owns its own node as before.
+  final FocusNode? focusNode;
+
   @override
   State<XpdField> createState() => _XpdFieldState();
 }
 
 class _XpdFieldState extends State<XpdField> {
-  late final FocusNode _focus = FocusNode()..addListener(_onFocusChange);
+  /// Only set when the field made its own node — a caller's node is theirs to
+  /// dispose, and disposing it here would take it out from under them.
+  FocusNode? _owned;
+
+  late FocusNode _focus = _resolveFocus();
+
+  FocusNode _resolveFocus() {
+    final node = widget.focusNode ?? (_owned = FocusNode());
+    return node..addListener(_onFocusChange);
+  }
 
   void _onFocusChange() => setState(() {});
 
   @override
+  void didUpdateWidget(XpdField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusNode == oldWidget.focusNode) return;
+    _focus.removeListener(_onFocusChange);
+    _owned?.dispose();
+    _owned = null;
+    _focus = _resolveFocus();
+  }
+
+  @override
   void dispose() {
-    _focus
-      ..removeListener(_onFocusChange)
-      ..dispose();
+    _focus.removeListener(_onFocusChange);
+    _owned?.dispose();
     super.dispose();
   }
 

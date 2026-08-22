@@ -1,4 +1,5 @@
 import '/app_shell.dart';
+import '/support_contact.dart';
 import '/design_system/ds_l10n.dart';
 import '/design_system/ds_support_chat.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -25,7 +26,14 @@ export 'contact_model.dart';
 /// The e-mail and phone rows are untouched: chat needs an account, and someone
 /// who cannot sign in still needs a way to reach a person.
 class ContactWidget extends StatefulWidget {
-  const ContactWidget({super.key});
+  const ContactWidget({super.key, this.numDevis});
+
+  /// Optional `?numDevis=` — the quote the visitor arrived asking about.
+  ///
+  /// Carried by the retired `/pageContactDevis` links, which used to open a
+  /// per-quote contact form and now land here. It seeds the composer so the
+  /// reference reaches the operator without the client retyping it.
+  final String? numDevis;
 
   static String routeName = 'CONTACT';
   static String routePath = '/contact';
@@ -193,9 +201,13 @@ class _ContactWidgetState extends State<ContactWidget> {
                                             ),
                                       ),
                                       Text(
-                                        FFLocalizations.of(context).getText(
-                                          'sg32r0oo' /* Contact@expedion-encheres.com */,
-                                        ),
+                                        // Was i18n key `sg32r0oo`, the wrong
+                                        // shape for an address: four
+                                        // "translations" of one mailbox, and
+                                        // the Spanish one had been through the
+                                        // translator to `Contacto@…`. One
+                                        // const, one inbox.
+                                        SupportContact.email,
                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
@@ -305,6 +317,7 @@ class _ContactWidgetState extends State<ContactWidget> {
                         padding: EdgeInsetsDirectional.fromSTEB(
                             24.0, 0.0, 24.0, 0.0),
                         child: DSSupportChat(
+                          aboutReference: widget.numDevis,
                           // The chat is per-account, so a signed-out visitor
                           // is offered the door rather than a dead composer.
                           onSignIn: () =>
@@ -361,9 +374,11 @@ class _ContactWidgetState extends State<ContactWidget> {
                                         ),
                                   ),
                                   Text(
-                                    FFLocalizations.of(context).getText(
-                                      'o8soa8ss' /* 07 74 31 96 74 */,
-                                    ),
+                                    // Was i18n key `o8soa8ss`, a number
+                                    // `SupportContact` had already superseded
+                                    // — this page went on publishing the old
+                                    // one to every visitor.
+                                    SupportContact.phone,
                                     style: FlutterFlowTheme.of(context)
                                         .bodyMedium
                                         .override(

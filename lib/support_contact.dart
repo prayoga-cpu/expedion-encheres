@@ -26,7 +26,13 @@ class SupportContact {
   /// A sheet rather than a straight `tel:` link because the right channel
   /// depends on the client: a phone is useless to someone browsing on a desktop
   /// at midnight, and an email is slow for someone whose lot is being collected
-  /// tomorrow. Offering both, plus the form, lets them pick.
+  /// tomorrow. Offering both, plus the chat, lets them pick.
+  ///
+  /// The third channel used to read "Formulaire de contact — réponse sous 24 h",
+  /// which was a promise the form could not keep: it posted into Airtable and
+  /// the sender was never told whether anyone had read it. It now names what
+  /// the destination actually became — the support thread on `/contact`, which
+  /// an operator answers from Expeditoo's own inbox.
   static Future<void> open(
     BuildContext context, {
     String? aboutReference,
@@ -86,12 +92,29 @@ class SupportContact {
               ),
               const SizedBox(height: 8.0),
               _Channel(
-                icon: Icons.chat_bubble_outline_rounded,
-                label: xpdT(context, 'Formulaire de contact', 'Contact form'),
-                value: xpdT(context, 'Réponse sous 24 h', 'Reply within 24 h'),
+                // Same headset the contact page and Expeditoo's admin console
+                // use, so the three views of one inbox look like one thing.
+                icon: Icons.headset_mic_outlined,
+                label: xpdT(context, 'Chat support', 'Support chat'),
+                value: xpdT(
+                  context,
+                  'Discutez avec un conseiller',
+                  'Chat with an advisor',
+                ),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
-                  context.pushNamed(ContactWidget.routeName);
+                  // Carry the reference through. The sheet has just told the
+                  // client to "mention reference X" — sending them to a blank
+                  // composer and making them do it by hand is the instruction
+                  // and the tooling disagreeing.
+                  context.pushNamed(
+                    ContactWidget.routeName,
+                    queryParameters: {
+                      if (aboutReference != null)
+                        'numDevis':
+                            serializeParam(aboutReference, ParamType.String)!,
+                    },
+                  );
                 },
               ),
             ],

@@ -10,6 +10,7 @@ import 'auth/expeditoo/expeditoo_auth_client.dart';
 import 'auth/firebase_auth/auth_util.dart';
 
 import 'backend/expedion_api/expedion_api.dart';
+import 'backend/quote_draft.dart';
 import 'backend/firebase/firebase_config.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
@@ -40,6 +41,11 @@ void main() async {
   // throw until this runs. Nothing called them before, which is why the FR/EN
   // switch was forgotten on every restart.
   await FFLocalizations.initialize();
+
+  // What the landing page's quote forms parked before the visitor signed in.
+  // Read here rather than lazily because the devis forms seed their
+  // controllers from it in `initState`, which runs before any await of theirs.
+  await QuoteDraft.restore();
 
   final appState = FFAppState(); // Initialize FFAppState
   await appState.initializePersistedState();

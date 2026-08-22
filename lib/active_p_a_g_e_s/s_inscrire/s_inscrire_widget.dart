@@ -9,8 +9,10 @@ import '/design_system/ds_logo.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_site.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/backend/quote_draft.dart';
 import '/index.dart';
 import '/main.dart';
+import '/quote_resume.dart';
 import 's_inscrire_model.dart';
 export 's_inscrire_model.dart';
 
@@ -138,6 +140,14 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
     }
   }
 
+  /// Where to land once the account exists.
+  ///
+  /// A draft parked by the landing page means the visitor has already answered
+  /// the fork's question — they attached the slip, or typed the addresses
+  /// instead — so this resumes into the matching form rather than asking
+  /// again. With no draft it is `ChoixDevisWidget`, as before.
+  String get _destination => quoteDraftResumeRoute(QuoteDraft.peek());
+
   Future<void> _createAccount() async {
     if (_busy) return;
     if (!(_model.formKey.currentState?.validate() ?? false)) return;
@@ -191,8 +201,13 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
     if (!mounted) return;
     setState(() => _busy = false);
 
-    if (FFAppState().PageDeDestination == 'Demande devis') {
-      context.pushNamedAuth(ChoixDevisWidget.routeName, context.mounted);
+    // A draft parked on the landing page is a stronger statement of intent
+    // than `PageDeDestination`, which is set by whichever screen last sent
+    // someone here: registering in the middle of a quote request and landing
+    // back on the landing page loses the answers they just typed.
+    if (QuoteDraft.peek() != null ||
+        FFAppState().PageDeDestination == 'Demande devis') {
+      context.pushNamedAuth(_destination, context.mounted);
     } else {
       context.pushNamedAuth(AccueilWidget.routeName, context.mounted);
     }
@@ -254,7 +269,7 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       return;
     }
     // A Google account arrives verified, so this lands straight in the app.
-    context.goNamedAuth(ChoixDevisWidget.routeName, context.mounted);
+    context.goNamedAuth(_destination, context.mounted);
   }
 
   @override

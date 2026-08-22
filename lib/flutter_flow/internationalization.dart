@@ -2595,12 +2595,6 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'es': 'Envíanos un correo electrónico',
       'it': 'Inviaci un\'e-mail',
     },
-    'sg32r0oo': {
-      'fr': 'Contact@expedion-encheres.com',
-      'en': 'Contact@expedion-encheres.com',
-      'es': 'Contacto@expedion-encheres.com',
-      'it': 'Contact@expedion-encheres.com',
-    },
     '9nn1d2og': {
       'fr': 'Chat support',
       'en': 'Support chat',
@@ -2684,12 +2678,6 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': 'Call us',
       'es': 'Llámanos',
       'it': 'Chiamaci',
-    },
-    'o8soa8ss': {
-      'fr': '07 74 31 96 74',
-      'en': '07 74 31 96 74',
-      'es': '07 74 31 96 74',
-      'it': '07 74 31 96 74',
     },
   },
   // WEB_HomepageLogedin
@@ -4564,139 +4552,6 @@ final kTranslationsMap = <Map<String, Map<String, String>>>[
       'en': 'log in',
       'es': 'acceso',
       'it': 'login',
-    },
-  },
-  // Page_Contact-Devis
-  {
-    'e2px1giy': {
-      'fr': 'Entrer en contact',
-      'en': 'Get in touch',
-      'es': 'Ponte en contacto con nosotros',
-      'it': 'Contattaci',
-    },
-    'q064d1gc': {
-      'fr':
-          'Nous serions ravis d\'avoir de vos nouvelles.     Envoyez-nous un message et nous vous répondrons dans les plus brefs délais.',
-      'en':
-          'We would love to hear from you. Send us a message and we will get back to you as soon as possible.',
-      'es':
-          'Nos encantaría saber de usted. Envíenos un mensaje y nos pondremos en contacto con usted lo antes posible.',
-      'it':
-          'Ci piacerebbe sentire la tua opinione. Inviaci un messaggio e ti risponderemo il prima possibile.',
-    },
-    'p61wm31g': {
-      'fr': 'Envoyez-nous un courriel',
-      'en': 'Send us an email',
-      'es': 'Envíanos un correo electrónico',
-      'it': 'Inviaci un\'e-mail',
-    },
-    '8gz1mb9f': {
-      'fr': 'Contact@expedion-encheres.com',
-      'en': 'Contact@expedion-encheres.com',
-      'es': 'Contacto@expedion-encheres.com',
-      'it': 'Contact@expedion-encheres.com',
-    },
-    'drm01ryv': {
-      'fr': 'Envoyez-nous un message',
-      'en': 'Send us a message',
-      'es': 'Envíanos un mensaje',
-      'it': 'Inviaci un messaggio',
-    },
-    '17nyx3cx': {
-      'fr': 'Message',
-      'en': 'Message',
-      'es': 'Mensaje',
-      'it': 'Messaggio',
-    },
-    '83k2mpty': {
-      'fr': 'Nom',
-      'en': 'Name',
-      'es': 'Nombre',
-      'it': 'Nome',
-    },
-    'acqi7789': {
-      'fr': 'Nom',
-      'en': 'Name',
-      'es': 'Nombre',
-      'it': 'Nome',
-    },
-    'hp2oekpu': {
-      'fr': 'Prénom',
-      'en': 'First name',
-      'es': 'Nombre de pila',
-      'it': 'Nome',
-    },
-    '30e6ib1p': {
-      'fr': 'Prénom',
-      'en': 'First name',
-      'es': 'Nombre de pila',
-      'it': 'Nome',
-    },
-    'hkekai6y': {
-      'fr': 'Email',
-      'en': 'E-mail',
-      'es': 'Correo electrónico',
-      'it': 'E-mail',
-    },
-    'u976gtkc': {
-      'fr': 'Email ',
-      'en': 'E-mail',
-      'es': 'Correo electrónico',
-      'it': 'E-mail',
-    },
-    'c9ozgqsf': {
-      'fr': 'Devis concerné',
-      'en': 'Quote concerned',
-      'es': 'Cita en cuestión',
-      'it': 'Citazione interessata',
-    },
-    '45cppf8h': {
-      'fr': 'Email ',
-      'en': 'E-mail',
-      'es': 'Correo electrónico',
-      'it': 'E-mail',
-    },
-    'wszwhoy7': {
-      'fr': 'Sujet',
-      'en': 'Subject',
-      'es': 'Sujeto',
-      'it': 'Soggetto',
-    },
-    'aeqo7n8f': {
-      'fr': 'Sujet',
-      'en': 'Subject',
-      'es': 'Sujeto',
-      'it': 'Soggetto',
-    },
-    'gy8djmug': {
-      'fr': 'votre message...',
-      'en': 'your message...',
-      'es': 'tu mensaje...',
-      'it': 'il tuo messaggio...',
-    },
-    'w50p7tv7': {
-      'fr': 'Envoyer un Message',
-      'en': 'Send a message',
-      'es': 'Enviar un mensaje',
-      'it': 'Invia un messaggio',
-    },
-    'hgmab94n': {
-      'fr': 'Appelez-nous',
-      'en': 'Call us',
-      'es': 'Llámanos',
-      'it': 'Chiamaci',
-    },
-    'yyw47uyu': {
-      'fr': '07 74 31 96 74',
-      'en': '07 74 31 96 74',
-      'es': '07 74 31 96 74',
-      'it': '07 74 31 96 74',
-    },
-    'kc10mk8f': {
-      'fr': 'Contact',
-      'en': 'Contact',
-      'es': 'Contacto',
-      'it': 'Contatto',
     },
   },
   // Page_Validation_Devis

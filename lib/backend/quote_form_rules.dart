@@ -168,4 +168,61 @@ class QuoteFormRules {
     }
     return RegExp(r'^0[1-9]\d{8}$').hasMatch(digits);
   }
+
+  // ========================================
+  // The landing page's two quote forms
+  // ========================================
+  //
+  // The express card and the full request form on `AccueilWidget` do not file
+  // a quote themselves — they park a `QuoteDraft` that the real devis form
+  // seeds from. So these rules guard the handover rather than the submission:
+  // a delivery line with no postcode in it arrives at the devis form as a town
+  // and an empty postcode field, which is one of the blockers above, reached by
+  // a route that never showed the client a message.
+
+  /// The cap the file drop's own caption promises ("jusqu'à 10 Mo"). It was
+  /// only ever a caption: an oversized slip was accepted on the landing page
+  /// and failed later, in the upload, on a screen that could no longer say why.
+  static const int maxUploadBytes = 10 * 1024 * 1024;
+
+  /// More lots than this in one request is a removal, quoted by telephone.
+  static const int maxLotCount = 99;
+
+  /// The pickup line — "Drouot, Paris 9e". Held to the same bar as the devis
+  /// form's own auction-house field, which is where it lands.
+  static bool isPickupLine(String raw) => isAuctionHouse(raw);
+
+  /// "33000 Bordeaux", or "Bordeaux 33000". The postcode is the part that
+  /// matters: `QuoteDraft.deliveryParts` splits on it, and without one the
+  /// devis form opens with an empty postcode field the client has already
+  /// answered once.
+  static bool isDeliveryLine(String raw) =>
+      RegExp(r'\b\d{5}\b').hasMatch(raw.trim());
+
+  /// Deliberately loose: this catches the missing `@` and the fat-fingered
+  /// domain, which is what a typed address actually gets wrong. Adjudicating
+  /// RFC 5322 here would only reject addresses that work.
+  static bool isEmail(String raw) =>
+      RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$').hasMatch(raw.trim());
+
+  /// Optional. Filled, it has to be a count that fits in a van.
+  static bool isLotCount(String raw) {
+    if (raw.trim().isEmpty) return true;
+    final count = int.tryParse(raw.trim());
+    return count != null && count >= 1 && count <= maxLotCount;
+  }
+
+  /// Optional here, unlike [isDeclaredValue]: the devis form asks for the
+  /// hammer price again and insists on it. Filled, it is held to the same
+  /// parse, so a value the landing page accepted cannot become one the devis
+  /// form rejects.
+  static bool isHammerPrice(String raw) =>
+      raw.trim().isEmpty || isDeclaredValue(raw);
+
+  /// Optional. "22 / 08 / 2026", "22-08-2026" and "22.8.26" are the ways a
+  /// collection deadline gets copied off a bordereau.
+  static bool isPickupDeadline(String raw) =>
+      raw.trim().isEmpty ||
+      RegExp(r'^\d{1,2}\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{2,4}$')
+          .hasMatch(raw.trim());
 }

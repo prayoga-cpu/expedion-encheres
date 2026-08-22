@@ -91,15 +91,29 @@ class _FormulaireDeDevisParBordereauWidgetState
     _check = const BordereauCheck.idle();
   }
 
+  /// The required answers this form asks for beside the bordereau, as the
+  /// labels themselves promise: every field printed with an asterisk.
+  ///
+  /// Only ad valorem qualifies today — "Que souhaitez-vous ?" is asterisked but
+  /// carries a preselected answer, and "Montant de la marchandise" is not
+  /// asterisked at all. Add to this list rather than to [_canSubmit], so a new
+  /// requirement is named to the client instead of just disabling the button.
+  List<String> _missingRequiredFields(BuildContext context) => [
+        if ((_model.assuranceADVValue ?? '').isEmpty)
+          xpdT(context, "l'assurance ad valorem", 'ad valorem insurance'),
+      ];
+
   /// Whether the devis can be filed.
   ///
-  /// Three conditions, and the first two are new: the bordereau has to have
-  /// reached storage (the asterisk on "Insérez un bordereau" was decoration —
-  /// an empty form submitted happily), and the check must not be objecting.
+  /// Everything here was previously unenforced: the asterisks on "Insérez un
+  /// bordereau" and on the ad valorem question were decoration, and an empty
+  /// form submitted happily. The panel above the button names whichever of
+  /// these is unmet, so a disabled button is never unexplained.
   bool get _canSubmit =>
       _model.uploadedFileUrl_uploadDataBordereau.isNotEmpty &&
       !_model.isDataUploading_uploadDataBordereau &&
       !_check.blocksSubmit &&
+      (_model.assuranceADVValue ?? '').isNotEmpty &&
       !_submitting;
 
   /// Files the devis with Expeditoo.
@@ -1845,6 +1859,12 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                       ),
                                                     ),
                                           ),
+                                        if (_missingRequiredFields(context)
+                                            .isNotEmpty)
+                                          MissingFieldsHint(
+                                            labels: _missingRequiredFields(
+                                                context),
+                                          ),
                                         Padding(
                                           padding:
                                               EdgeInsetsDirectional.fromSTEB(
@@ -2001,6 +2021,19 @@ class _FormulaireDeDevisParBordereauWidgetState
                                               color:
                                                   FlutterFlowTheme.of(context)
                                                       .primary,
+                                              // Without these two,
+                                              // `FFButtonWidget` paints
+                                              // `color` in every state — a
+                                              // disabled button that still
+                                              // looks like a live CTA, which
+                                              // reads as a broken page rather
+                                              // than as a form to finish.
+                                              disabledColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondary,
+                                              disabledTextColor:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
                                               textStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .titleMedium

@@ -24,6 +24,7 @@ class DSSupportChat extends StatefulWidget {
   const DSSupportChat({
     super.key,
     required this.onSignIn,
+    this.aboutReference,
     this.maxHeight = 420.0,
   });
 
@@ -31,6 +32,20 @@ class DSSupportChat extends StatefulWidget {
   /// routed from here so `lib/design_system` keeps no opinion about the app's
   /// router.
   final VoidCallback onSignIn;
+
+  /// A quote this conversation is about, e.g. `p-RxmFL0`.
+  ///
+  /// Seeds the composer with the reference when the screen opens. The
+  /// operator's first question is always "which one?", and the screens that
+  /// carry a reference already know the answer — making the client retype it
+  /// is how a support thread starts one round trip behind.
+  ///
+  /// Seeded even when the thread already has history, which is the case that
+  /// matters: support is ONE long-running thread per person covering every
+  /// quote they have ever asked about, so a returning client is exactly the
+  /// one whose "about which quote?" cannot be inferred from context. Only a
+  /// composer the client has already typed into is left alone.
+  final String? aboutReference;
 
   /// The thread scrolls inside the card instead of growing the page, so the
   /// composer stays reachable however long the history gets.
@@ -47,6 +62,7 @@ class _DSSupportChatState extends State<DSSupportChat> {
   final ScrollController _scroll = ScrollController();
 
   int _lastCount = 0;
+  bool _seeded = false;
 
   @override
   void initState() {
@@ -68,6 +84,7 @@ class _DSSupportChatState extends State<DSSupportChat> {
   void _onChatChanged() {
     if (!mounted) return;
     setState(() {});
+    _seedComposer();
 
     // Only follow the thread when it actually grew. Scrolling on every
     // notification would yank the view back down while somebody is reading
@@ -78,6 +95,42 @@ class _DSSupportChatState extends State<DSSupportChat> {
     } else {
       _lastCount = _chat.messages.length;
     }
+  }
+
+  /// Drops the quote reference into the composer, once.
+  ///
+  /// Waits for the load to finish rather than firing in `initState`, so the
+  /// seed is not wiped by the first `setState` the load triggers. The
+  /// `_seeded` latch is what keeps the 8-second poll from re-inserting the
+  /// prefix under the client's cursor every tick.
+  void _seedComposer() {
+    if (_seeded || _chat.isLoading) return;
+
+    final reference = widget.aboutReference?.trim();
+    if (reference == null || reference.isEmpty) return;
+    // Whatever the client has started typing wins; nothing else does.
+    if (_composer.text.isNotEmpty) return;
+
+    // The latch goes here rather than above the guards: a pass that decides
+    // there is nothing to seed must not spend it, or the one pass that could
+    // have seeded never gets to.
+    _seeded = true;
+
+    // Deferred a frame because this can be reached from inside `initState`:
+    // `_chat.start()` is not awaited, and `refresh()` takes an early return —
+    // `if (!isAvailable) { _loading = false; _notify(); return; }` — before
+    // its first `await`, so a signed-out visitor's notification lands while
+    // `initState` is still on the stack. `xpdT` reads an inherited widget,
+    // which is an assertion failure that early. A frame later it is safe.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _composer.text.isNotEmpty) return;
+      final prefix =
+          xpdT(context, 'Devis $reference — ', 'Quote $reference — ');
+      _composer.value = TextEditingValue(
+        text: prefix,
+        selection: TextSelection.collapsed(offset: prefix.length),
+      );
+    });
   }
 
   void _scrollToEnd() {

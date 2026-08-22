@@ -115,6 +115,44 @@ class BordereauMissingHint extends StatelessWidget {
   }
 }
 
+/// The required answers this form collects itself, beside the bordereau.
+///
+/// Separate from [BordereauMissingHint] because it is a different kind of
+/// blocker: the slip is a document we could not read, these are questions
+/// nobody answered. Showing them together in one list would suggest the
+/// bordereau is at fault when it is not.
+class MissingFieldsHint extends StatelessWidget {
+  const MissingFieldsHint({super.key, required this.labels});
+
+  /// Already-localised names of the unanswered required fields.
+  final List<String> labels;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    return _Frame(
+      status: DSStatus.neutral,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.edit_outlined, size: 20.0, color: theme.secondaryText),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: Text(
+              xpdT(
+                context,
+                'Il reste à renseigner : ${labels.join(', ')}.',
+                'Still to fill in: ${labels.join(', ')}.',
+              ),
+              style: theme.bodySmall.copyWith(color: theme.primaryText),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ========================================
 // Checking
 // ========================================

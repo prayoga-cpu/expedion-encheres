@@ -7,8 +7,10 @@ import '/design_system/ds_logo.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_site.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/backend/quote_draft.dart';
 import '/index.dart';
 import '/main.dart';
+import '/quote_resume.dart';
 import 'se_connecter_model.dart';
 export 'se_connecter_model.dart';
 
@@ -103,6 +105,14 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
     }
   }
 
+  /// Where to land once the visitor is through.
+  ///
+  /// A draft parked by the landing page means they have already answered the
+  /// fork's question — they attached the slip, or typed the addresses instead
+  /// — so this resumes into the matching form rather than asking again. With
+  /// no draft it is `ChoixDevisWidget`, as before.
+  String get _destination => quoteDraftResumeRoute(QuoteDraft.peek());
+
   Future<void> _signIn() async {
     if (_busy) return;
     if (!(_model.formKey.currentState?.validate() ?? false)) return;
@@ -126,7 +136,7 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
       setState(() => _error = _explain());
       return;
     }
-    context.goNamedAuth(ChoixDevisWidget.routeName, context.mounted);
+    context.goNamedAuth(_destination, context.mounted);
   }
 
   Future<void> _signInWithGoogle() async {
@@ -150,7 +160,7 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
       }
       return;
     }
-    context.goNamedAuth(ChoixDevisWidget.routeName, context.mounted);
+    context.goNamedAuth(_destination, context.mounted);
   }
 
   @override
