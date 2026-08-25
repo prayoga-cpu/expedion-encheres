@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -100,10 +102,47 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
     _model.textFieldFocusNode11 ??= FocusNode();
     _model.textController15 ??= TextEditingController();
     _model.textFieldFocusNode12 ??= FocusNode();
+
+    // Web signs in through Google's own button, which publishes its result on
+    // a stream rather than returning it — see the sign-in page for why.
+    if (googleIdentityButtonSupported) {
+      authManager.listenForGoogleWebSignIn();
+      _googleWebSignIn = authManager.googleWebSignIns.listen(_onGoogleSignUp);
+    }
+  }
+
+  StreamSubscription<BaseAuthUser?>? _googleWebSignIn;
+
+  /// Finishes a Google sign-up.
+  ///
+  /// The customer record is created here as well as on the email path. It was
+  /// created on neither before, and once Google becomes the primary way to sign
+  /// up on web that would have left the whole cohort without one.
+  ///
+  /// Whatever address fields the visitor filled in are used. They may be empty
+  /// — Google needs none of them — and an incomplete customer record is still
+  /// better than no record at all, since the quote flow collects the address
+  /// again anyway and has somewhere to put it.
+  /// A null [user] means the Google exchange was refused, not that nothing
+  /// happened — report it rather than leaving the button looking inert.
+  Future<void> _onGoogleSignUp(BaseAuthUser? user) async {
+    if (!mounted) return;
+    setState(() => _googleBusy = false);
+    if (user == null) {
+      setState(() => _error = _explain());
+      return;
+    }
+    await _createAirtableCustomer(
+      uid: user.uid ?? '',
+      email: user.email ?? '',
+    );
+    if (!mounted) return;
+    context.goNamedAuth(_destination, context.mounted);
   }
 
   @override
   void dispose() {
+    _googleWebSignIn?.cancel();
     _model.dispose();
     super.dispose();
   }
@@ -181,6 +220,14 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       // Better Auth created the account but withheld the session pending
       // verification — that is a success, not a failure.
       if (result != null && result.succeeded) {
+        // The customer record is created here, before anyone is signed in,
+        // because this is the only moment the form's answers exist. Waiting
+        // until after verification would mean asking for the address again.
+        await _createAirtableCustomer(
+          uid: result.user?.id ?? '',
+          email: result.user?.email ?? email,
+        );
+        if (!mounted) return;
         setState(() {
           _busy = false;
           _verificationSentTo = email;
@@ -194,9 +241,10 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       return;
     }
 
-    // Only reachable on the Firebase path, which signs in on creation. The
-    // Airtable record and the Firestore profile are keyed on that session.
-    await _syncLegacyProfile();
+    // Reached when the account system signed the visitor in on creation, which
+    // today means the Firebase path. Both records are keyed on that session.
+    await _createAirtableCustomer(uid: currentUserUid, email: currentUserEmail);
+    await _syncFirestoreProfile();
 
     if (!mounted) return;
     setState(() => _busy = false);
@@ -213,20 +261,33 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
     }
   }
 
-  /// Mirrors the new account into Airtable and the Firestore user document.
+  /// Creates the Airtable customer record for a brand-new account.
   ///
-  /// Guarded on `currentUserReference`, which is null unless a Firebase
-  /// session exists; under Better Auth there is no Firestore document to
-  /// update and calling `.update()` on the missing one would throw.
-  Future<void> _syncLegacyProfile() async {
-    final reference = currentUserReference;
-    if (reference == null) return;
-
+  /// This used to be one method with the Firestore update below, guarded on
+  /// `currentUserReference` and reached only from the Firebase branch — so a
+  /// Better Auth sign-up, which is now every sign-up, got no customer record at
+  /// all. The personal space then had nothing to show, and the customer number
+  /// derived from the uid never existed.
+  ///
+  /// It is separate now because the two halves have genuinely different
+  /// conditions. Airtable is keyed on whatever id the account system issued and
+  /// needs no session, so it runs for every sign-up. Firestore needs a document
+  /// that only a Firebase account has.
+  ///
+  /// [uid] and [email] are passed in rather than read from `currentUserUid`,
+  /// because on the Better Auth path there is deliberately no session yet:
+  /// sign-up runs under `requireEmailVerification`, so the account exists while
+  /// nobody is signed in.
+  Future<void> _createAirtableCustomer({
+    required String uid,
+    required String email,
+  }) async {
+    if (uid.isEmpty) return;
     await NewclientSignUpDMCall.call(
       nom: _model.nomTextController.text,
       prenom: _model.prenomTextController.text,
-      eMail: currentUserEmail,
-      authUserUid: currentUserUid,
+      eMail: email,
+      authUserUid: uid,
       adresseClientL1: _model.textController4.text,
       adresseClientL2: _model.textController5.text,
       codePostalClient: _model.textController6.text,
@@ -234,6 +295,17 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       telephoneClient: _model.textController9.text,
       paysClient: _model.textController8.text,
     );
+  }
+
+  /// Mirrors the new account into the Firestore user document.
+  ///
+  /// Only a Firebase-era session has one of these, and `currentUserReference`
+  /// now says so — it returns null for a Better Auth session rather than a
+  /// reference to a document that has never existed. This guard is therefore
+  /// finally the check the original comment claimed it was.
+  Future<void> _syncFirestoreProfile() async {
+    final reference = currentUserReference;
+    if (reference == null) return;
 
     _model.airtableUserID = await GetAirtableUserIDCall.call(
       uid: currentUserUid,
@@ -268,8 +340,9 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       }
       return;
     }
-    // A Google account arrives verified, so this lands straight in the app.
-    context.goNamedAuth(_destination, context.mounted);
+    // A Google account arrives verified, so this lands straight in the app —
+    // after the customer record, which this path used to skip entirely.
+    await _onGoogleSignUp(user);
   }
 
   @override
@@ -674,11 +747,25 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
                 ],
               ),
               const SizedBox(height: 24.0),
-              _GoogleButton(
-                busy: _googleBusy,
-                label: _t("S'inscrire avec Google", 'Sign up with Google'),
-                onPressed: _signUpWithGoogle,
-              ),
+              // Google's own button on web — only it produces the ID token
+              // Better Auth verifies. See the same note on the sign-in page.
+              if (googleIdentityButtonSupported)
+                Align(
+                  alignment: Alignment.center,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => googleIdentityButton(
+                      width: constraints.maxWidth.isFinite
+                          ? constraints.maxWidth
+                          : null,
+                    ),
+                  ),
+                )
+              else
+                _GoogleButton(
+                  busy: _googleBusy,
+                  label: _t("S'inscrire avec Google", 'Sign up with Google'),
+                  onPressed: _signUpWithGoogle,
+                ),
               const SizedBox(height: 26.0),
               Wrap(
                 alignment: WrapAlignment.center,

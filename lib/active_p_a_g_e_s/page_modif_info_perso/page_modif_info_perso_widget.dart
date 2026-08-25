@@ -2282,11 +2282,21 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                     );
                                   }
                                   List<UsersRecord> buttonUsersRecordList =
-                                      snapshot.data!;
-                                  // Return an empty Container when the item does not exist.
-                                  if (snapshot.data!.isEmpty) {
-                                    return Container();
-                                  }
+                                      snapshot.data ?? const [];
+                                  // A Better Auth account has no Firestore
+                                  // document — that collection is keyed by
+                                  // Firebase UID — so this list is empty for
+                                  // every account created since the migration.
+                                  //
+                                  // It used to return an empty Container here,
+                                  // and since the page's only Save button lives
+                                  // inside this builder, those users were shown
+                                  // a form they could fill in and never submit.
+                                  // The record is optional now: Firestore is
+                                  // updated when there is something to update,
+                                  // and the Airtable write below — which is the
+                                  // one the rest of the app actually reads —
+                                  // happens either way.
                                   final buttonUsersRecord =
                                       buttonUsersRecordList.isNotEmpty
                                           ? buttonUsersRecordList.first
@@ -2294,7 +2304,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
 
                                   return FFButtonWidget(
                                     onPressed: () async {
-                                      await buttonUsersRecord!.reference
+                                      await buttonUsersRecord?.reference
                                           .update(createUsersRecordData(
                                         nom: _model.nomTextController.text,
                                         prenom:
@@ -2323,6 +2333,28 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                         telephoneClient:
                                             _model.telephoneTextController.text,
                                       ));
+                                      // Airtable PATCHes by record id, so an
+                                      // empty one updates nothing and reports
+                                      // no error. That id used to be read from
+                                      // the Firestore profile, which a Better
+                                      // Auth account does not have — so it is
+                                      // looked up by uid whenever the document
+                                      // cannot supply it.
+                                      var airtableUserId = valueOrDefault(
+                                          currentUserDocument?.airtableUserID,
+                                          '');
+                                      if (airtableUserId.isEmpty) {
+                                        final lookup =
+                                            await GetAirtableUserIDCall.call(
+                                          uid: currentUserUid,
+                                        );
+                                        airtableUserId =
+                                            GetAirtableUserIDCall.airtableUserID(
+                                                  lookup.jsonBody ?? '',
+                                                )?.toString() ??
+                                                '';
+                                      }
+
                                       _model.apiResultljs =
                                           await UpdateProfilinfoCall.call(
                                         prenom:
@@ -2353,9 +2385,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                             .paysClientTextController.text,
                                         paysLivraison: _model
                                             .paysLivraisonTextController.text,
-                                        airtableUserID: valueOrDefault(
-                                            currentUserDocument?.airtableUserID,
-                                            ''),
+                                        airtableUserID: airtableUserId,
                                         nom: _model.nomTextController.text,
                                       );
 

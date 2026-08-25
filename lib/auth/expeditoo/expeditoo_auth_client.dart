@@ -37,6 +37,22 @@ class ExpeditooAuthClient {
   static const String _tokenHeader = 'set-auth-token';
   static const String _tokenKey = '__expeditoo_session_token__';
   static const String _userKey = '__expeditoo_session_user__';
+  static const String _userStampKey = '__expeditoo_session_user_at__';
+
+  /// How long the cached user may be trusted before the app stops presenting
+  /// it as a signed-in identity on the first frame.
+  ///
+  /// The cache exists only to avoid a signed-out flash while `/get-session` is
+  /// in flight, and it is replaced as soon as the server answers. What it must
+  /// not do is outlive the session it describes: `session()` clears the token
+  /// only on an explicit 401 or 403, so a client that never gets a clean
+  /// answer — a CORS regression, an origin dropped from the allowlist, a
+  /// backend that is simply down — would otherwise render a signed-in shell
+  /// against a dead token indefinitely, with every request behind it failing.
+  ///
+  /// Seven days matches the "Remember me for 7 days" the sign-in form offers,
+  /// so the ceiling the visitor was shown is the ceiling they get.
+  static const Duration _cacheMaxAge = Duration(days: 7);
 
   /// There is always a host to talk to, so this is always true. Kept as a
   /// named concept because callers read it to mean "the Expeditoo backend is
@@ -58,7 +74,7 @@ class ExpeditooAuthClient {
     _prefs = await SharedPreferences.getInstance();
     _token = _prefs?.getString(_tokenKey);
     final raw = _prefs?.getString(_userKey);
-    if (raw != null && hasToken) {
+    if (raw != null && hasToken && !_cacheHasExpired) {
       try {
         final decoded = jsonDecode(raw);
         if (decoded is Map<String, dynamic>) {
@@ -69,6 +85,21 @@ class ExpeditooAuthClient {
         // revalidation will replace it or sign the user out.
       }
     }
+  }
+
+  /// True when the stored user is older than [_cacheMaxAge], or carries no
+  /// timestamp at all.
+  ///
+  /// A missing stamp means the entry was written by a build that predates
+  /// this, so it is treated as expired rather than trusted forever — the cost
+  /// is one revalidation round-trip on the first launch after upgrading.
+  static bool get _cacheHasExpired {
+    final stamp = _prefs?.getInt(_userStampKey);
+    if (stamp == null) return true;
+    final age = DateTime.now().difference(
+      DateTime.fromMillisecondsSinceEpoch(stamp),
+    );
+    return age.isNegative || age > _cacheMaxAge;
   }
 
   static String? get token => _token;
@@ -84,6 +115,7 @@ class ExpeditooAuthClient {
       _cachedUser = null;
       await _prefs?.remove(_tokenKey);
       await _prefs?.remove(_userKey);
+      await _prefs?.remove(_userStampKey);
     } else {
       await _prefs?.setString(_tokenKey, _token!);
     }
@@ -94,8 +126,15 @@ class ExpeditooAuthClient {
     _prefs ??= await SharedPreferences.getInstance();
     if (user == null) {
       await _prefs?.remove(_userKey);
+      await _prefs?.remove(_userStampKey);
     } else {
       await _prefs?.setString(_userKey, jsonEncode(user.toJson()));
+      // Stamped on every write, so the age measured at start-up is the age of
+      // this answer rather than of the first one ever cached.
+      await _prefs?.setInt(
+        _userStampKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     }
   }
 
@@ -167,8 +206,38 @@ class ExpeditooAuthClient {
       );
 
   /// Sends Better Auth's reset-password mail.
+  ///
+  /// The route is `/request-password-reset`, not `/forget-password`. Better
+  /// Auth renamed it, and 1.4.6 registers only the new name — the only
+  /// surviving `/forget-password*` path belongs to the emailOTP plugin, which
+  /// Expeditoo does not enable. Posting to the old name returned 404 on every
+  /// attempt, which `_authenticate` reported as a generic failure, so every
+  /// reset silently fell through to Firebase and no Better Auth user could
+  /// ever recover their password.
+  ///
+  /// `redirectTo` is where the link in the mail lands. The reset *form* is a
+  /// page on the Expeditoo app rather than a screen in this one, so it is
+  /// derived from the same base URL as every other call instead of being left
+  /// to whatever default the server happens to carry.
   static Future<ExpeditooAuthResult> requestPasswordReset(String email) =>
-      _authenticate('/forget-password', {'email': email});
+      _authenticate('/request-password-reset', {
+        'email': email,
+        'redirectTo': '$baseUrl/reset-password',
+      });
+
+  /// Asks Better Auth to send the verification mail again.
+  ///
+  /// Sign-up runs under `requireEmailVerification: true`, so an account can
+  /// exist while its address is unconfirmed and its owner has lost the first
+  /// mail. Without this the app could only show a button that did nothing.
+  static Future<ExpeditooAuthResult> resendVerificationEmail({
+    required String email,
+    String? callbackUrl,
+  }) =>
+      _authenticate('/send-verification-email', {
+        'email': email,
+        if (callbackUrl != null) 'callbackURL': callbackUrl,
+      });
 
   // ========================================
   // Google
@@ -213,9 +282,18 @@ class ExpeditooAuthClient {
   // Sign out
   // ========================================
 
+  /// Ends the session on the server, then locally.
+  ///
+  /// The empty JSON body is not decoration. Better Auth parses the request
+  /// body on this route, and a POST with a `Content-Type: application/json`
+  /// header but no body at all answers 500 — which `_send` swallowed, so the
+  /// token was cleared locally while the session stayed alive server-side. The
+  /// user looked signed out and was not.
   static Future<void> signOut() async {
     if (isConfigured && hasToken) {
-      await _send(() => http.post(_uri('/sign-out'), headers: _headers));
+      await _send(
+        () => http.post(_uri('/sign-out'), headers: _headers, body: '{}'),
+      );
     }
     await _storeToken(null);
   }
@@ -363,6 +441,17 @@ class ExpeditooAuthResult {
     this.message,
     this.statusCode = 0,
   });
+
+  /// A failure the client decided on its own, without asking the server.
+  ///
+  /// The provider sheet was dismissed, Google returned no identity token, the
+  /// account system does not offer this provider at all — outcomes the UI has
+  /// to explain, and which would otherwise be indistinguishable from "nothing
+  /// happened" because no HTTP call was ever made.
+  const ExpeditooAuthResult.failure({
+    required String code,
+    String? message,
+  }) : this._(succeeded: false, code: code, message: message);
 
   final bool succeeded;
   final ExpeditooUser? user;

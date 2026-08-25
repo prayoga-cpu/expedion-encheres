@@ -251,23 +251,47 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                 highlightColor:
                                                     Colors.transparent,
                                                 onTap: () async {
-                                                  await authManager
+                                                  // Reports what actually
+                                                  // happened. This used to
+                                                  // announce "Email envoyé"
+                                                  // unconditionally, on top of
+                                                  // a method whose Better Auth
+                                                  // implementation was an empty
+                                                  // body — so for every account
+                                                  // created since the migration
+                                                  // the message was simply
+                                                  // untrue.
+                                                  final sent = await authManager
                                                       .sendEmailVerification();
+                                                  if (!context.mounted) return;
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        FFLocalizations.of(
-                                                                context)
-                                                            .getVariableText(
+                                                        sent
+                                                            ? FFLocalizations.of(
+                                                                    context)
+                                                                .getVariableText(
+                                                                frText:
+                                                                    'Email envoyé',
+                                                                enText:
+                                                                    'Email sent',
+                                                                esText:
+                                                                    'Correo enviado',
+                                                                itText:
+                                                                    'Email inviata',
+                                                              )
+                                                            : FFLocalizations.of(
+                                                                    context)
+                                                                .getVariableText(
                                                           frText:
-                                                              'Email envoyé',
+                                                              "Envoi impossible pour le moment. Réessayez dans un instant.",
                                                           enText:
-                                                              'Email sent',
+                                                              'Could not send it right now. Please try again in a moment.',
                                                           esText:
-                                                              'Correo enviado',
+                                                              'No se pudo enviar ahora. Inténtalo de nuevo en un momento.',
                                                           itText:
-                                                              'Email inviata',
+                                                              'Invio non riuscito. Riprova tra poco.',
                                                         ),
                                                         style: TextStyle(
                                                           color: FlutterFlowTheme

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -54,10 +56,32 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
     _model.emailFocusNode ??= FocusNode();
     _model.motDePasseTextController ??= TextEditingController();
     _model.motDePasseFocusNode ??= FocusNode();
+
+    // On web the Google credential does not come back from a call we made — the
+    // visitor clicks a button Google renders, and the result is published on
+    // this stream. Nothing to await, so navigation is driven from here.
+    if (googleIdentityButtonSupported) {
+      authManager.listenForGoogleWebSignIn();
+      _googleWebSignIn = authManager.googleWebSignIns.listen((user) {
+        if (!mounted) return;
+        setState(() => _googleBusy = false);
+        // A null event means the exchange was refused. Without this the button
+        // would appear to do nothing at all and the reason would exist only in
+        // the browser console.
+        if (user == null) {
+          setState(() => _error = _explain());
+          return;
+        }
+        context.goNamedAuth(_destination, context.mounted);
+      });
+    }
   }
+
+  StreamSubscription<BaseAuthUser?>? _googleWebSignIn;
 
   @override
   void dispose() {
+    _googleWebSignIn?.cancel();
     _model.dispose();
     super.dispose();
   }
@@ -510,12 +534,31 @@ class _SeConnecterWidgetState extends State<SeConnecterWidget> {
         ],
       );
 
-  Widget _googleButton(XpdPalette palette) => _OutlineActionButton(
-        busy: _googleBusy,
-        onPressed: _signInWithGoogle,
-        icon: const GoogleGlyph(size: 20.0),
-        label: _t('Se connecter avec Google', 'Sign in with Google'),
-      );
+  /// The Google action.
+  ///
+  /// On web this is Google's own button rather than ours. That is a
+  /// requirement, not a preference: only the Google Identity Services button
+  /// (or the One Tap prompt) yields the ID token Better Auth needs to verify
+  /// the sign-in, so a custom button here could not authenticate anyone. It is
+  /// wrapped so it occupies the same full-width slot as its neighbour.
+  ///
+  /// Native keeps the app's own styling, where the plugin returns an ID token
+  /// from an ordinary call.
+  Widget _googleButton(XpdPalette palette) => googleIdentityButtonSupported
+      ? Align(
+          alignment: Alignment.center,
+          child: LayoutBuilder(
+            builder: (context, constraints) => googleIdentityButton(
+              width: constraints.maxWidth.isFinite ? constraints.maxWidth : null,
+            ),
+          ),
+        )
+      : _OutlineActionButton(
+          busy: _googleBusy,
+          onPressed: _signInWithGoogle,
+          icon: const GoogleGlyph(size: 20.0),
+          label: _t('Se connecter avec Google', 'Sign in with Google'),
+        );
 }
 
 /// A full-width outline button with a leading glyph — the social action.

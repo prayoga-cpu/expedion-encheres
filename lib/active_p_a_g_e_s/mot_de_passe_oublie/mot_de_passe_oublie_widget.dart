@@ -38,6 +38,10 @@ class _MotDePasseOublieWidgetState extends State<MotDePasseOublieWidget> {
   bool _busy = false;
   String? _sentTo;
 
+  /// Set only when the request never reached the server. A refusal by the
+  /// server is not an error here — see [_send].
+  String? _error;
+
   @override
   void initState() {
     super.initState();
@@ -67,9 +71,33 @@ class _MotDePasseOublieWidgetState extends State<MotDePasseOublieWidget> {
     await authManager.resetPassword(email: email, context: context);
 
     if (!mounted) return;
+
+    // The confirmation deliberately does not say whether the account exists —
+    // Better Auth answers 200 either way, and echoing that back is what stops
+    // this form from being an account-enumeration oracle.
+    //
+    // What it must not do is claim to have sent a mail when nothing was sent.
+    // A transport failure surfaces as `statusCode: 0` from the client's own
+    // catch, and a 5xx means the server took the request and dropped it;
+    // neither produced a mail, and reporting them as success is how the
+    // previous version of this screen hid a reset endpoint that had been
+    // returning 404 for every user.
+    final result = authManager.lastExpeditooResult;
+    final unreachable = result != null &&
+        !result.succeeded &&
+        (result.statusCode == 0 || result.statusCode >= 500);
+
     setState(() {
       _busy = false;
-      _sentTo = email;
+      if (unreachable) {
+        _error = _t(
+          "Impossible d'envoyer le lien pour le moment. Réessayez dans un instant.",
+          'Could not send the link right now. Please try again in a moment.',
+        );
+      } else {
+        _error = null;
+        _sentTo = email;
+      }
     });
   }
 
@@ -224,6 +252,29 @@ class _MotDePasseOublieWidgetState extends State<MotDePasseOublieWidget> {
                 return null;
               },
             ),
+            if (_error != null) ...[
+              const SizedBox(height: 18.0),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14.0,
+                  vertical: 12.0,
+                ),
+                decoration: BoxDecoration(
+                  color: palette.red.withValues(alpha: 0.10),
+                  border: Border.all(color: palette.red.withValues(alpha: 0.32)),
+                  borderRadius: BorderRadius.circular(11.0),
+                ),
+                child: Text(
+                  _error!,
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 13.5,
+                    height: 1.45,
+                    color: palette.red,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 24.0),
             XpdButton(
               label: _t('Envoyer le lien', 'Send reset link'),

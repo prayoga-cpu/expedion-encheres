@@ -59,7 +59,24 @@
   <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#08090b">
 
   <link rel="manifest" href="manifest.json">
-  
+
+  <!-- Google Identity Services client, read by `google_sign_in_web`.
+       This meta tag is the only channel the plugin accepts on web — the
+       `serverClientId` constructor argument is explicitly unsupported there —
+       and without it the Google button renders but authenticates nobody.
+
+       The value is public: it already travels in the OAuth consent URL, and it
+       is the same client Expeditoo's Better Auth signs in with, which is what
+       makes a Google sign-in here land on the same account as a Google sign-in
+       on Expeditoo. The secret half of the pair lives only on the server.
+
+       The matching console entry is Authorized JavaScript origins on this
+       client, which must list every origin the app is served from. That list
+       is not reachable from any code in this repository — see
+       scripts/auth-preflight.mjs for the checks that are. -->
+  <meta name="google-signin-client_id"
+        content="563376260248-glji5g26dr3os58dil8n6uu4ghlit70c.apps.googleusercontent.com">
+
 </head>
 <body>
   
