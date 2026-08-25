@@ -309,9 +309,33 @@ reported as a wrong password.
 Native targets use `google_sign_in` to get a Google ID token on-device and
 exchange it at `POST /api/auth/sign-in/social` with `{provider, idToken}`, so
 the visitor never leaves the app and lands on the same account row a web
-visitor would. Web has no ID token from that plugin, so it uses Firebase's
-popup. A dismissed Google sheet returns null without falling through, so
-cancelling does not open a second dialog.
+visitor would.
+
+Web takes that same Better Auth exchange, differing only in how the token is
+obtained. `google_sign_in`'s `signIn()` genuinely cannot produce an ID token in a
+browser — but Google Identity Services' own rendered button can, so sign-in
+screens render `googleIdentityButton` and listen on
+`ExpedionAuthManager.googleWebSignIns`; GIS delivers the credential through
+`onCurrentUserChanged` rather than returning it from the call.
+
+**Web no longer touches Firebase's popup**, as of `7fb31fd`. It used to, and on a
+Vercel host that was never on Firebase's authorized-domains list that produced
+`auth/unauthorized-domain` — an error that reads like a Firebase
+misconfiguration and is not one. If Google sign-in fails on web now, adding a
+domain in Firebase will change nothing. Check instead:
+
+1. the Google Cloud OAuth client's **Authorized JavaScript origins** include this
+   deployment's origin;
+2. Expeditoo's `GOOGLE_CLIENT_ID` is the *same* client id as the one in
+   `web/index.html`, since Better Auth validates the ID token's audience against
+   its own configured id;
+3. `EXPEDION_APP_ORIGINS` on Expeditoo names this origin, or Better Auth rejects
+   the POST as cross-origin.
+
+See `lib/auth/expeditoo/expedion_auth.dart` and `google_identity_button_web.dart`.
+
+A dismissed Google sheet returns null without falling through, so cancelling does
+not open a second dialog.
 
 ### Still unverified
 

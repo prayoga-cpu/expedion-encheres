@@ -91,7 +91,7 @@ Current French page names in brackets.
 |---|---|
 | Airtable (quotes, carriers) | PostgreSQL, shared with Expeditoo |
 | Firestore (users, payments) | PostgreSQL |
-| Firebase Auth | Keep for now, migrate later |
+| Firebase Auth | **Better Auth, shared with Expeditoo — done** (`7fb31fd`). Firebase survives only as a narrow email/password fallback for pre-migration accounts; Google no longer touches it. |
 | Firebase Storage | Cloudflare R2 |
 | Firebase Cloud Functions | Next.js API routes |
 | Manual quote entry | AI extraction + confirm screen |
@@ -110,7 +110,7 @@ Airtable's paid tier caps records and API rate, and the cost recurs monthly and 
 | Frontend | Flutter 3.44 (FlutterFlow) | Unchanged |
 | Routing | go_router | Unchanged |
 | State | provider | Unchanged |
-| Auth | Firebase Auth + Google + Apple | Unchanged this phase |
+| Auth | Firebase Auth + Google + Apple | **Better Auth via Expeditoo** — Google through Google Identity Services + ID-token exchange, not Firebase's popup. See `INTEGRATION.md` §Google. |
 | Data | Airtable + Firestore | **PostgreSQL via Next.js API** |
 | Storage | Firebase Storage | **Cloudflare R2** |
 | Server logic | Firebase Cloud Functions | **Next.js API routes** |
