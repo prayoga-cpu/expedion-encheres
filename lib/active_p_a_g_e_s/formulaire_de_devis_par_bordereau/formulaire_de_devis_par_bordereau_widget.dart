@@ -82,6 +82,43 @@ class _FormulaireDeDevisParBordereauWidgetState
     safeSetState(() => _check = check);
   }
 
+  /// Reports an upload refusal in the reader's language.
+  ///
+  /// Takes the whole batch because a multi-file pick usually fails for one
+  /// shared reason — all too big, all the wrong format — so the first refusal
+  /// explains the rest. `xpdApiErrorMessage` already knows the three a person
+  /// can act on (too large, unsupported format, unreadable) and falls back to
+  /// [fallbackFr]/[fallbackEn] for anything else; the next step is appended
+  /// separately so it survives a recognised code.
+  ///
+  /// Every caller reaches this *after* awaiting an upload, and an upload is the
+  /// longest await on the page — long enough for the visitor to leave. Reading
+  /// `context` on a disposed State throws, so the guard lives here rather than
+  /// at each call site: the failure being reported is never important enough to
+  /// crash a page that is already gone.
+  void _sayUploadFailure(
+    List<UploadOutcome> outcomes, {
+    required String fallbackFr,
+    required String fallbackEn,
+    required String nextStepFr,
+    required String nextStepEn,
+  }) {
+    if (!mounted) return;
+    final failures = outcomes.where((o) => !o.succeeded).toList();
+    final reason = xpdApiErrorMessage(
+      context,
+      failures.isEmpty ? null : failures.first.code,
+      fallbackFr: fallbackFr,
+      fallbackEn: fallbackEn,
+    );
+    final nextStep = xpdT(context, nextStepFr, nextStepEn);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(nextStep.isEmpty ? reason : '$reason $nextStep'),
+      ),
+    );
+  }
+
   /// Drops the verdict along with the file it belonged to. Bumping the
   /// generation also orphans a read still in flight.
   void _clearBordereauCheck() {
@@ -265,36 +302,52 @@ class _FormulaireDeDevisParBordereauWidgetState
           draftBordereau.originalFilename,
         )),
       );
-      // TODO(EXPEDITOO-TESTING): best-effort upload of the express-card
-      // bordereau. If Firebase Storage rejects the stored path (e.g. the file
-      // was picked while signed out), uploadedFileUrl stays empty and the
-      // attachment is still dropped from the Airtable quote unless the
-      // visitor re-picks it. Owner: recompute the storage path under the
-      // signed-in user's prefix before uploading (expose a public path helper
-      // in lib/flutter_flow/upload_data.dart) so this upload can't be
-      // rejected by storage rules.
+      // The upload of the express-card bordereau. It used to be marked
+      // best-effort with a TODO about recomputing the storage path under the
+      // signed-in user's prefix — that is moot now: the path no longer decides
+      // anything, because `/api/expedion/upload` derives the owner from the
+      // caller's own session. What remains is to say so when it fails, rather
+      // than leaving a file named on the button with no URL behind it and a
+      // submit button that will not light up.
       final uploadDone = Completer<void>();
       _draftBordereauUpload = uploadDone.future;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         safeSetState(() => _model.isDataUploading_uploadDataBordereau = true);
-        String? url;
+        UploadOutcome outcome;
         try {
-          url = await uploadData(
+          outcome = await uploadToShip(
               draftBordereau.storagePath, draftBordereau.bytes);
         } catch (_) {
-          url = null; // Best effort — the visitor can re-pick the file.
+          outcome = const UploadOutcome.failure('UPLOAD_FAILED');
         } finally {
           _model.isDataUploading_uploadDataBordereau = false;
         }
         // Only claim the slot if it is still the staged file: while this was in
         // flight the visitor may have picked their own bordereau (or removed
         // this one), and that choice wins.
-        if (url != null &&
-            identical(_model.uploadedLocalFile_uploadDataBordereau,
-                stagedLocalFile)) {
+        final stillOurs = identical(
+            _model.uploadedLocalFile_uploadDataBordereau, stagedLocalFile);
+        final url = outcome.url;
+        if (url != null && stillOurs) {
           _model.uploadedFileUrl_uploadDataBordereau = url;
         }
+        if (url == null && stillOurs) {
+          // Drop the name along with the file it no longer stands for, so the
+          // button reads "no bordereau" instead of quietly claiming one.
+          _model.uploadedLocalFile_uploadDataBordereau = FFUploadedFile(
+              bytes: Uint8List.fromList([]), originalFilename: '');
+          _clearBordereauCheck();
+        }
         safeSetState(() {});
+        if (url == null && stillOurs && mounted) {
+          _sayUploadFailure(
+            [outcome],
+            fallbackFr: "L'envoi du bordereau a échoué.",
+            fallbackEn: 'Uploading the slip failed.',
+            nextStepFr: 'Joignez-le à nouveau.',
+            nextStepEn: 'Attach it again.',
+          );
+        }
         uploadDone.complete();
       });
     }
@@ -1191,6 +1244,8 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                       <FFUploadedFile>[];
 
                                                   var downloadUrls = <String>[];
+                                                  var uploadOutcomes =
+                                                      <UploadOutcome>[];
                                                   try {
                                                     selectedUploadedFiles =
                                                         selectedFiles
@@ -1208,18 +1263,20 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 ))
                                                             .toList();
 
-                                                    downloadUrls = (await Future
-                                                            .wait(
+                                                    uploadOutcomes =
+                                                        await Future.wait(
                                                       selectedFiles.map(
-                                                        (f) async =>
-                                                            await uploadData(
-                                                                f.storagePath,
-                                                                f.bytes),
+                                                        (f) => uploadToShip(
+                                                            f.storagePath,
+                                                            f.bytes),
                                                       ),
-                                                    ))
-                                                        .where((u) => u != null)
-                                                        .map((u) => u!)
-                                                        .toList();
+                                                    );
+                                                    downloadUrls =
+                                                        uploadOutcomes
+                                                            .map((o) => o.url)
+                                                            .whereType<
+                                                                String>()
+                                                            .toList();
                                                   } finally {
                                                     _model.isDataUploading_uploadDataBordereau =
                                                         false;
@@ -1239,6 +1296,27 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                           downloadUrls.first;
                                                     });
                                                   } else {
+                                                    // The slip is the only
+                                                    // thing this form submits
+                                                    // and `_canSubmit` gates
+                                                    // on its URL, so a refused
+                                                    // upload leaves the button
+                                                    // dead. Returning in
+                                                    // silence, as this did,
+                                                    // made that look like a
+                                                    // broken page rather than
+                                                    // a file to replace.
+                                                    _sayUploadFailure(
+                                                      uploadOutcomes,
+                                                      fallbackFr:
+                                                          "L'envoi du bordereau a échoué.",
+                                                      fallbackEn:
+                                                          'Uploading the slip failed.',
+                                                      nextStepFr:
+                                                          'Réessayez.',
+                                                      nextStepEn:
+                                                          'Try again.',
+                                                    );
                                                     safeSetState(() {});
                                                     return;
                                                   }
@@ -1527,6 +1605,8 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                       <FFUploadedFile>[];
 
                                                   var downloadUrls = <String>[];
+                                                  var uploadOutcomes =
+                                                      <UploadOutcome>[];
                                                   try {
                                                     selectedUploadedFiles =
                                                         selectedMedia
@@ -1552,18 +1632,21 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                                 ))
                                                             .toList();
 
-                                                    downloadUrls = (await Future
-                                                            .wait(
+                                                    uploadOutcomes =
+                                                        await Future.wait(
                                                       selectedMedia.map(
-                                                        (m) async =>
-                                                            await uploadData(
-                                                                m.storagePath,
-                                                                m.bytes),
+                                                        (m) => uploadToShip(
+                                                            m.storagePath,
+                                                            m.bytes,
+                                                            kind: 'photo'),
                                                       ),
-                                                    ))
-                                                        .where((u) => u != null)
-                                                        .map((u) => u!)
-                                                        .toList();
+                                                    );
+                                                    downloadUrls =
+                                                        uploadOutcomes
+                                                            .map((o) => o.url)
+                                                            .whereType<
+                                                                String>()
+                                                            .toList();
                                                   } finally {
                                                     _model.isDataUploading_uploadDataPhoto =
                                                         false;
@@ -1583,6 +1666,17 @@ class _FormulaireDeDevisParBordereauWidgetState
                                                           downloadUrls.first;
                                                     });
                                                   } else {
+                                                    _sayUploadFailure(
+                                                      uploadOutcomes,
+                                                      fallbackFr:
+                                                          "L'envoi de la photo a échoué.",
+                                                      fallbackEn:
+                                                          'Uploading the photo failed.',
+                                                      nextStepFr:
+                                                          'Réessayez.',
+                                                      nextStepEn:
+                                                          'Try again.',
+                                                    );
                                                     safeSetState(() {});
                                                     return;
                                                   }

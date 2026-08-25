@@ -259,13 +259,17 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       setState(() => _uploadingBordereau = true);
-      String? url;
+      UploadOutcome outcome;
       try {
-        url =
-            await uploadData(draftBordereau.storagePath, draftBordereau.bytes);
+        outcome = await uploadToShip(
+          draftBordereau.storagePath,
+          draftBordereau.bytes,
+        );
       } catch (_) {
-        url = null; // Best effort — the visitor can re-pick the file.
+        // Best effort — the visitor can re-pick the file.
+        outcome = const UploadOutcome.failure('UPLOAD_FAILED');
       }
+      final url = outcome.url;
       if (mounted) {
         final stillOurs = identical(_bordereauFile, staged);
         setState(() {
@@ -284,9 +288,15 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
           }
         });
         if (url == null && stillOurs) {
-          _say(
-            frText: "L'envoi du bordereau a échoué. Joignez-le à nouveau.",
-            enText: 'Uploading the slip failed. Attach it again.',
+          // Say which refusal it was. "L'envoi a échoué" leaves the visitor
+          // with nothing to change; "trop lourd, maximum 3 Mo" leaves them
+          // with something to do.
+          _sayUploadFailure(
+            outcome.code,
+            fallbackFr: "L'envoi du bordereau a échoué.",
+            fallbackEn: 'Uploading the slip failed.',
+            nextStepFr: 'Joignez-le à nouveau.',
+            nextStepEn: 'Attach it again.',
           );
         }
       }
@@ -466,13 +476,14 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       _uploadingBordereau = true;
     });
 
-    String? url;
+    UploadOutcome outcome;
     try {
-      url = await uploadData(file.storagePath, file.bytes);
+      outcome = await uploadToShip(file.storagePath, file.bytes);
     } catch (_) {
-      url = null;
+      outcome = const UploadOutcome.failure('UPLOAD_FAILED');
     }
     if (!mounted) return;
+    final url = outcome.url;
 
     final stillOurs = identical(_bordereauFile, local);
     setState(() {
@@ -488,9 +499,12 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     });
 
     if (url == null && stillOurs) {
-      _say(
-        frText: "L'envoi du bordereau a échoué. Réessayez.",
-        enText: 'Uploading the slip failed. Try again.',
+      _sayUploadFailure(
+        outcome.code,
+        fallbackFr: "L'envoi du bordereau a échoué.",
+        fallbackEn: 'Uploading the slip failed.',
+        nextStepFr: 'Réessayez.',
+        nextStepEn: 'Try again.',
       );
     }
   }
@@ -507,17 +521,19 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
 
     final generation = _photoGeneration;
     setState(() => _uploadingPhotos = true);
-    final urls = (await Future.wait(
+    // Keep the whole outcome, not just the URL: a batch that half-failed used
+    // to report "certaines photos n'ont pas pu être envoyées" and stop there,
+    // which does not say whether to shrink them, convert them, or sign in.
+    final outcomes = await Future.wait(
       media.map((m) async {
         try {
-          return await uploadData(m.storagePath, m.bytes);
+          return await uploadToShip(m.storagePath, m.bytes, kind: 'photo');
         } catch (_) {
-          return null;
+          return const UploadOutcome.failure('UPLOAD_FAILED');
         }
       }),
-    ))
-        .whereType<String>()
-        .toList();
+    );
+    final urls = outcomes.map((o) => o.url).whereType<String>().toList();
 
     if (!mounted) return;
     final abandoned = generation != _photoGeneration;
@@ -528,9 +544,16 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     if (abandoned) return;
 
     if (urls.length != media.length && mounted) {
-      _say(
-        frText: "Certaines photos n'ont pas pu être envoyées.",
-        enText: 'Some photos could not be uploaded.',
+      // Photos are picked in a batch and usually fail for one shared reason —
+      // all too big, all the wrong format — so the first refusal's code
+      // explains the rest.
+      final failures = outcomes.where((o) => !o.succeeded).toList();
+      _sayUploadFailure(
+        failures.isEmpty ? null : failures.first.code,
+        fallbackFr: "Certaines photos n'ont pas pu être envoyées.",
+        fallbackEn: 'Some photos could not be uploaded.',
+        nextStepFr: '',
+        nextStepEn: '',
       );
     }
   }
@@ -771,6 +794,32 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       enText: 'Request saved. Your quote will arrive within 48 h.',
     );
     context.pushNamed(MesDevisWidget.routeName);
+  }
+
+  /// Reports an upload refusal in the reader's language.
+  ///
+  /// [code] comes from [UploadOutcome]; `xpdApiErrorMessage` already knows the
+  /// three refusals a person can act on (too large, wrong format, unreadable)
+  /// and falls back to [fallbackFr]/[fallbackEn] for everything else. The next
+  /// step is appended rather than baked into the fallback so it survives a
+  /// recognised code — "maximum 3 Mo" still needs "joignez-le à nouveau"
+  /// after it.
+  void _sayUploadFailure(
+    String? code, {
+    required String fallbackFr,
+    required String fallbackEn,
+    required String nextStepFr,
+    required String nextStepEn,
+  }) {
+    final reason = xpdApiErrorMessage(
+      context,
+      code,
+      fallbackFr: fallbackFr,
+      fallbackEn: fallbackEn,
+    );
+    final nextStep = xpdT(context, nextStepFr, nextStepEn);
+    final message = nextStep.isEmpty ? reason : '$reason $nextStep';
+    _say(frText: message, enText: message);
   }
 
   void _say({required String frText, required String enText}) {

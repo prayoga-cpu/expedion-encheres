@@ -211,6 +211,53 @@ class ExpedionApi {
       );
 
   // ========================================
+  // Uploads
+  // ========================================
+
+  /// Stores a bordereau or a lot photo and returns `{ fileId, url, kind }`.
+  ///
+  /// [data] is base64 with or without a `data:` prefix, exactly as
+  /// [extractBordereau] takes it — deliberately the same shape, because the
+  /// two calls carry the same bytes and a caller that has already encoded
+  /// them for the check can hand the same string to both rather than paying
+  /// for a second `base64Encode` of a 3 MB scan.
+  ///
+  /// `data.url` is an absolute, permanent `…/api/expedion/files/<id>` link on
+  /// the ship, which is what goes into `bordereauDocUrl` / `photoUrls`. The
+  /// object key is deliberately never returned: the bytes live in a private
+  /// bucket and are only served through that route, to the file's owner or an
+  /// admin. Nothing here is publicly readable, which is the point — a
+  /// bordereau carries the buyer's name, address and the declared value of
+  /// what they bought.
+  ///
+  /// The server refuses anything that is not a PDF/JPEG/PNG/WEBP (415) or
+  /// larger than 3 MB once decoded (413). Those refusals come
+  /// back as ordinary [ExpedionApiResult] failures with a `code`, so callers
+  /// can say which one happened instead of showing "upload failed".
+  static Future<ExpedionApiResult> uploadFile({
+    required String data,
+    required String mimeType,
+    String? filename,
+    String kind = 'bordereau',
+  }) =>
+      _send(
+        () => http.post(
+          _uri('/api/expedion/upload'),
+          headers: _headers,
+          body: jsonEncode({
+            'data': data,
+            'mimeType': mimeType,
+            if (filename != null) 'filename': filename,
+            'kind': kind,
+          }),
+        ),
+        // A 3 MB scan is ~4 MB of base64 on the wire and the function still has
+        // to put it to R2, so this gets more room than the CRUD calls — but far
+        // less than extraction, which waits on a vision model.
+        timeout: const Duration(seconds: 60),
+      );
+
+  // ========================================
   // Support chat
   // ========================================
 

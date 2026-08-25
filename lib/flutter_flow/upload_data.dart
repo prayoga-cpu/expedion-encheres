@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:video_player/video_player.dart';
 
-import '../auth/firebase_auth/auth_util.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow_util.dart';
 
@@ -347,7 +346,7 @@ String _getStoragePath(
   bool isVideo, [
   int? index,
 ]) {
-  pathPrefix ??= _firebasePathPrefix();
+  pathPrefix ??= _uploadPathPrefix();
   pathPrefix = _removeTrailingSlash(pathPrefix);
   final timestamp = DateTime.now().microsecondsSinceEpoch;
   // Workaround fixed by https://github.com/flutter/plugins/pull/3685
@@ -358,7 +357,7 @@ String _getStoragePath(
 }
 
 String getSignatureStoragePath([String? pathPrefix]) {
-  pathPrefix ??= _firebasePathPrefix();
+  pathPrefix ??= _uploadPathPrefix();
   pathPrefix = _removeTrailingSlash(pathPrefix);
   final timestamp = DateTime.now().microsecondsSinceEpoch;
   return '$pathPrefix/signature_$timestamp.png';
@@ -397,4 +396,20 @@ String? _removeTrailingSlash(String? path) => path != null && path.endsWith('/')
     ? path.substring(0, path.length - 1)
     : path;
 
-String _firebasePathPrefix() => 'users/$currentUserUid/uploads';
+/// The prefix under which this file names a picked file.
+///
+/// It used to be `users/$currentUserUid/uploads`, because that string *was*
+/// the destination: Firebase Storage put the bytes exactly where the client
+/// said to, and its Security Rule then checked that the folder matched the
+/// signed-in Firebase UID. Both halves of that are gone. `currentUserUid` is a
+/// Better Auth id now, which no Firebase rule can ever match, and uploads go
+/// to `/api/expedion/upload`, which derives the owner from the caller's
+/// session and picks the object key itself.
+///
+/// So the client must not be the one asserting whose folder this is — the
+/// server ignores such a claim, and should. What is still load-bearing is the
+/// *basename*: `SelectedFile.storagePath` is read for the display name
+/// (`storagePath.split('/').last`), by `validateFileFormat`, and by the MIME
+/// sniff's extension fallback in `uploadToShip`. Those all want a plausible
+/// `<name>.<ext>`, and none of them want a user id.
+String _uploadPathPrefix() => 'uploads';

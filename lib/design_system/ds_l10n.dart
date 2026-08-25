@@ -83,6 +83,32 @@ String xpdApiErrorMessage(
         "Ce devis n'a pas encore de prix.",
         'This quote has no price yet.',
       );
+    // Upload refusals. These three are the ones a person can actually do
+    // something about, which is the whole reason they are named here rather
+    // than left to a caller's "l'envoi a échoué": one says compress the scan,
+    // one says send a different format, one says the file never arrived. The
+    // ceiling is `kBordereauMaxBytes` and the server enforces the same figure,
+    // so the number below is safe to state.
+    case 'FILE_TOO_LARGE':
+      return xpdT(
+        context,
+        'Fichier trop lourd (maximum 3 Mo). Compressez-le ou '
+            'photographiez le document.',
+        'File too large (maximum 3 MB). Compress it or photograph the '
+            'document instead.',
+      );
+    case 'UNSUPPORTED_MEDIA_TYPE':
+      return xpdT(
+        context,
+        'Format non accepté. Envoyez un PDF ou une photo (JPG, PNG, WEBP).',
+        'Unsupported format. Upload a PDF or a photo (JPG, PNG, WEBP).',
+      );
+    case 'INVALID_FILE':
+      return xpdT(
+        context,
+        'Fichier illisible. Choisissez-le à nouveau.',
+        'Unreadable file. Pick it again.',
+      );
     case 'PRICE_SUGGESTION_UNAVAILABLE':
     case 'EXTRACTION_UNAVAILABLE':
       return xpdT(
