@@ -35,6 +35,7 @@ class QuoteFormRules {
 
   static const int minAuctionHouseChars = 2;
   static const int minRecipientChars = 2;
+  static const int minClientNameChars = 2;
   static const int maxCommentChars = 1000;
   static const int maxSlipNumberChars = 30;
 
@@ -146,6 +147,17 @@ class QuoteFormRules {
 
   static bool isRecipient(String raw) =>
       raw.trim().isEmpty || raw.trim().length >= minRecipientChars;
+
+  /// The client's own name — a different person from [isRecipient], who is
+  /// whoever receives the lot at the far end.
+  ///
+  /// Optional in the same way: a quote with no name still escalates, because
+  /// `escalationBlockers`
+  /// (`expeditoo-ship/src/server/services/expedion-escalation.service.ts`)
+  /// never reads it. A single initial is still not a name, so a field that has
+  /// been filled at all is held to the same two-character floor.
+  static bool isClientName(String raw) =>
+      raw.trim().isEmpty || raw.trim().length >= minClientNameChars;
 
   /// `06 12 34 56 78`, `+33 6 12 34 56 78` and `0033612345678` are the three
   /// ways a French client writes the number a driver will actually ring.

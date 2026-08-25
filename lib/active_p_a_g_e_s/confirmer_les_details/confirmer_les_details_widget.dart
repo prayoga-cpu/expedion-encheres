@@ -69,6 +69,11 @@ class _ConfirmerLesDetailsWidgetState extends State<ConfirmerLesDetailsWidget> {
   static const _fields = <_FieldSpec>[
     _FieldSpec('bordereauNumber', 'Numéro de bordereau', 'Slip number',
         mono: true),
+    // The two halves of the buyer's name are read off the slip, and a slip may
+    // print "DUPONT Jean" or "M. Jean DUPONT". The server infers which is
+    // which; this is where the client corrects it when the inference is wrong.
+    _FieldSpec('firstName', 'Prénom', 'First name'),
+    _FieldSpec('lastName', 'Nom', 'Last name'),
     _FieldSpec('auctionHouseName', 'Maison de ventes', 'Auction house'),
     _FieldSpec('pickupAddress', 'Adresse de retrait', 'Collection address',
         isAddress: true),

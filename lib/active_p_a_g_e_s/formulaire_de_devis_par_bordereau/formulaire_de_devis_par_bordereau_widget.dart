@@ -178,11 +178,17 @@ class _FormulaireDeDevisParBordereauWidgetState
     ].where((line) => line.isNotEmpty).join('\n');
 
     // What the bordereau said, with what the account knows laid over it. The
-    // signed-in client's own name, e-mail and phone are authoritative — the
-    // slip's "buyer" may be an agent, or simply out of date — but everything
-    // the slip alone can give (the auction house, the collection address, the
-    // lot and its value) now travels with the devis instead of waiting for
-    // someone to open the PDF by hand.
+    // signed-in client's e-mail and phone are authoritative — the slip's
+    // "buyer" may be an agent, or simply out of date — but everything the slip
+    // alone can give (the auction house, the collection address, the lot and
+    // its value) now travels with the devis instead of waiting for someone to
+    // open the PDF by hand.
+    //
+    // The name is the exception, and is deliberately not laid over: the
+    // session carries a single Better Auth `name`, which for an e-mail signup
+    // is `email.split('@').first` — an address handle, not a name. The slip's
+    // own reading is better, and *Confirmer les détails* is where the client
+    // corrects it.
     final payload = <String, dynamic>{..._check.quotePatch};
     void fill(String key, Object? value) {
       if (value == null) return;
@@ -194,8 +200,6 @@ class _FormulaireDeDevisParBordereauWidgetState
     if (photoUrl.isNotEmpty && Uri.tryParse(photoUrl)?.hasScheme == true) {
       fill('photoUrls', [photoUrl]);
     }
-    fill('firstName', valueOrDefault(currentUserDocument?.prenom, ''));
-    fill('lastName', valueOrDefault(currentUserDocument?.nom, ''));
     fill('email', currentUserEmail);
     fill('phone', currentPhoneNumber);
     fill('valueBracket', _model.trancheValue);

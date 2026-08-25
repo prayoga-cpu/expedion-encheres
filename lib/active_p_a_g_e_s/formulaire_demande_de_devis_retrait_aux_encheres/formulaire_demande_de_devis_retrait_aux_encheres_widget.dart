@@ -25,9 +25,15 @@ import '/index.dart';
 ///
 /// It asks for exactly what `POST /api/expedion/quotes` stores and the pricing
 /// step reads — pickup, lot, dimensions, declared value, delivery — plus the
-/// bordereau if the client has one. Identity is not asked for: the session
-/// already carries it, so the four name/e-mail/phone fields this form used to
-/// open with were retyping.
+/// bordereau if the client has one. The e-mail and phone the session already
+/// carries are not asked for again — those fields were retyping.
+///
+/// The client's own name *is* asked for, because the session does not carry
+/// one. Better Auth stores a single `name`, and for an e-mail signup
+/// `ExpedionAuthManager.createAccountWithEmail` sets it to
+/// `email.split('@').first` (`lib/auth/expeditoo/expedion_auth.dart`), so
+/// prefilling from it would put an address handle in a name field. The devis
+/// and the invoice are made out to what is typed here.
 ///
 /// ## What is required, and why
 ///
@@ -58,6 +64,7 @@ import '/index.dart';
 /// | Field              | Rule when filled                                |
 /// |--------------------|-------------------------------------------------|
 /// | L / W / H          | all three or none, each 1–1000 cm (`buildDescription` prints them only as a set) |
+/// | Prénom / Nom       | 2+ characters                                    |
 /// | Recipient          | 2+ characters                                    |
 /// | Phone on site      | a French number (`06…`, `+33 6…`)                |
 /// | Slip number        | ≤ 30 characters                                  |
@@ -91,6 +98,8 @@ enum _Packing { unpacked, protected, packed }
 
 /// One unmet requirement, for the checklist that explains a disabled Submit.
 enum _Gap {
+  firstName,
+  lastName,
   auctionHouse,
   pickupAddress,
   pickupPostalCode,
@@ -115,6 +124,10 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   /// Bumped by [Form.onChanged] and by either address block. Only the review
   /// panel and the buttons listen, so a keystroke does not rebuild two maps.
   final _revision = ValueNotifier<int>(0);
+
+  // The client.
+  final _firstName = TextEditingController();
+  final _lastName = TextEditingController();
 
   // Pickup.
   final _auctionHouse = TextEditingController();
@@ -311,6 +324,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       value.dispose();
     }
     for (final c in [
+      _firstName,
+      _lastName,
       _auctionHouse,
       _description,
       _length,
@@ -339,6 +354,10 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
 
   static bool _isFilled(TextEditingController c) => c.text.trim().isNotEmpty;
 
+  bool get _isFirstNameOk => QuoteFormRules.isClientName(_firstName.text);
+
+  bool get _isLastNameOk => QuoteFormRules.isClientName(_lastName.text);
+
   bool get _isAuctionHouseOk =>
       QuoteFormRules.isAuctionHouse(_auctionHouse.text);
 
@@ -363,6 +382,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
 
   /// Everything standing between this form and a submittable quote.
   List<_Gap> get _gaps => [
+        if (!_isFirstNameOk) _Gap.firstName,
+        if (!_isLastNameOk) _Gap.lastName,
         if (!_isAuctionHouseOk) _Gap.auctionHouse,
         for (final gap in _pickup.gaps)
           switch (gap) {
@@ -398,6 +419,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       _photoUrls.isNotEmpty ||
       _bordereauUrl.isNotEmpty ||
       [
+        _firstName,
+        _lastName,
         _auctionHouse,
         _description,
         _length,
@@ -412,6 +435,9 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       ].any(_isFilled);
 
   String _gapLabel(_Gap gap) => switch (gap) {
+        _Gap.firstName =>
+          _t(fr: 'Prénom trop court', en: 'First name is too short'),
+        _Gap.lastName => _t(fr: 'Nom trop court', en: 'Last name is too short'),
         _Gap.auctionHouse => _t(fr: 'Maison de ventes', en: 'Auction house'),
         _Gap.pickupAddress =>
           _t(fr: 'Adresse de retrait', en: 'Collection address'),
@@ -565,6 +591,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
   /// Every answer on the form, flat, for [QuoteFormDraft]. Files are kept as
   /// the URLs they already uploaded to, not as bytes.
   Map<String, dynamic> _snapshot() => {
+        'firstName': _firstName.text,
+        'lastName': _lastName.text,
         'auctionHouse': _auctionHouse.text,
         'pickupAddress': _pickup.address.text,
         'pickupPostalCode': _pickup.postalCode.text,
@@ -625,6 +653,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     final draft = _storedDraft;
     if (draft == null) return;
 
+    _firstName.text = draft.text('firstName');
+    _lastName.text = draft.text('lastName');
     _auctionHouse.text = draft.text('auctionHouse');
     _pickup.restore(
       address: draft.text('pickupAddress'),
@@ -723,6 +753,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
     await _draftBordereauUpload;
 
     final result = await QuoteRepository.create({
+      'firstName': _firstName.text.trim(),
+      'lastName': _lastName.text.trim(),
       'auctionHouseName': _auctionHouse.text.trim(),
       'pickupAddress': _pickup.address.text.trim(),
       'pickupPostalCode': _pickup.postalCode.text.trim(),
@@ -881,6 +913,8 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
                       _draftBanner(theme),
                     ],
                     const SizedBox(height: 20.0),
+                    _clientSection(theme),
+                    const SizedBox(height: 16.0),
                     _pickupSection(theme),
                     const SizedBox(height: 16.0),
                     _lotSection(theme),
@@ -1175,6 +1209,58 @@ class _FormulaireDemandeDeDevisRetraitAuxEncheresWidgetState
       ),
     );
   }
+
+  /// The buyer's own name. Two fields rather than one because the devis, the
+  /// invoice and the escalated listing all store them apart, and splitting a
+  /// single "full name" back into halves is the guesswork this form exists to
+  /// avoid — see `parseFrenchName` on the server, which has to do exactly that
+  /// when the name comes off a scanned bordereau instead of a keyboard.
+  Widget _clientSection(FlutterFlowTheme theme) => _section(
+        theme,
+        icon: Icons.person_outline_rounded,
+        title: _t(fr: 'Vos coordonnées', en: 'Your details'),
+        subtitle: _t(
+          fr: 'Le nom auquel le devis et la facture sont établis.',
+          en: 'The name the quote and the invoice are made out to.',
+        ),
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: DSTextField(
+                  controller: _firstName,
+                  label: _t(fr: 'Prénom', en: 'First name'),
+                  autofillHints: const [AutofillHints.givenName],
+                  validator: (value) {
+                    if ((value ?? '').trim().isEmpty) return null;
+                    return _isFirstNameOk
+                        ? null
+                        : _t(
+                            fr: 'Prénom trop court',
+                            en: 'First name is too short',
+                          );
+                  },
+                ),
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: DSTextField(
+                  controller: _lastName,
+                  label: _t(fr: 'Nom', en: 'Last name'),
+                  autofillHints: const [AutofillHints.familyName],
+                  validator: (value) {
+                    if ((value ?? '').trim().isEmpty) return null;
+                    return _isLastNameOk
+                        ? null
+                        : _t(fr: 'Nom trop court', en: 'Last name is too short');
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
 
   Widget _pickupSection(FlutterFlowTheme theme) => _section(
         theme,
