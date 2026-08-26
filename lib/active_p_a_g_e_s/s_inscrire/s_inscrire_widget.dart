@@ -533,17 +533,11 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
                 ),
               ),
               const SizedBox(height: 28.0),
+              // French forms lead with the family name, English ones with the
+              // given name, so the pair swaps over with the locale.
               _pair(
-                XpdField(
-                  label: _t('Nom', 'Last name'),
-                  controller: _model.nomTextController!,
-                  validator: _required,
-                ),
-                XpdField(
-                  label: _t('Prénom', 'First name'),
-                  controller: _model.prenomTextController!,
-                  validator: _required,
-                ),
+                _isEnglish ? _prenomField() : _nomField(),
+                _isEnglish ? _nomField() : _prenomField(),
               ),
               const SizedBox(height: 18.0),
               XpdField(
@@ -794,6 +788,18 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
 
   String? _required(String? value) =>
       (value ?? '').trim().isEmpty ? _t('Champ requis.', 'Required.') : null;
+
+  Widget _nomField() => XpdField(
+        label: _t('Nom', 'Last name'),
+        controller: _model.nomTextController!,
+        validator: _required,
+      );
+
+  Widget _prenomField() => XpdField(
+        label: _t('Prénom', 'First name'),
+        controller: _model.prenomTextController!,
+        validator: _required,
+      );
 
   Widget _pair(Widget a, Widget b) {
     final narrow = MediaQuery.sizeOf(context).width < 560.0;
