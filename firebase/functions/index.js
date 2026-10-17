@@ -373,40 +373,9 @@ exports.stripeWebhook = functions
           console.log(`Firestore document update skipped/failed: ${err.message}`);
         }
 
-        // 2. Update Airtable status
-        try {
-          const airtableBase =
-            (functions.config().airtable && functions.config().airtable.base) ||
-            process.env.AIRTABLE_BASE ||
-            "appu3jamyzCJRuOjr";
-          const airtablePat =
-            (functions.config().airtable && functions.config().airtable.pat) ||
-            process.env.AIRTABLE_PAT;
-          const airtableUrl = `https://api.airtable.com/v0/${airtableBase}/CONTACTS`;
-          await axios.patch(
-            airtableUrl,
-            {
-              records: [
-                {
-                  id: devisId,
-                  fields: {
-                    "STATUT DU PAIEMENT": "Paiement reçu",
-                    "VALIDER DEVIS": "Devis Validé"
-                  }
-                }
-              ]
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${airtablePat}`,
-                "Content-Type": "application/json"
-              }
-            }
-          );
-          console.log(`Airtable record ${devisId} updated to Paid.`);
-        } catch (err) {
-          console.error(`Failed to update Airtable record ${devisId}:`, err.response ? err.response.data : err.message);
-        }
+        // Airtable is no longer written: Expeditoo's own Stripe webhook now
+        // records an Expedion payment against the quote (expeditoo-ship
+        // launch_readiness_spec.md §F), and the app no longer reads Airtable.
       }
     }
 

@@ -624,7 +624,38 @@ Firebase-era session or the legacy key gets 403 `PROFILE_NEEDS_ACCOUNT`.
 
 ### Still unverified
 
-The endpoint is being built on the Expeditoo side and was not deployed when
-this was written, so **no request has been made against it**. The response
-shapes come from the agreed contract, not from an observed response. The flush
-logic is covered by `test/pending_profile_test.dart` against a fake server.
+The endpoint went live with Expeditoo 2.64.0 (2026-10-17): signed out it
+answers 401, and production's CORS accepts `https://expedion-encheres.vercel.app`
+for `GET|PUT /api/expedion/me/profile`. **The Flutter screens have not yet
+been driven against it**; the shapes come from the agreed contract, and the
+flush logic is covered by `test/pending_profile_test.dart` against a fake
+server.
+
+---
+
+## 13. No dependency on Airtable or n8n *(added 2026-10-17)*
+
+| Flow | Path | Airtable / n8n? |
+|---|---|---|
+| Sign-up, sign-in, Google | Better Auth on Expeditoo (`/api/auth/*`) | no |
+| Profile (names, phone, address) | `GET\|PUT /api/expedion/me/profile` | no |
+| Quotes: list, create, accept, estimate, bordereau, files | `/api/expedion/quotes…`, `/extract`, `/upload`, `/files/:id` | no |
+| Tracking: events, photos, confirmations | `/api/expedion/quotes/:id/events\|photos\|confirm` | no |
+| Support chat | `/api/expedion/support` | no |
+| Payment | this repo's `api/create-checkout-session` → Stripe Checkout → `api/confirm-payment` → `POST /api/expedion/quotes/:id/paid` | no |
+| Payment, if the tab closes before the redirect | Stripe `payment_intent.succeeded` → **Expeditoo's** `/api/stripe/webhook` reads `metadata.recordID` and marks the quote paid when the amount equals its accepted price | no |
+
+Every API path this app calls was matched against an Expeditoo route on
+2026-10-17. The Checkout session already stamps `recordID`/`devisId` on the
+payment intent (`api/_payment_core.js`), and Expeditoo's webhook endpoint is
+already subscribed to `payment_intent.succeeded`, so the second payment path
+needed no Stripe setting.
+
+Removed the same day: the Airtable step of the Firebase `stripeWebhook`
+(no Stripe destination points at it — the account's other destinations are
+n8n) and the generated `AirtableUserID` field on `UsersRecord`.
+
+**What still uses Airtable and n8n is the client's *current* Expedion app**,
+not this one. Switch the n8n destinations off in Stripe and archive Airtable
+on the day this app replaces it — before then, doing so would break the
+client's live business.
