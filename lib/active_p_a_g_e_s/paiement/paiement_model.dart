@@ -11,8 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-/// Exact label Airtable stores for an AD valorem (insured) quote. Pulling this
-/// out keeps the amount logic in one place and testable.
+/// The value the validation page passes for an AD valorem (insured) quote. It
+/// began as Airtable's label; now it is only what the two pages agree on (the
+/// API's own kind is `with_ad_valorem_insurance`). Pulling it out keeps the
+/// amount logic in one place and testable.
 const kTypeDevisAdValorem = 'Devis avec assurance AD valorem';
 
 /// Picks the Stripe charge amount, in cents, for a quote. AD valorem quotes are

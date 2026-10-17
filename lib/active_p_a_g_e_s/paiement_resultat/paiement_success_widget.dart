@@ -11,10 +11,12 @@ import 'package:google_fonts/google_fonts.dart';
 /// Landing page Stripe redirects to after a successful Checkout
 /// (`success_url = <appOrigin>/success?session_id={CHECKOUT_SESSION_ID}&recordId=<id>`).
 ///
-/// When a [recordId] is present, the page marks the quote paid in Airtable
-/// directly (client-side, no webhook/Cloud Function deploy needed) and shows
-/// the progress of that update. The payment itself already succeeded on
-/// Stripe's side regardless of whether this update succeeds.
+/// When a [recordId] is present, the page asks `api/confirm-payment` to verify
+/// the Checkout session with Stripe, which then reports the payment to
+/// Expeditoo (`POST /api/expedion/quotes/:id/paid`), and shows the progress of
+/// that update. The payment itself already succeeded on Stripe's side either
+/// way, and Expeditoo's Stripe webhook records it even if this page never
+/// loads (INTEGRATION.md §13).
 class PaiementSuccessWidget extends StatefulWidget {
   const PaiementSuccessWidget({
     super.key,
@@ -26,7 +28,7 @@ class PaiementSuccessWidget extends StatefulWidget {
   /// Stripe Checkout Session id, forwarded by Stripe as `?session_id=...`.
   final String? sessionId;
 
-  /// Airtable record id of the paid quote, forwarded as `?recordId=...`.
+  /// Expeditoo id of the paid quote, forwarded as `?recordId=...`.
   final String? recordId;
 
   /// Test seam: confirms the payment and returns whether the quote was

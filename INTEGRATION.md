@@ -110,6 +110,19 @@ flutter build web --release \
 using the Airtable path during the migration rather than failing at runtime.
 *(Historical: there is no Airtable path any more — see §12.)*
 
+### `expedion_encheres` (payment functions, runtime)
+
+`STRIPE_SECRET_KEY`, `EXPEDION_API_BASE_URL`, `EXPEDION_ADMIN_API_KEY`,
+`RESEND_API_KEY` and `RESEND_FROM` are runtime variables of the
+`expedion-encheres` Vercel project (see `api/_payment_core.js`). They are
+"Sensitive", so they cannot be read back; `GET /api/payment-health` says, without
+revealing any, whether the Stripe key is live or test and accepted, whether
+Expeditoo accepts the admin key, and whether the payment e-mail leaves from a
+real sender or Resend's sandbox. `ready: true` means all four are fit for real
+clients. The Stripe key must belong to the same account as Expeditoo's webhook
+endpoint, or a payment whose tab closed before `/success` is never recorded
+(§13).
+
 ---
 
 ## 3. Running the migration

@@ -10,6 +10,7 @@
  *   POST /api/confirm-payment          -> verify a session is PAID, then report
  *                                         it to Expedion (marks the quote paid)
  *   GET  /api/health                   -> {ok:true}
+ *   GET  /api/payment-health           -> key modes and acceptance, no keys
  * The un-prefixed paths (/create-checkout-session, ...) still work for
  * anything old that calls them.
  *
@@ -22,6 +23,7 @@ const {
   createCheckoutSession,
   sendPaymentEmail,
   confirmPayment,
+  paymentHealth,
 } = require('../api/_payment_core');
 
 const PORT = process.env.PORT || 4242;
@@ -62,6 +64,10 @@ const server = http.createServer(async (req, res) => {
   // the client can use one path everywhere.
   const path = req.url.replace(/^\/api(?=\/)/, '').split('?')[0];
   if (req.method === 'GET' && path === '/health') return send(res, 200, { ok: true });
+  if (req.method === 'GET' && path === '/payment-health') {
+    const { status, payload } = await paymentHealth();
+    return send(res, status, payload);
+  }
 
   const handler = ROUTES[path];
   if (req.method === 'POST' && handler) {

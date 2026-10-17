@@ -334,21 +334,96 @@ async function confirmPayment(b) {
 }
 
 /**
- * Adapter for a Vercel Node function: CORS, OPTIONS, POST-only, JSON body in,
- * JSON out. `handler` is one of the three above.
+ * How these functions are configured, without revealing any of it.
+ *
+ * Every value they need is a "Sensitive" variable in Vercel, which cannot be
+ * read back once saved — so whether the live Stripe key has been set, or the
+ * payment e-mail still leaves from Resend's sandbox sender, could not be
+ * checked by anyone. This answers exactly those questions:
+ *
+ *   stripe.mode          'live' | 'test' | 'missing' | 'unknown', from the key's
+ *                        public prefix (sk_/rk_ live/test)
+ *   stripe.keyWorks      Stripe accepted the key (a read of one Checkout session)
+ *   expeditoo.adminKeyAccepted
+ *                        Expeditoo answered a lookup of a quote that does not
+ *                        exist with 404 (key accepted) rather than 401/403
+ *   email.sender         'custom' | 'sandbox' (onboarding@resend.dev, which
+ *                        delivers only to the Resend account's own address) |
+ *                        'none' (no RESEND_API_KEY: the link is not e-mailed)
+ *   ready                all of the above fit for real clients
+ *
+ * Cached for a minute per instance, so a public URL cannot be used to spend
+ * the account's Stripe rate limit.
  */
-function vercelHandler(handler) {
+let healthCache = null;
+const HEALTH_TTL_MS = 60 * 1000;
+
+function stripeMode(key) {
+  if (!key) return 'missing';
+  if (/^(sk|rk)_live_/.test(key)) return 'live';
+  if (/^(sk|rk)_test_/.test(key)) return 'test';
+  return 'unknown';
+}
+
+async function paymentHealth() {
+  if (healthCache && Date.now() - healthCache.at < HEALTH_TTL_MS) {
+    return { status: 200, payload: healthCache.payload };
+  }
+
+  const mode = stripeMode(STRIPE_SECRET_KEY);
+  let keyWorks = false;
+  if (STRIPE_SECRET_KEY) {
+    try {
+      keyWorks = (await stripeGet('/v1/checkout/sessions?limit=1')).status === 200;
+    } catch {
+      keyWorks = false;
+    }
+  }
+
+  let reachable = false;
+  let adminKeyAccepted = false;
+  try {
+    const r = await expedion('/api/expedion/quotes/payment-health-probe');
+    reachable = true;
+    adminKeyAccepted = r.status === 404;
+  } catch {
+    reachable = false;
+  }
+
+  const sender = !RESEND_API_KEY
+    ? 'none'
+    : /resend\.dev/i.test(RESEND_FROM)
+      ? 'sandbox'
+      : 'custom';
+
+  const payload = {
+    stripe: { mode, keyWorks },
+    expeditoo: { reachable, adminKeyAccepted },
+    email: { sender },
+    ready:
+      mode === 'live' && keyWorks && adminKeyAccepted && sender === 'custom',
+  };
+  healthCache = { at: Date.now(), payload };
+  return { status: 200, payload };
+}
+
+/**
+ * Adapter for a Vercel Node function: CORS, OPTIONS, one method (POST unless
+ * told otherwise), JSON body in, JSON out. `handler` is one of the above.
+ */
+function vercelHandler(handler, method = 'POST') {
   return async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', `${method}, OPTIONS`);
     res.setHeader('Access-Control-Allow-Headers', 'content-type, authorization');
+    res.setHeader('Cache-Control', 'no-store');
     if (req.method === 'OPTIONS') {
       res.statusCode = 204;
       return res.end();
     }
-    if (req.method !== 'POST') {
+    if (req.method !== method) {
       res.statusCode = 405;
-      return res.end(JSON.stringify({ error: 'POST only' }));
+      return res.end(JSON.stringify({ error: `${method} only` }));
     }
     let body = req.body;
     if (typeof body === 'string') {
@@ -376,5 +451,7 @@ module.exports = {
   createCheckoutSession,
   sendPaymentEmail,
   confirmPayment,
+  paymentHealth,
+  stripeMode,
   vercelHandler,
 };
