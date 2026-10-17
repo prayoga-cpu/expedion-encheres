@@ -163,7 +163,64 @@ class ExpedionApi {
         ),
       );
 
+  /// The client's attestation that a milestone the transporter recorded really
+  /// happened.
+  ///
+  /// It moves nothing on either side: the transporter drives the status and
+  /// this records that the client agrees, so the two are separate facts about
+  /// one moment (expeditoo-ship
+  /// docs/specs/transport_status_confirmation_spec.md §1).
+  ///
+  /// [milestone] is `PICKED_UP` or `DELIVERED` — the two moments goods change
+  /// hands, and the only two the client is ever asked about.
+  static Future<ExpedionApiResult> confirmMilestone(
+    String id,
+    String milestone,
+  ) =>
+      _send(
+        () => http.post(
+          _uri('/api/expedion/quotes/$id/confirm'),
+          headers: _headers,
+          body: jsonEncode({'milestone': milestone}),
+        ),
+      );
+
   /// The shared status feed behind the tracking screen.
+  /// The pickup and delivery photos the transporter took, grouped by stage.
+  ///
+  /// `data` is a map of two lists — `pickup` and `delivery` — each entry
+  /// carrying a `url`, the coordinates, the address when one could be named,
+  /// and both timestamps. Both keys are always present, empty when the run has
+  /// not reached that stage, so a screen can render the sections without
+  /// checking whether the key exists (expeditoo-ship
+  /// docs/specs/shipment_photos_spec.md §7.3).
+  ///
+  /// The `url` is a path on the Expeditoo API, not an image host: it
+  /// authorises the caller and only then redirects to a short-lived link, so
+  /// it must be fetched with [photoHeaders] and cannot be handed to anything
+  /// that would load it anonymously.
+  static Future<ExpedionApiResult> listShipmentPhotos(String id) => _send(
+        () => http.get(
+          _uri('/api/expedion/quotes/$id/photos'),
+          headers: _headers,
+        ),
+      );
+
+  /// The absolute URL of a photo whose `url` came back relative.
+  static String photoUrl(String path) =>
+      path.startsWith('http') ? path : '$baseUrl$path';
+
+  /// Headers for `Image.network` on a photo URL.
+  ///
+  /// The same credential every other call carries, minus the JSON content type
+  /// — the server authorises the reader before it will redirect to the object,
+  /// so an image request with no credential gets a 401 rather than a picture.
+  static Map<String, String> get photoHeaders {
+    final headers = Map<String, String>.from(_headers);
+    headers.remove('Content-Type');
+    return headers;
+  }
+
   static Future<ExpedionApiResult> listEvents(String id) => _send(
         () => http.get(
           _uri('/api/expedion/quotes/$id/events'),
