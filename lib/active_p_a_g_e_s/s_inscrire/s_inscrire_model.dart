@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 's_inscrire_widget.dart' show SInscrireWidget;
 
@@ -49,9 +48,6 @@ class SInscrireModel extends FlutterFlowModel<SInscrireWidget> {
   TextEditingController? textController14;
   FocusNode? textFieldFocusNode12;
   TextEditingController? textController15;
-
-  /// Result of the GetAirtableUserID call made after a Firebase sign-up.
-  ApiCallResponse? airtableUserID;
 
   @override
   void initState(BuildContext context) {}

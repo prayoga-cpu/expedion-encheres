@@ -195,14 +195,25 @@ class ExpeditooAuthClient {
   /// `autoSignIn: false`, so a successful sign-up returns a user but no
   /// session — the caller must tell the visitor to check their inbox rather
   /// than treating this as a login.
+  ///
+  /// [firstName] and [lastName] are Better Auth additional fields on
+  /// Expeditoo; when both are given the server composes `name` from them.
   static Future<ExpeditooAuthResult> signUpWithEmail({
     required String email,
     required String password,
     required String name,
+    String? firstName,
+    String? lastName,
   }) =>
       _authenticate(
         '/sign-up/email',
-        {'email': email, 'password': password, 'name': name},
+        {
+          'email': email,
+          'password': password,
+          'name': name,
+          if (firstName != null) 'firstName': firstName,
+          if (lastName != null) 'lastName': lastName,
+        },
       );
 
   /// Sends Better Auth's reset-password mail.

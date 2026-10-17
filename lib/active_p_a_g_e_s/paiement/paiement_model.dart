@@ -68,12 +68,8 @@ class PaiementModel extends FlutterFlowModel<PaiementWidget> {
 
   // Stores action output result for [Backend Call - API (CreatePaymentIntent)] action in PAYER widget.
   ApiCallResponse? apiResultu6cADV;
-  // Stores action output result for [Backend Call - API (CreatePaymentAirtable)] action in PAYER widget.
-  ApiCallResponse? apiResultp9gadv;
   // Stores action output result for [Backend Call - API (CreatePaymentIntent)] action in PAYER widget.
   ApiCallResponse? apiResultu6cSTD;
-  // Stores action output result for [Backend Call - API (CreatePaymentAirtable)] action in PAYER widget.
-  ApiCallResponse? apiResultp9gstd;
 
   @override
   void initState(BuildContext context) {}

@@ -108,6 +108,7 @@ flutter build web --release \
 
 `ExpedionApi.isConfigured` is false until both are present, so the app keeps
 using the Airtable path during the migration rather than failing at runtime.
+*(Historical: there is no Airtable path any more — see §12.)*
 
 ---
 
@@ -348,9 +349,11 @@ not open a second dialog.
 - **No Google exchange has run**, so the ID-token path is untested end to end.
 - **Firestore under Better Auth.** `currentUserDocument` is a Firestore
   `UsersRecord` and is null when the session comes from Expeditoo, so the 19
-  files that read it degrade to empty values. Sign-up's Airtable and Firestore
-  side effects are guarded on `currentUserReference` and simply skip. Repointing
-  those reads at Postgres is the remaining work.
+  files that read it degrade to empty values. Sign-up no longer writes
+  Firestore at all, and the personal space and profile edit now read the
+  Expeditoo profile (§12), falling back to Firestore only for a Firebase-era
+  session. Repointing the remaining reads — the manual devis form's name
+  prefill, for one — is the remaining work.
 
 ---
 
@@ -420,9 +423,14 @@ has never fired. The first end-to-end run needs
 
 ### Screens still on Airtable
 
-`formulaire_demande_de_devis_retrait_aux_encheres`, `form_devis_paiement_directe`,
-`s_inscrire` (guarded — skips when there is no Firebase session), and everything
-under `pages_areviser/`. These were not touched.
+None. As of §12 this app neither reads nor writes Airtable: sign-up, the
+personal space and the profile edit moved to `/api/expedion/me/profile`, and
+`form_devis_paiement_directe` and the two Airtable screens under
+`pages_areviser/` were deleted as unreachable.
+
+**Airtable itself is still live** — the client's current app and its n8n
+automations read and write it until this app replaces them. Nothing here may be
+taken as permission to switch it off before that cut-over.
 
 ---
 
@@ -440,24 +448,20 @@ references the call any more, so the credential is unused at runtime.
 | `EXPEDION_API_KEY` | **do not set on web** | Legacy app-level key for Firebase-era clients. Any holder can claim any UID, so it must never reach a browser bundle. Sessions replace it. |
 | `PAYMENT_SERVER_URL` | **optional** | Override only. A release web build calls its own origin — the Stripe endpoints ship with this repo as Vercel functions (`api/create-checkout-session`, `send-payment-email`, `confirm-payment`, shared core in `api/_payment_core.js`; `tools/local_payment_server.js` runs the same handlers on :4242 for dev, which stays the non-release default). The functions read `STRIPE_SECRET_KEY`, `EXPEDION_API_BASE_URL`, `EXPEDION_ADMIN_API_KEY`, and optionally `RESEND_API_KEY`/`RESEND_FROM` from the **expedion-encheres** Vercel project's runtime env. |
 | `APP_PUBLIC_URL` | **optional** | Stripe Checkout return URL. Web falls back to the page's own origin. |
-| `AIRTABLE_PAT` | **still required** | Six screens below still read Airtable. Drop it once they are repointed. |
-| `AIRTABLE_PAT_TRANSPORTEURS` | **dead — remove** | Its only consumer is `NewTransporteurCall`, which no screen calls. |
+| `AIRTABLE_PAT` | **gone** | Nothing reads it. The define, `_kAirtablePat` and the `vercel-build.sh` line were removed in §12. Delete it from the expedion-encheres Vercel env too. |
+| `AIRTABLE_PAT_TRANSPORTEURS` | **gone** | Its last consumer was removed before §12. |
 
-### Screens still on Airtable (the only reason `AIRTABLE_PAT` survives)
+### Airtable
 
-| Screen | Call |
-|---|---|
-| `s_inscrire` | `NewclientSignUpDMCall`, `GetAirtableUserIDCall` |
-| `espace_personnel` | `GetUserCall` |
-| `page_modif_info_perso` | `UpdateProfilinfoCall` |
-| `contact`, `page_contact_devis` | `PostMessageCall` |
-| `page_validation_devis` | `UpdateDevisValiderCall`, `CreatePaymentAitableCall` |
-| `paiement`, `paiement_resultat` | `CreatePaymentAirtableCall`, `MarkQuotePaidCall` |
-| `form_devis_paiement_directe`, `pages_areviser/*` | `GetPriceCall`, `AirtableQuotePayDirectCall` |
+This app no longer calls Airtable: `grep -rn "api.airtable.com" lib` is empty,
+every Airtable call class is deleted from `api_calls.dart`, and so is the
+Airtable-only body rewrite in `api_manager.dart`. What remains is comments and
+the generated Firestore schema's `AirtableUserID` field
+(`lib/backend/schema/users_record.dart`), left as generated.
 
-Already dead, safe to delete with their call classes: `GetClientQuotesCall`,
-`GetClientPaymentsCall`, `CreateAirtableQuoteFromDocCall`, `PostDDallFieldsCall`,
-`NewTransporteurCall`, `UpdatePropositionTansporteurCall`.
+Airtable is still the live system of record for the client's **current** app
+and its n8n automations, which keep reading and writing it until this app
+replaces that one.
 
 ### Expeditoo (`expeditoo-ship/.env.local`, and Vercel)
 
@@ -573,3 +577,54 @@ name/e-mail/phone over the top. A quote that used to reach the database as a
 bare `bordereauDocUrl` now carries the auction house, the collection address,
 the lot and its declared value. No second vision call: the extraction the gate
 already ran is reused.
+
+---
+
+## 12. The last Airtable reads and writes, removed *(added)*
+
+| Screen | Was | Is |
+|---|---|---|
+| Sign-up — e-mail | `NewclientSignUpDMCall` on every sign-up | names sent with the Better Auth sign-up; address and phone parked in `PendingProfile` and sent by `PUT /api/expedion/me/profile` at the first sign-in |
+| Sign-up — Google | same | same `PUT`, sent straight away (there is a session) |
+| Sign-up — Firestore sync | `GetAirtableUserIDCall` + a Firestore write | removed: it needed a Firebase sign-up, which `ExpedionConfig.baseUrl` (never empty) makes unreachable |
+| Espace personnel | `GetUserCall` for the address | `GET /api/expedion/me/profile`: name, phone, address |
+| Modifier mes informations | `GetAirtableUserIDCall` + `UpdateProfilinfoCall` | `GET` to prefill, `PUT` to save, server validation shown per field |
+| `form_devis_paiement_directe`, `pages_areviser/w_e_b_form_d_devis`, `pages_areviser/w_e_b_form_d_dpay_direct`, `pages_web/w_e_b_homepage_logedin` | Airtable price and payment calls | deleted, with their routes, exports and translations |
+
+New client files: `lib/backend/expedion_api/expedion_profile.dart` (model and
+`ProfileRepository`) and `lib/backend/pending_profile.dart`.
+
+### The endpoint
+
+`GET` / `PUT /api/expedion/me/profile`, Better Auth session only. `PUT` keys are
+all optional and an absent key is left unchanged; `address`, when sent, needs
+`line1`, `zip`, `city` and `country`; a phone is validated as French and stored
+E.164; `""` clears it. 400 `VALIDATION_ERROR` carries `details` per field. A
+Firebase-era session or the legacy key gets 403 `PROFILE_NEEDS_ACCOUNT`.
+
+### Decisions
+
+- **The pending profile is keyed on e-mail.** `PendingProfile.flush` runs on
+  every auth change (`main.dart`) and sends only when the session's e-mail
+  matches the one typed at sign-up, so a shared device cannot hand one
+  person's address to the next account. It expires after 7 days.
+- **A refused field does not cost the others.** On `VALIDATION_ERROR` the
+  flush drops the named fields and retries once; a network failure or 5xx
+  keeps everything for the next auth change.
+- **A blank country means France**, at sign-up and when the edit form has no
+  stored address.
+- **Profile edit will not save over a form it could not fill.** Save stays
+  disabled until `GET` answers, because saving blanks would clear the stored
+  phone. A Firebase-era session (403) saves to its Firestore document only, as
+  before.
+- **The delivery address has nowhere to go.** The profile has one address.
+  Sign-up's delivery fields were never sent anywhere; the edit form's are kept
+  in `FFAppState` for the session and in Firestore for a Firebase-era account.
+  Adding a delivery address to the endpoint, or removing those fields, is open.
+
+### Still unverified
+
+The endpoint is being built on the Expeditoo side and was not deployed when
+this was written, so **no request has been made against it**. The response
+shapes come from the agreed contract, not from an observed response. The flush
+logic is covered by `test/pending_profile_test.dart` against a fake server.

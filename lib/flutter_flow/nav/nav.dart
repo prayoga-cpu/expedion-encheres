@@ -120,11 +120,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => FormDemandeDevisWidget(),
         ),
         FFRoute(
-          name: FormDevisPaiementDirecteWidget.routeName,
-          path: FormDevisPaiementDirecteWidget.routePath,
-          builder: (context, params) => FormDevisPaiementDirecteWidget(),
-        ),
-        FFRoute(
           name: ParametreWidget.routeName,
           path: ParametreWidget.routePath,
           builder: (context, params) => ParametreWidget(),
@@ -155,11 +150,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
-          name: WEBFormDDpayDirectWidget.routeName,
-          path: WEBFormDDpayDirectWidget.routePath,
-          builder: (context, params) => WEBFormDDpayDirectWidget(),
-        ),
-        FFRoute(
           name: FormulaireDeDevisParBordereauWidget.routeName,
           path: FormulaireDeDevisParBordereauWidget.routePath,
           builder: (context, params) => FormulaireDeDevisParBordereauWidget(),
@@ -175,11 +165,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
-          name: WEBHomepageLogedinWidget.routeName,
-          path: WEBHomepageLogedinWidget.routePath,
-          builder: (context, params) => WEBHomepageLogedinWidget(),
-        ),
-        FFRoute(
           name: EspacePersonnelWidget.routeName,
           path: EspacePersonnelWidget.routePath,
           requireAuth: true,
@@ -189,11 +174,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: ChoixDevisWidget.routeName,
           path: ChoixDevisWidget.routePath,
           builder: (context, params) => ChoixDevisWidget(),
-        ),
-        FFRoute(
-          name: WEBFormDDevisWidget.routeName,
-          path: WEBFormDDevisWidget.routePath,
-          builder: (context, params) => WEBFormDDevisWidget(),
         ),
         FFRoute(
           name: FormulaireDemandeDeDevisRetraitAuxEncheresWidget.routeName,

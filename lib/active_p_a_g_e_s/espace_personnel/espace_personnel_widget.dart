@@ -2,7 +2,8 @@ import '/app_shell.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/expedion_api/expedion_api.dart';
 import '/backend/expedion_api/expedion_config.dart';
-import '/backend/api_requests/api_calls.dart';
+import '/backend/expedion_api/expedion_profile.dart';
+import '/design_system/ds_l10n.dart';
 import '/design_system/ds_palette.dart';
 import '/design_system/ds_site.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
@@ -31,10 +32,15 @@ class EspacePersonnelWidget extends StatefulWidget {
 class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
   late EspacePersonnelModel _model;
 
+  /// Fetched once per visit, not per build: the page rebuilds on every
+  /// FFAppState change, and a future created in `build` refetches each time.
+  late Future<ProfileResult> _profile;
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => EspacePersonnelModel());
+    _profile = ProfileRepository.load();
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -46,33 +52,50 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
     super.dispose();
   }
 
-  /// Joins the address lines the profile endpoint returned, skipping the ones
-  /// it left null or blank. Interpolating them straight into a string printed
-  /// "null, null, null" for a client who has not filled an address in yet.
-  String _formatAddress(dynamic jsonBody) {
-    final parts = [
-      GetUserCall.adresseL1client(jsonBody),
-      GetUserCall.codePostalClient(jsonBody),
-      GetUserCall.villeClient(jsonBody),
-    ].map((part) => part?.trim() ?? '').where((part) => part.isNotEmpty);
+  void _reload() => setState(() => _profile = ProfileRepository.load());
 
-    if (parts.isEmpty) {
-      return FFLocalizations.of(context).getVariableText(
-        frText: 'Aucune adresse renseignée',
-        enText: 'No address on file',
+  /// The profile's name, or the Firestore one a Firebase-era session still
+  /// has. Last name first, as this page has always shown it.
+  String _nameText(ProfileResult result) =>
+      result.profile?.displayName ??
+      '${valueOrDefault(currentUserDocument?.nom, '')} '
+          '${valueOrDefault(currentUserDocument?.prenom, '')}';
+
+  String _phoneText(ProfileResult result) {
+    final phone = result.profile?.phone;
+    return phone != null ? formatFrenchPhone(phone) : currentPhoneNumber;
+  }
+
+  /// Says which of three things is true: there is an address, there is none,
+  /// or it could not be read. The last must not look like the second.
+  String _addressText(ProfileResult result) {
+    if (result.succeeded) {
+      return result.profile!.address?.oneLine ??
+          xpdT(context, 'Aucune adresse renseignée', 'No address on file');
+    }
+    if (result.needsAccount) {
+      return xpdT(
+        context,
+        'Non disponible pour ce compte',
+        'Not available for this account',
       );
     }
-    return parts.join(', ');
+    return xpdT(
+      context,
+      "Impossible de charger l'adresse",
+      'Could not load the address',
+    );
   }
+
+  bool _canRetry(ProfileResult result) =>
+      !result.succeeded && !result.needsAccount;
 
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    return FutureBuilder<ApiCallResponse>(
-      future: GetUserCall.call(
-        userID: currentUserUid,
-      ),
+    return FutureBuilder<ProfileResult>(
+      future: _profile,
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
@@ -91,7 +114,7 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
             ),
           );
         }
-        final espacePersonnelGetUserResponse = snapshot.data!;
+        final profileResult = snapshot.data!;
 
         return GestureDetector(
           onTap: () {
@@ -159,7 +182,7 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                 ),
                                 AuthUserStreamWidget(
                                   builder: (context) => Text(
-                                    '${valueOrDefault(currentUserDocument?.nom, '')} ${valueOrDefault(currentUserDocument?.prenom, '')}',
+                                    _nameText(profileResult),
                                     style: FlutterFlowTheme.of(context)
                                         .headlineMedium
                                         .override(
@@ -454,7 +477,7 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                             ),
                                             AuthUserStreamWidget(
                                               builder: (context) => Text(
-                                                '${valueOrDefault(currentUserDocument?.nom, '')} ${valueOrDefault(currentUserDocument?.prenom, '')}',
+                                                _nameText(profileResult),
                                                 style:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
@@ -622,7 +645,7 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                             ),
                                             AuthUserStreamWidget(
                                               builder: (context) => Text(
-                                                currentPhoneNumber,
+                                                _phoneText(profileResult),
                                                 style:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
@@ -795,10 +818,7 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                               width: 300.0,
                                               decoration: BoxDecoration(),
                                               child: Text(
-                                                _formatAddress(
-                                                  espacePersonnelGetUserResponse
-                                                      .jsonBody,
-                                                ),
+                                                _addressText(profileResult),
                                                 style:
                                                     FlutterFlowTheme.of(context)
                                                         .bodyLarge
@@ -831,6 +851,14 @@ class _EspacePersonnelWidgetState extends State<EspacePersonnelWidget> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
+                                            if (_canRetry(profileResult))
+                                              TextButton(
+                                                onPressed: _reload,
+                                                child: Text(
+                                                  xpdT(context, 'Réessayer',
+                                                      'Retry'),
+                                                ),
+                                              ),
                                           ].divide(SizedBox(height: 4.0)),
                                         ),
                                       ],

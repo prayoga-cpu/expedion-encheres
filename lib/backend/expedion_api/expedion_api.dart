@@ -342,6 +342,31 @@ class ExpedionApi {
       );
 
   // ========================================
+  // Profile
+  // ========================================
+
+  /// The signed-in client's name, phone and postal address.
+  ///
+  /// Needs a Better Auth session. A Firebase-era session or the legacy key gets
+  /// 403 `PROFILE_NEEDS_ACCOUNT`: there is no Expeditoo account to read.
+  static Future<ExpedionApiResult> getProfile() => _send(
+        () => http.get(_uri('/api/expedion/me/profile'), headers: _headers),
+      );
+
+  /// Saves the keys present in [payload] and leaves the others as they are.
+  /// Answers with the saved profile, in the same shape as [getProfile].
+  static Future<ExpedionApiResult> updateProfile(
+    Map<String, dynamic> payload,
+  ) =>
+      _send(
+        () => http.put(
+          _uri('/api/expedion/me/profile'),
+          headers: _headers,
+          body: jsonEncode(payload),
+        ),
+      );
+
+  // ========================================
   // Transport
   // ========================================
 
@@ -383,10 +408,12 @@ class ExpedionApi {
         }
 
         final error = decoded['error'] as Map<String, dynamic>?;
+        final details = error?['details'];
         return ExpedionApiResult.failure(
           statusCode: response.statusCode,
           code: error?['code']?.toString() ?? 'HTTP_${response.statusCode}',
           message: error?['message']?.toString() ?? 'Une erreur est survenue.',
+          details: details is Map<String, dynamic> ? details : null,
         );
       } catch (e) {
         // `http`'s `ClientException` covers every connection-level failure on
@@ -421,6 +448,7 @@ class ExpedionApiResult {
     this.meta,
     this.code,
     this.message,
+    this.details,
     this.cause,
   });
 
@@ -428,6 +456,7 @@ class ExpedionApiResult {
     required String code,
     required String message,
     int statusCode = 0,
+    Map<String, dynamic>? details,
     Object? cause,
   }) =>
       ExpedionApiResult(
@@ -435,6 +464,7 @@ class ExpedionApiResult {
         statusCode: statusCode,
         code: code,
         message: message,
+        details: details,
         cause: cause,
       );
 
@@ -447,6 +477,10 @@ class ExpedionApiResult {
   final Map<String, dynamic>? meta;
   final String? code;
   final String? message;
+
+  /// `error.details` from a refusal, keyed by field — what a
+  /// `VALIDATION_ERROR` says was wrong with each one.
+  final Map<String, dynamic>? details;
   final Object? cause;
 
   List<dynamic> get list => data is List ? data as List<dynamic> : const [];

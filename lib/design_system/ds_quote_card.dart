@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'ds_l10n.dart';
 
 import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
 import 'ds_badge.dart';
 import 'ds_card.dart';
 import 'ds_tokens.dart';
 
 /// Where a devis sits in its lifecycle.
 ///
-/// Derived from the Airtable columns the quote list already reads, so the same
-/// derivation serves the list, the tracking screen and the storage countdown
-/// without each re-inventing the rules.
+/// Derived once from the quote's status fields, so the same derivation serves
+/// the list, the tracking screen and the storage countdown without each
+/// re-inventing the rules.
 enum DevisStage {
   /// Submitted, no price yet.
   enAttente,
@@ -99,8 +98,8 @@ extension DevisStageDisplay on DevisStage {
   }
 }
 
-/// Reads an Airtable quote record into the fields the card and the tracking
-/// screen need.
+/// Reads an Expedion quote into the fields the card and the tracking screen
+/// need.
 class DevisSummary {
   const DevisSummary({
     required this.stage,
@@ -203,53 +202,6 @@ class DevisSummary {
       dateDeVente: day('saleDate'),
       dateDemande: day('requestedAt'),
       escalated: quote['listingId'] != null,
-    );
-  }
-
-  /// Builds a summary from a raw Airtable record (`{"fields": {...}}`).
-  factory DevisSummary.fromAirtable(dynamic record) {
-    String? field(String name) {
-      final value = getJsonField(record, r'''$.fields["''' + name + r'''"]''');
-      if (value == null) return null;
-      final text = value.toString().trim();
-      return text.isEmpty || text == 'null' ? null : text;
-    }
-
-    bool truthy(String name) {
-      final value = field(name);
-      if (value == null) return false;
-      final lower = value.toLowerCase();
-      return lower != 'false' && lower != '0' && lower != 'non';
-    }
-
-    final escalated = truthy('Escalade Expeditoo');
-
-    DevisStage resolveStage() {
-      if (truthy('livraison fait')) return DevisStage.livre;
-      if (truthy('Retrait fait')) return DevisStage.retraitFait;
-      if (truthy('PAIEMENT RECU') ||
-          (field('STATUT DU PAIEMENT')?.toLowerCase().contains('reçu') ??
-              false)) {
-        return DevisStage.paye;
-      }
-      if (truthy('VALIDER DEVIS')) return DevisStage.valide;
-      if (escalated) return DevisStage.escalade;
-      if (truthy('Devis disponible')) return DevisStage.devisDisponible;
-      return DevisStage.enAttente;
-    }
-
-    return DevisSummary(
-      stage: resolveStage(),
-      numeroDevis: field('Numéro Devis'),
-      numeroBordereau: field('N°Bordereau'),
-      villeRetrait: field('Ville de retrait'),
-      villeLivraison: field('Ville de livraison'),
-      maisonDeVentes: field('Nom de la maison de ventes'),
-      description: field("DESCRIPTION de l'objet"),
-      tarif: field('Tarif Devis correspondant'),
-      dateDeVente: field('Date de vente'),
-      dateDemande: field('Date demande devis'),
-      escalated: escalated,
     );
   }
 }

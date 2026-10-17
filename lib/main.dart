@@ -11,6 +11,7 @@ import 'auth/firebase_auth/auth_util.dart';
 
 import 'backend/expedion_api/expedion_api.dart';
 import 'backend/quote_draft.dart';
+import 'backend/pending_profile.dart';
 import 'backend/firebase/firebase_config.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
@@ -125,6 +126,9 @@ class _MyAppState extends State<MyApp> {
         // with the session — re-ask on every auth transition rather than once
         // at start-up, when nobody is signed in yet.
         ExpedionAdminAccess.refresh();
+        // Sign-up's address and phone wait for the first session that can
+        // carry them; see PendingProfile.
+        PendingProfile.flush();
       });
     // Confirm the restored Expeditoo token with the server. If it was revoked
     // or has expired, this signs the session out; a network failure leaves the

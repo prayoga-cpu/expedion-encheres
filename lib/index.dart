@@ -3,8 +3,6 @@ export '/active_p_a_g_e_s/mes_devis/mes_devis_widget.dart' show MesDevisWidget;
 export '/active_p_a_g_e_s/paiement/paiement_widget.dart' show PaiementWidget;
 export '/pages/form_demande_devis/form_demande_devis_widget.dart'
     show FormDemandeDevisWidget;
-export '/form_devis_paiement_directe/form_devis_paiement_directe_widget.dart'
-    show FormDevisPaiementDirecteWidget;
 export '/pages_areviser/parametre/parametre_widget.dart' show ParametreWidget;
 export '/pages/mes_paiements/mes_paiements_widget.dart' show MesPaiementsWidget;
 export '/active_p_a_g_e_s/s_inscrire/s_inscrire_widget.dart'
@@ -12,19 +10,13 @@ export '/active_p_a_g_e_s/s_inscrire/s_inscrire_widget.dart'
 export '/active_p_a_g_e_s/se_connecter/se_connecter_widget.dart'
     show SeConnecterWidget;
 export '/active_p_a_g_e_s/accueil/accueil_widget.dart' show AccueilWidget;
-export '/pages_areviser/w_e_b_form_d_dpay_direct/w_e_b_form_d_dpay_direct_widget.dart'
-    show WEBFormDDpayDirectWidget;
 export '/active_p_a_g_e_s/formulaire_de_devis_par_bordereau/formulaire_de_devis_par_bordereau_widget.dart'
     show FormulaireDeDevisParBordereauWidget;
 export '/active_p_a_g_e_s/contact/contact_widget.dart' show ContactWidget;
-export '/pages_web/w_e_b_homepage_logedin/w_e_b_homepage_logedin_widget.dart'
-    show WEBHomepageLogedinWidget;
 export '/active_p_a_g_e_s/espace_personnel/espace_personnel_widget.dart'
     show EspacePersonnelWidget;
 export '/active_p_a_g_e_s/choix_devis/choix_devis_widget.dart'
     show ChoixDevisWidget;
-export '/pages_areviser/w_e_b_form_d_devis/w_e_b_form_d_devis_widget.dart'
-    show WEBFormDDevisWidget;
 export '/active_p_a_g_e_s/formulaire_demande_de_devis_retrait_aux_encheres/formulaire_demande_de_devis_retrait_aux_encheres_widget.dart'
     show FormulaireDemandeDeDevisRetraitAuxEncheresWidget;
 export '/active_p_a_g_e_s/page_modif_info_perso/page_modif_info_perso_widget.dart'

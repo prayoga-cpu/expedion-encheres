@@ -231,14 +231,18 @@ class ExpedionAuthManager extends AuthManager
   Future<BaseAuthUser?> createAccountWithEmail(
     BuildContext context,
     String email,
-    String password,
-  ) async {
+    String password, {
+    String? firstName,
+    String? lastName,
+  }) async {
     lastExpeditooResult = null;
 
     final result = await ExpeditooAuthClient.signUpWithEmail(
       email: email,
       password: password,
       name: email.split('@').first,
+      firstName: firstName,
+      lastName: lastName,
     );
     lastExpeditooResult = result;
 

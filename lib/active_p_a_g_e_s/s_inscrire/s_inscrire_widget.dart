@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/api_requests/api_calls.dart';
-import '/backend/backend.dart';
+import '/backend/expedion_api/expedion_profile.dart';
+import '/backend/pending_profile.dart';
 import '/design_system/ds_google_glyph.dart';
 import '/design_system/ds_logo.dart';
 import '/design_system/ds_palette.dart';
@@ -29,10 +29,12 @@ export 's_inscrire_model.dart';
 /// Accounts are created in Expeditoo's Better Auth, which is configured with
 /// `requireEmailVerification: true` and `autoSignIn: false`. A successful
 /// sign-up therefore does *not* sign anyone in: the page switches to a
-/// "check your inbox" state instead of navigating into the app. The Firebase
-/// path, still used when Expeditoo is unconfigured, does sign in immediately,
-/// and only then are the Airtable and Firestore side effects meaningful — so
-/// they are guarded on actually having a session.
+/// "check your inbox" state instead of navigating into the app.
+///
+/// The first and last name go to Better Auth with the sign-up itself. The
+/// billing address and phone go to the Expeditoo profile, which needs a
+/// session, so they are parked in [PendingProfile] until the visitor first
+/// signs in. Google sign-up has a session straight away and sends them at once.
 class SInscrireWidget extends StatefulWidget {
   const SInscrireWidget({super.key});
 
@@ -115,14 +117,14 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
 
   /// Finishes a Google sign-up.
   ///
-  /// The customer record is created here as well as on the email path. It was
-  /// created on neither before, and once Google becomes the primary way to sign
-  /// up on web that would have left the whole cohort without one.
+  /// Whatever profile fields the visitor filled in are saved. They may be
+  /// empty — Google needs none of them — in which case nothing is sent. The
+  /// names are included here, unlike on the e-mail path, because Better Auth
+  /// took them from Google and what was typed on this form should win.
   ///
-  /// Whatever address fields the visitor filled in are used. They may be empty
-  /// — Google needs none of them — and an incomplete customer record is still
-  /// better than no record at all, since the quote flow collects the address
-  /// again anyway and has somewhere to put it.
+  /// The save is not awaited: a slow or failed profile write must not hold up
+  /// the sign-up, and [PendingProfile] keeps the details for a retry.
+  ///
   /// A null [user] means the Google exchange was refused, not that nothing
   /// happened — report it rather than leaving the button looking inert.
   Future<void> _onGoogleSignUp(BaseAuthUser? user) async {
@@ -132,10 +134,8 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       setState(() => _error = _explain());
       return;
     }
-    await _createAirtableCustomer(
-      uid: user.uid ?? '',
-      email: user.email ?? '',
-    );
+    await _keepProfile(email: user.email ?? '', includeNames: true);
+    unawaited(PendingProfile.flush());
     if (!mounted) return;
     context.goNamedAuth(_destination, context.mounted);
   }
@@ -211,6 +211,8 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       context,
       email,
       _model.motDePasseTextController.text,
+      firstName: namePartOrNull(_model.prenomTextController.text),
+      lastName: namePartOrNull(_model.nomTextController.text),
     );
 
     if (!mounted) return;
@@ -220,13 +222,9 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       // Better Auth created the account but withheld the session pending
       // verification — that is a success, not a failure.
       if (result != null && result.succeeded) {
-        // The customer record is created here, before anyone is signed in,
-        // because this is the only moment the form's answers exist. Waiting
-        // until after verification would mean asking for the address again.
-        await _createAirtableCustomer(
-          uid: result.user?.id ?? '',
-          email: result.user?.email ?? email,
-        );
+        // Kept now, because this is the only moment the form's answers exist,
+        // and sent at the first sign-in after the visitor verifies.
+        await _keepProfile(email: result.user?.email ?? email);
         if (!mounted) return;
         setState(() {
           _busy = false;
@@ -241,10 +239,10 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
       return;
     }
 
-    // Reached when the account system signed the visitor in on creation, which
-    // today means the Firebase path. Both records are keyed on that session.
-    await _createAirtableCustomer(uid: currentUserUid, email: currentUserEmail);
-    await _syncFirestoreProfile();
+    // Reached only if the account system signed the visitor in on creation,
+    // which Expeditoo does not do today. There is a session, so send now.
+    await _keepProfile(email: currentUserEmail);
+    unawaited(PendingProfile.flush());
 
     if (!mounted) return;
     setState(() => _busy = false);
@@ -261,64 +259,32 @@ class _SInscrireWidgetState extends State<SInscrireWidget> {
     }
   }
 
-  /// Creates the Airtable customer record for a brand-new account.
+  /// Parks the billing address and phone for the Expeditoo profile.
   ///
-  /// This used to be one method with the Firestore update below, guarded on
-  /// `currentUserReference` and reached only from the Firebase branch — so a
-  /// Better Auth sign-up, which is now every sign-up, got no customer record at
-  /// all. The personal space then had nothing to show, and the customer number
-  /// derived from the uid never existed.
-  ///
-  /// It is separate now because the two halves have genuinely different
-  /// conditions. Airtable is keyed on whatever id the account system issued and
-  /// needs no session, so it runs for every sign-up. Firestore needs a document
-  /// that only a Firebase account has.
-  ///
-  /// [uid] and [email] are passed in rather than read from `currentUserUid`,
-  /// because on the Better Auth path there is deliberately no session yet:
-  /// sign-up runs under `requireEmailVerification`, so the account exists while
-  /// nobody is signed in.
-  Future<void> _createAirtableCustomer({
-    required String uid,
+  /// Blank fields are left out rather than sent empty, and an address is only
+  /// kept when the street, postcode and city are all there, since the server
+  /// refuses a partial one. The delivery address has no place on the profile.
+  Future<void> _keepProfile({
     required String email,
-  }) async {
-    if (uid.isEmpty) return;
-    await NewclientSignUpDMCall.call(
-      nom: _model.nomTextController.text,
-      prenom: _model.prenomTextController.text,
-      eMail: email,
-      authUserUid: uid,
-      adresseClientL1: _model.textController4.text,
-      adresseClientL2: _model.textController5.text,
-      codePostalClient: _model.textController6.text,
-      villeClient: _model.textController7.text,
-      telephoneClient: _model.textController9.text,
-      paysClient: _model.textController8.text,
-    );
-  }
-
-  /// Mirrors the new account into the Firestore user document.
-  ///
-  /// Only a Firebase-era session has one of these, and `currentUserReference`
-  /// now says so — it returns null for a Better Auth session rather than a
-  /// reference to a document that has never existed. This guard is therefore
-  /// finally the check the original comment claimed it was.
-  Future<void> _syncFirestoreProfile() async {
-    final reference = currentUserReference;
-    if (reference == null) return;
-
-    _model.airtableUserID = await GetAirtableUserIDCall.call(
-      uid: currentUserUid,
-    );
-
-    await reference.update(createUsersRecordData(
-      nom: _model.nomTextController.text,
-      prenom: _model.prenomTextController.text,
-      email: currentUserEmail,
-      airtableUserID: GetAirtableUserIDCall.airtableUserID(
-        (_model.airtableUserID?.jsonBody ?? ''),
+    bool includeNames = false,
+  }) {
+    final phone = _model.textController9!.text.trim();
+    final update = ExpedionProfileUpdate(
+      firstName: includeNames
+          ? namePartOrNull(_model.prenomTextController!.text)
+          : null,
+      lastName:
+          includeNames ? namePartOrNull(_model.nomTextController!.text) : null,
+      phone: phone.isEmpty ? null : phone,
+      address: ExpedionAddress.fromForm(
+        line1: _model.textController4!.text,
+        line2: _model.textController5!.text,
+        zip: _model.textController6!.text,
+        city: _model.textController7!.text,
+        country: _model.textController8!.text,
       ),
-    ));
+    );
+    return PendingProfile.stage(email: email, update: update);
   }
 
   Future<void> _signUpWithGoogle() async {

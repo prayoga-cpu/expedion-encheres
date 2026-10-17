@@ -1,7 +1,8 @@
 import '/app_shell.dart';
 import '/auth/firebase_auth/auth_util.dart';
-import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
+import '/backend/expedion_api/expedion_profile.dart';
+import '/design_system/ds_l10n.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -15,9 +16,16 @@ import 'package:provider/provider.dart';
 import 'page_modif_info_perso_model.dart';
 export 'page_modif_info_perso_model.dart';
 
-/// Create a form with nom, prénom, adresse du client L1, adresse du client
-/// L2,Code postal du client, ville du client , adresse de livraison
-/// L1,Adresse de livraison L2, Code postal, ville
+/// Edits the client's name, phone and billing address on their Expeditoo
+/// profile (`/api/expedion/me/profile`).
+///
+/// Save stays disabled until the profile has loaded: saving over a form that
+/// failed to fill would clear the stored phone. A Firebase-era session has no
+/// Expeditoo account (`PROFILE_NEEDS_ACCOUNT`) and saves to its Firestore
+/// document only, as before.
+///
+/// The delivery address has no field on the profile. It is kept in
+/// FFAppState for this session, and in Firestore for a Firebase-era account.
 class PageModifInfoPersoWidget extends StatefulWidget {
   const PageModifInfoPersoWidget({super.key});
 
@@ -33,6 +41,17 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
   late PageModifInfoPersoModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// What `getProfile` answered; null while it is in flight.
+  ProfileResult? _loaded;
+  bool _saving = false;
+
+  /// Why the last save did not go through.
+  String? _saveError;
+
+  /// The text each profile field started with, so the loaded profile does not
+  /// overwrite anything typed while it was on its way.
+  final Map<TextEditingController, String> _initialText = {};
 
   @override
   void initState() {
@@ -95,6 +114,11 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
         TextEditingController(text: FFAppState().telephoneLivraison);
     _model.telLivraisionFocusNode ??= FocusNode();
 
+    for (final controller in _profileFields) {
+      if (controller != null) _initialText[controller] = controller.text;
+    }
+    _load();
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -103,6 +127,281 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
     _model.dispose();
 
     super.dispose();
+  }
+
+  List<TextEditingController?> get _profileFields => [
+        _model.nomTextController,
+        _model.prenomTextController,
+        _model.telephoneTextController,
+        _model.aDclientL1TextController,
+        _model.aDclientL2TextController,
+        _model.codePostalClientTextController,
+        _model.villeClientTextController,
+        _model.paysClientTextController,
+      ];
+
+  Future<void> _load() async {
+    final result = await ProfileRepository.load();
+    if (!mounted) return;
+    if (result.succeeded) _prefill(result.profile!);
+    setState(() => _loaded = result);
+  }
+
+  void _retryLoad() {
+    setState(() => _loaded = null);
+    _load();
+  }
+
+  void _prefill(ExpedionProfile profile) {
+    void put(TextEditingController? controller, String? value) {
+      if (controller == null || value == null) return;
+      if (controller.text != (_initialText[controller] ?? '')) return;
+      controller.text = value;
+    }
+
+    final address = profile.address;
+    final phone = profile.phone;
+    put(_model.nomTextController, profile.lastName);
+    put(_model.prenomTextController, profile.firstName);
+    put(_model.telephoneTextController,
+        phone == null ? null : formatFrenchPhone(phone));
+    put(_model.aDclientL1TextController, address?.line1);
+    put(_model.aDclientL2TextController, address?.line2);
+    put(_model.codePostalClientTextController, address?.zip);
+    put(_model.villeClientTextController, address?.city);
+    put(_model.paysClientTextController, address?.country ?? kDefaultCountry);
+  }
+
+  bool get _canSave =>
+      !_saving &&
+      _loaded != null &&
+      (_loaded!.succeeded || _loaded!.needsAccount);
+
+  Future<void> _save() async {
+    final loaded = _loaded;
+    if (!_canSave || loaded == null) return;
+    setState(() {
+      _saving = true;
+      _saveError = null;
+    });
+
+    // Null for a Better Auth session, which has no Firestore document.
+    final legacy = currentUserReference;
+    var legacyFailed = false;
+    if (legacy != null) {
+      try {
+        await legacy.update(_firestoreData());
+      } catch (_) {
+        legacyFailed = true;
+      }
+      if (!mounted) return;
+    }
+    if (loaded.needsAccount) {
+      if (legacyFailed) {
+        _fail(xpdT(context, "L'enregistrement a échoué.", 'Could not save.'));
+      } else {
+        _done();
+      }
+      return;
+    }
+
+    final line1 = _model.aDclientL1TextController.text;
+    final line2 = _model.aDclientL2TextController.text;
+    final zip = _model.codePostalClientTextController.text;
+    final city = _model.villeClientTextController.text;
+    final address = ExpedionAddress.fromForm(
+      line1: line1,
+      line2: line2,
+      zip: zip,
+      city: city,
+      country: _model.paysClientTextController.text,
+    );
+    if (address == null &&
+        !ExpedionAddress.isBlankForm(
+            line1: line1, line2: line2, zip: zip, city: city)) {
+      _fail(xpdT(
+        context,
+        "Complétez l'adresse : rue, code postal et ville.",
+        'Complete the address: street, postcode and city.',
+      ));
+      return;
+    }
+
+    String? nonBlank(String text) => text.trim().isEmpty ? null : text.trim();
+    final result = await ProfileRepository.save(ExpedionProfileUpdate(
+      firstName: nonBlank(_model.prenomTextController.text),
+      lastName: nonBlank(_model.nomTextController.text),
+      // Sent even when empty: clearing the field clears the number.
+      phone: _model.telephoneTextController.text.trim(),
+      address: address,
+    ));
+    if (!mounted) return;
+    if (result.succeeded) {
+      _done();
+    } else {
+      _fail(_describe(result));
+    }
+  }
+
+  void _done() {
+    if (!mounted) return;
+    setState(() => _saving = false);
+    context.pushNamed(EspacePersonnelWidget.routeName);
+  }
+
+  void _fail(String message) {
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      _saveError = message;
+    });
+  }
+
+  /// The server's reasons, one line per field it refused.
+  String _describe(ProfileResult result) {
+    if (result.isValidationError && result.details.isNotEmpty) {
+      final labels = {
+        'firstName': xpdT(context, 'Prénom', 'First name'),
+        'lastName': xpdT(context, 'Nom', 'Last name'),
+        'phone': xpdT(context, 'Téléphone', 'Phone'),
+        'address': xpdT(context, 'Adresse', 'Address'),
+      };
+      return result.details.entries.map((entry) {
+        final label = labels[entry.key.split('.').first] ?? entry.key;
+        return entry.value.isEmpty ? label : '$label : ${entry.value}';
+      }).join('\n');
+    }
+    if (result.isValidationError && (result.message ?? '').isNotEmpty) {
+      return result.message!;
+    }
+    if (result.isUnauthenticated) {
+      return xpdT(
+        context,
+        'Votre session a expiré. Reconnectez-vous.',
+        'Your session has expired. Sign in again.',
+      );
+    }
+    return xpdApiErrorMessage(
+      context,
+      result.code,
+      fallbackFr: "L'enregistrement a échoué.",
+      fallbackEn: 'Could not save.',
+    );
+  }
+
+  Map<String, dynamic> _firestoreData() => createUsersRecordData(
+        nom: _model.nomTextController.text,
+        prenom: _model.prenomTextController.text,
+        adresseClientL1: _model.aDclientL1TextController.text,
+        adresseClientL2: _model.aDclientL2TextController.text,
+        codePostalClient: _model.codePostalClientTextController.text,
+        villeClient: _model.villeClientTextController.text,
+        adresseLivraisonL1: _model.aDliv1TextController.text,
+        adresseLivraisonL2: _model.aDliv2TextController.text,
+        codePotalLivraison: _model.codePostalLivTextController.text,
+        villeLivraison: _model.villeLivraisonTextController.text,
+        paysLivraison: _model.paysLivraisonTextController.text,
+        paysClient: _model.paysClientTextController.text,
+        telephoneClient: _model.telephoneTextController.text,
+      );
+
+  /// Load state or save error, then the button.
+  Widget _saveSection(BuildContext context) {
+    final theme = FlutterFlowTheme.of(context);
+    final loaded = _loaded;
+    final errorStyle = theme.bodyMedium.copyWith(color: theme.error);
+
+    Widget? status;
+    if (loaded == null) {
+      status = Row(
+        children: [
+          SizedBox(
+            width: 16.0,
+            height: 16.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.0,
+              valueColor: AlwaysStoppedAnimation<Color>(theme.primary),
+            ),
+          ),
+          const SizedBox(width: 10.0),
+          Text(
+            xpdT(
+              context,
+              'Chargement de votre profil…',
+              'Loading your profile…',
+            ),
+            style: theme.bodyMedium,
+          ),
+        ],
+      );
+    } else if (!loaded.succeeded && !loaded.needsAccount) {
+      status = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            loaded.isUnauthenticated
+                ? xpdT(
+                    context,
+                    'Votre session a expiré. Reconnectez-vous.',
+                    'Your session has expired. Sign in again.',
+                  )
+                : xpdT(
+                    context,
+                    "Votre profil n'a pas pu être chargé, donc rien ne peut "
+                        "encore être enregistré.",
+                    'Your profile could not be loaded, so nothing can be '
+                        'saved yet.',
+                  ),
+            style: errorStyle,
+          ),
+          if (!loaded.isUnauthenticated)
+            TextButton(
+              onPressed: _retryLoad,
+              child: Text(xpdT(context, 'Réessayer', 'Retry')),
+            ),
+        ],
+      );
+    } else if (_saveError != null) {
+      status = Text(_saveError!, style: errorStyle);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (status != null) ...[status, const SizedBox(height: 12.0)],
+        FFButtonWidget(
+          onPressed: _canSave ? _save : null,
+          text: _saving
+              ? xpdT(context, 'Enregistrement…', 'Saving…')
+              : FFLocalizations.of(context).getText(
+                  '5lbsjlle' /* Enregistrer */,
+                ),
+          options: FFButtonOptions(
+            width: double.infinity,
+            height: 50.0,
+            padding: EdgeInsets.all(8.0),
+            iconPadding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+            color: theme.primary,
+            textStyle: theme.titleMedium.override(
+              font: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w600,
+                fontStyle: theme.titleMedium.fontStyle,
+              ),
+              color: Colors.white,
+              letterSpacing: 0.0,
+              fontWeight: FontWeight.w600,
+              fontStyle: theme.titleMedium.fontStyle,
+            ),
+            elevation: 0.0,
+            borderSide: BorderSide(color: Colors.transparent),
+            borderRadius: BorderRadius.circular(8.0),
+            // Without these the disabled button still paints the live blue.
+            disabledColor: theme.alternate,
+            disabledTextColor: theme.secondaryText,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -2255,187 +2554,7 @@ class _PageModifInfoPersoWidgetState extends State<PageModifInfoPersoWidget> {
                                   ),
                                 ].divide(SizedBox(height: 20.0)),
                               ),
-                              StreamBuilder<List<UsersRecord>>(
-                                stream: queryUsersRecord(
-                                  queryBuilder: (usersRecord) =>
-                                      usersRecord.where(
-                                    'uid',
-                                    isEqualTo: currentUserUid,
-                                  ),
-                                  singleRecord: true,
-                                ),
-                                builder: (context, snapshot) {
-                                  // Customize what your widget looks like when it's loading.
-                                  if (!snapshot.hasData) {
-                                    return Center(
-                                      child: SizedBox(
-                                        width: 50.0,
-                                        height: 50.0,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  List<UsersRecord> buttonUsersRecordList =
-                                      snapshot.data ?? const [];
-                                  // A Better Auth account has no Firestore
-                                  // document — that collection is keyed by
-                                  // Firebase UID — so this list is empty for
-                                  // every account created since the migration.
-                                  //
-                                  // It used to return an empty Container here,
-                                  // and since the page's only Save button lives
-                                  // inside this builder, those users were shown
-                                  // a form they could fill in and never submit.
-                                  // The record is optional now: Firestore is
-                                  // updated when there is something to update,
-                                  // and the Airtable write below — which is the
-                                  // one the rest of the app actually reads —
-                                  // happens either way.
-                                  final buttonUsersRecord =
-                                      buttonUsersRecordList.isNotEmpty
-                                          ? buttonUsersRecordList.first
-                                          : null;
-
-                                  return FFButtonWidget(
-                                    onPressed: () async {
-                                      await buttonUsersRecord?.reference
-                                          .update(createUsersRecordData(
-                                        nom: _model.nomTextController.text,
-                                        prenom:
-                                            _model.prenomTextController.text,
-                                        adresseClientL1: _model
-                                            .aDclientL1TextController.text,
-                                        adresseClientL2: _model
-                                            .aDclientL2TextController.text,
-                                        codePostalClient: _model
-                                            .codePostalClientTextController
-                                            .text,
-                                        villeClient: _model
-                                            .villeClientTextController.text,
-                                        adresseLivraisonL1:
-                                            _model.aDliv1TextController.text,
-                                        adresseLivraisonL2:
-                                            _model.aDliv2TextController.text,
-                                        codePotalLivraison: _model
-                                            .codePostalLivTextController.text,
-                                        villeLivraison: _model
-                                            .villeLivraisonTextController.text,
-                                        paysLivraison: _model
-                                            .paysLivraisonTextController.text,
-                                        paysClient: _model
-                                            .paysClientTextController.text,
-                                        telephoneClient:
-                                            _model.telephoneTextController.text,
-                                      ));
-                                      // Airtable PATCHes by record id, so an
-                                      // empty one updates nothing and reports
-                                      // no error. That id used to be read from
-                                      // the Firestore profile, which a Better
-                                      // Auth account does not have — so it is
-                                      // looked up by uid whenever the document
-                                      // cannot supply it.
-                                      var airtableUserId = valueOrDefault(
-                                          currentUserDocument?.airtableUserID,
-                                          '');
-                                      if (airtableUserId.isEmpty) {
-                                        final lookup =
-                                            await GetAirtableUserIDCall.call(
-                                          uid: currentUserUid,
-                                        );
-                                        airtableUserId =
-                                            GetAirtableUserIDCall.airtableUserID(
-                                                  lookup.jsonBody ?? '',
-                                                )?.toString() ??
-                                                '';
-                                      }
-
-                                      _model.apiResultljs =
-                                          await UpdateProfilinfoCall.call(
-                                        prenom:
-                                            _model.prenomTextController.text,
-                                        uid: currentUserUid,
-                                        telephoneClient:
-                                            _model.telephoneTextController.text,
-                                        adresseClientL1: _model
-                                            .aDclientL1TextController.text,
-                                        adresseClientL2: _model
-                                            .aDclientL2TextController.text,
-                                        adresseLivraisonL1:
-                                            _model.aDliv1TextController.text,
-                                        adresseLivaisonL2:
-                                            _model.aDliv2TextController.text,
-                                        villeClient: _model
-                                            .villeClientTextController.text,
-                                        codePostalClient: _model
-                                            .codePostalClientTextController
-                                            .text,
-                                        codePostalLiv: _model
-                                            .codePostalLivTextController.text,
-                                        villeLivraison: _model
-                                            .villeLivraisonTextController.text,
-                                        telephoneLiv: _model
-                                            .telLivraisionTextController.text,
-                                        paysClient: _model
-                                            .paysClientTextController.text,
-                                        paysLivraison: _model
-                                            .paysLivraisonTextController.text,
-                                        airtableUserID: airtableUserId,
-                                        nom: _model.nomTextController.text,
-                                      );
-
-                                      if ((_model.apiResultljs?.succeeded ??
-                                          true)) {
-                                        context.pushNamed(
-                                            EspacePersonnelWidget.routeName);
-                                      }
-
-                                      safeSetState(() {});
-                                    },
-                                    text: FFLocalizations.of(context).getText(
-                                      '5lbsjlle' /* Enregistrer */,
-                                    ),
-                                    options: FFButtonOptions(
-                                      width: double.infinity,
-                                      height: 50.0,
-                                      padding: EdgeInsets.all(8.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .override(
-                                            font: GoogleFonts.plusJakartaSans(
-                                              fontWeight: FontWeight.w600,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: Colors.white,
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w600,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleMedium
-                                                    .fontStyle,
-                                          ),
-                                      elevation: 0.0,
-                                      borderSide: BorderSide(
-                                        color: Colors.transparent,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                  );
-                                },
-                              ),
+                              _saveSection(context),
                             ].divide(SizedBox(height: 20.0)),
                           ),
                         ),

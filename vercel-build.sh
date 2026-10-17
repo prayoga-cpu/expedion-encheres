@@ -22,7 +22,6 @@ flutter pub get
 #                               expeditoo-ship instance, ExpedionConfig._vercelDeployment,
 #                               so an unset value here is fine; a WRONG value here
 #                               silently overrides that default)
-#   AIRTABLE_PAT                Airtable Personal Access Token (quotes base)
 #   PAYMENT_SERVER_URL          optional override. Unset, a release web build
 #                               calls its own origin — the payment endpoints
 #                               deploy with this project as Vercel functions
@@ -48,6 +47,5 @@ flutter pub get
 # on, /success?recordId=<any id> settled that quote unverified.
 flutter build web --release \
   --dart-define=EXPEDION_API_BASE_URL="${EXPEDION_API_BASE_URL:-}" \
-  --dart-define=AIRTABLE_PAT="${AIRTABLE_PAT:-}" \
   --dart-define=PAYMENT_SERVER_URL="${PAYMENT_SERVER_URL:-}" \
   --dart-define=APP_PUBLIC_URL="${APP_PUBLIC_URL:-}"

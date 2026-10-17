@@ -29,9 +29,10 @@ import '/index.dart';
 /// carries are not asked for again — those fields were retyping.
 ///
 /// The client's own name *is* asked for, because the session does not carry
-/// one. Better Auth stores a single `name`, and for an e-mail signup
-/// `ExpedionAuthManager.createAccountWithEmail` sets it to
-/// `email.split('@').first` (`lib/auth/expeditoo/expedion_auth.dart`), so
+/// one. Better Auth's session has a single `name`, and for an e-mail signup
+/// that sent no first and last name — every account made before sign-up
+/// started passing them — `ExpedionAuthManager.createAccountWithEmail` set it
+/// to `email.split('@').first` (`lib/auth/expeditoo/expedion_auth.dart`), so
 /// prefilling from it would put an address handle in a name field. The devis
 /// and the invoice are made out to what is typed here.
 ///
