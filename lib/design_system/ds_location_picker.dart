@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:vector_map_tiles/vector_map_tiles.dart';
 
 import '/backend/geocoding/nominatim_geocoder.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import 'ds_address_autocomplete.dart';
+import 'ds_basemap.dart';
 import 'ds_l10n.dart';
 import 'ds_text_field.dart';
 import 'ds_tokens.dart';
@@ -43,23 +45,7 @@ import 'ds_tokens.dart';
 // Basemap
 // ============================================================================
 
-/// CARTO's monochrome raster basemaps, which are what
-/// `expeditoo-ship/public/map-styles/{light,dark}.json` describe in vector
-/// form — the same grey land / darker water look, on a keyless endpoint a
-/// Flutter raster [TileLayer] can read directly.
-///
-/// Attribution below the map is a condition of using them, exactly as on the
-/// Expeditoo side. To move to a keyed provider (MapTiler, Stadia) later, these
-/// two URLs and the attribution string are the whole change.
-const String _kTileUrlLight =
-    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-const String _kTileUrlDark =
-    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-const List<String> _kTileSubdomains = ['a', 'b', 'c', 'd'];
-const String _kAttribution = '© OpenStreetMap · © CARTO';
-
-/// Required by Nominatim's usage policy and good manners on the tile CDN.
-const String _kUserAgentPackage = 'com.expedion.encheres';
+// Expeditoo's own style over OpenFreeMap's vector tiles — see [DSBasemap].
 
 /// France, as `location-picker-field.tsx` bounds it.
 final LatLngBounds _kFranceBounds = LatLngBounds(
@@ -668,16 +654,31 @@ class DSLocationMap extends StatefulWidget {
 class _DSLocationMapState extends State<DSLocationMap> {
   final MapController _controller = MapController();
 
-  /// Built once, and disposed by [TileLayer] rather than here.
+  /// The basemap for [_basemapDark], once read; null while it loads, and for
+  /// good if it cannot be (offline, tile host down) — the map then shows its
+  /// background, and the pin, the address lines and the zoom still work.
   ///
-  /// `TileLayer` disposes the provider it is handed in its own `dispose`
-  /// (`tile_layer.dart`) and nowhere else — not when the instance changes. So
-  /// constructing one inside `build` would abandon a `RetryClient`, and its
-  /// in-flight tile requests, on every rebuild, and this map rebuilds on every
-  /// keystroke in the address field above it. Holding one for the widget's
-  /// life is the fix; disposing it here as well would be a second call on an
-  /// object the layer already closed.
-  final TileProvider _tileProvider = NetworkTileProvider();
+  /// The same instances are handed to the layer on every build: this map
+  /// rebuilds on every keystroke in the address field above it, and a new
+  /// theme each time would make the layer drop its tiles and draw them again.
+  DSBasemap? _basemap;
+  bool? _basemapDark;
+
+  void _ensureBasemap(bool dark) {
+    if (_basemapDark == dark) return;
+    _basemapDark = dark;
+    _basemap = null;
+    DSBasemap.load(dark: dark).then(
+      (basemap) {
+        if (mounted && _basemapDark == dark) {
+          setState(() => _basemap = basemap);
+        }
+      },
+      onError: (Object error) {
+        debugPrint('DSLocationMap: basemap unavailable: $error');
+      },
+    );
+  }
 
   /// Where the pin is while a drag is in progress, before it is reported.
   LatLng? _dragPoint;
@@ -763,14 +764,21 @@ class _DSLocationMapState extends State<DSLocationMap> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    _ensureBasemap(Theme.of(context).brightness == Brightness.dark);
+    final basemap = _basemap;
     final height = widget.height ??
         (MediaQuery.sizeOf(context).width < 600.0 ? 200.0 : 260.0);
     final point = _shownPoint;
+    final hint = _hint(theme, point);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(DSShape.control),
       child: Container(
+        // Full width, always. The picker's Column aligns to the start, so the
+        // width here is only a maximum, and a Stack sizes itself to its
+        // non-positioned children: an empty one collapsed the map to a 1px
+        // line the moment an address was picked.
+        width: double.infinity,
         height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(DSShape.control),
@@ -806,13 +814,11 @@ class _DSLocationMapState extends State<DSLocationMap> {
                   onTap: (_, tapped) => _emit(tapped),
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate: isDark ? _kTileUrlDark : _kTileUrlLight,
-                    subdomains: _kTileSubdomains,
-                    retinaMode: RetinaMode.isHighDensity(context),
-                    userAgentPackageName: _kUserAgentPackage,
-                    tileProvider: _tileProvider,
-                  ),
+                  if (basemap != null)
+                    VectorTileLayer(
+                      tileProviders: basemap.providers,
+                      theme: basemap.theme,
+                    ),
                   if (point != null)
                     MarkerLayer(
                       markers: [
@@ -831,7 +837,7 @@ class _DSLocationMapState extends State<DSLocationMap> {
             ),
             _attribution(theme),
             _zoomControls(theme),
-            _hint(theme, point),
+            if (hint != null) hint,
           ],
         ),
       ),
@@ -926,7 +932,7 @@ class _DSLocationMapState extends State<DSLocationMap> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
             child: Text(
-              _kAttribution,
+              DSBasemap.attribution,
               style: theme.labelSmall.override(
                 color: theme.secondaryText,
                 fontSize: 9.0,
@@ -937,7 +943,8 @@ class _DSLocationMapState extends State<DSLocationMap> {
       );
 
   /// The one-line prompt over the map: what to do, or what is happening.
-  Widget _hint(FlutterFlowTheme theme, LatLng? point) {
+  /// The chip over the map, or null when there is nothing to say.
+  Widget? _hint(FlutterFlowTheme theme, LatLng? point) {
     final String? message = widget.busy
         ? xpdT(context, "Recherche de l'adresse…", 'Looking up the address…')
         : point == null
@@ -947,7 +954,7 @@ class _DSLocationMapState extends State<DSLocationMap> {
                 'Tap the map to drop the pin',
               )
             : null;
-    if (message == null) return const SizedBox.shrink();
+    if (message == null) return null;
 
     return Positioned(
       top: 8.0,
