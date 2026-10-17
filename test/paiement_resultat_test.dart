@@ -4,12 +4,33 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:expedion_encheres/active_p_a_g_e_s/paiement_resultat/paiement_success_widget.dart';
 import 'package:expedion_encheres/active_p_a_g_e_s/paiement_resultat/paiement_cancel_widget.dart';
+import 'package:expedion_encheres/flutter_flow/internationalization.dart';
+
+// The pages pick their copy through xpdT, which reads FFLocalizations, so the
+// app under test needs the same delegates main.dart installs. French is the
+// app's default language and the one these assertions are written in.
+const _locale = Locale('fr');
+const _supportedLocales = [Locale('fr'), Locale('en')];
+const _delegates = <LocalizationsDelegate<dynamic>>[
+  FFLocalizationsDelegate(),
+  GlobalMaterialLocalizations.delegate,
+  GlobalWidgetsLocalizations.delegate,
+  GlobalCupertinoLocalizations.delegate,
+];
+
+Widget _app(Widget home) => MaterialApp(
+      locale: _locale,
+      supportedLocales: _supportedLocales,
+      localizationsDelegates: _delegates,
+      home: home,
+    );
 
 void main() {
   setUpAll(() {
@@ -19,8 +40,8 @@ void main() {
 
   testWidgets('success page shows confirmation and the session reference',
       (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: PaiementSuccessWidget(sessionId: 'cs_test_123'),
+    await tester.pumpWidget(_app(
+      const PaiementSuccessWidget(sessionId: 'cs_test_123'),
     ));
 
     expect(find.text('Paiement réussi'), findsOneWidget);
@@ -31,8 +52,8 @@ void main() {
 
   testWidgets('success page hides the reference when no session id is given',
       (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: PaiementSuccessWidget(),
+    await tester.pumpWidget(_app(
+      const PaiementSuccessWidget(),
     ));
 
     expect(find.text('Paiement réussi'), findsOneWidget);
@@ -42,8 +63,8 @@ void main() {
   testWidgets('with no recordId, the page does NOT attempt to mark paid',
       (tester) async {
     var called = false;
-    await tester.pumpWidget(MaterialApp(
-      home: PaiementSuccessWidget(
+    await tester.pumpWidget(_app(
+      PaiementSuccessWidget(
         sessionId: 'cs_test_1',
         markQuotePaid: (_) async {
           called = true;
@@ -61,8 +82,8 @@ void main() {
       (tester) async {
     final completer = Completer<bool>();
     String? markedId;
-    await tester.pumpWidget(MaterialApp(
-      home: PaiementSuccessWidget(
+    await tester.pumpWidget(_app(
+      PaiementSuccessWidget(
         recordId: 'recABC123',
         markQuotePaid: (id) {
           markedId = id;
@@ -84,8 +105,8 @@ void main() {
 
   testWidgets('an unconfirmed payment says so rather than claiming success',
       (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: PaiementSuccessWidget(
+    await tester.pumpWidget(_app(
+      PaiementSuccessWidget(
         recordId: 'recABC123',
         markQuotePaid: (_) async => false,
       ),
@@ -102,8 +123,8 @@ void main() {
   });
 
   testWidgets('cancel page shows the cancellation message', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: PaiementCancelWidget(),
+    await tester.pumpWidget(_app(
+      const PaiementCancelWidget(),
     ));
 
     expect(find.text('Paiement annulé'), findsOneWidget);
@@ -138,7 +159,12 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+    await tester.pumpWidget(MaterialApp.router(
+      locale: _locale,
+      supportedLocales: _supportedLocales,
+      localizationsDelegates: _delegates,
+      routerConfig: router,
+    ));
     await tester.pumpAndSettle();
 
     expect(find.text('Paiement réussi'), findsOneWidget);

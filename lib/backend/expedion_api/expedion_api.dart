@@ -185,7 +185,6 @@ class ExpedionApi {
         ),
       );
 
-  /// The shared status feed behind the tracking screen.
   /// The pickup and delivery photos the transporter took, grouped by stage.
   ///
   /// `data` is a map of two lists — `pickup` and `delivery` — each entry
@@ -221,6 +220,7 @@ class ExpedionApi {
     return headers;
   }
 
+  /// The shared status feed behind the tracking screen.
   static Future<ExpedionApiResult> listEvents(String id) => _send(
         () => http.get(
           _uri('/api/expedion/quotes/$id/events'),

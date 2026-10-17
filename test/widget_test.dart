@@ -7,16 +7,29 @@
 // for the payment-flow coverage.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:expedion_encheres/active_p_a_g_e_s/paiement_resultat/paiement_success_widget.dart';
+import 'package:expedion_encheres/flutter_flow/internationalization.dart';
 
 void main() {
   testWidgets('Payment success page renders', (WidgetTester tester) async {
     GoogleFonts.config.allowRuntimeFetching = false;
 
-    await tester.pumpWidget(const MaterialApp(home: PaiementSuccessWidget()));
+    // The page's copy comes through FFLocalizations, as in main.dart.
+    await tester.pumpWidget(const MaterialApp(
+      locale: Locale('fr'),
+      supportedLocales: [Locale('fr'), Locale('en')],
+      localizationsDelegates: [
+        FFLocalizationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: PaiementSuccessWidget(),
+    ));
 
     expect(find.text('Paiement réussi'), findsOneWidget);
   });
